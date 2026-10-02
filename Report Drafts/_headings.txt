@@ -1,0 +1,76 @@
+Paragraphs: 591, Tables: 30
+
+=== CHAPTER-LEVEL HEADINGS ===
+  [Heading 2] 
+  [Heading 2]                                               	 				
+  [Heading 2]  
+  [Heading 1] DECLARATION
+  [Heading 1] ACKNOWLEDGEMENT
+  [Heading 1] 
+  [Heading 1] 
+  [Heading 1] ABSTRACT
+  [Heading 1] ABSTRAK
+  [Heading 1]  
+  [Heading 1] RANGKA KERJA MULTIMOD UNTUK MENGUANTIFIKASI KEBOLEHPERCAYAAN PERAWI DALAM ILMU RIJAL MENGGUNAKAN ANA
+  [Heading 1] TABLE OF CONTENTS
+  [Heading 1] LIST OF TABLES
+  [Heading 1] LIST OF FIGURES
+  [Heading 1] CHAPTER 1
+  [Heading 1] 
+  [Heading 1] INTRODUCTION
+  [Heading 2] 1.1 Overview
+  [Heading 2] 1.2 Problem Background
+  [Heading 2] 
+  [Heading 2] 1.3 Problem Statements
+  [Heading 2] 1.4 Project Objectives
+  [Heading 2] 1.5 Project Scope
+  [Heading 2] 
+  [Heading 1] CHAPTER 2
+  [Heading 1] 
+  [Heading 1] 
+  [Heading 1] LITERATURE REVIEW
+  [Heading 2] 2.1 Hadith and its Structure
+  [Heading 2] 2.2 Impact of Hadith Grading
+  [Heading 2] 2.3 Hadith Authentication Process
+  [Heading 2] 2.4 ʿIlm ar-Rijal: An Expansive Biographical Study
+  [Heading 2] 2.5 Advancements in Arabic Named Entity Recognition (NER)
+  [Heading 2] 2.6 Knowledge Graphs (KG) for Entity Disambiguation
+  [Heading 2] 2.7 Advancements in Graph Neural Networks (GNN) for Isnād Analysis
+  [Heading 2] 2.8 Advancements in Semantic Sentiment Quantisation
+  [Heading 2] 2.9 The Research Gap: Automated Trust & Reliability Scoring
+  [Heading 1] CHAPTER 3
+  [Heading 1] PROJECT METHODOLOGY
+  [Heading 2] 3.1 Research Design
+  [Heading 2] 3.2 Stage 1: Data Ingestion and Preprocessing
+  [Heading 2] 3.3 Stage 2: Named Entity Recognition and Knowledge Graph Construction
+  [Heading 2] 3.4 Stage 3: Probabilistic Trust Scoring and Evaluation
+  [Heading 2] 3.5 Flow Chart of Activities
+  [Heading 2] 
+  [Heading 2] 3.6 Milestones and Dates
+  [Heading 2] 
+  [Heading 2] 3.7 Gantt Chart
+  [Heading 2] 
+  [Heading 2] 3.8 Tools and Technologies
+  [Heading 1] CHAPTER 4
+  [Heading 1] Experimental Design
+  [Heading 2] 4.1 Introduction
+  [Heading 2] 4.2 Experimental Environment
+  [Heading 2] 
+4.3 Data Preparation Experiments
+  [Heading 2] 4.4 Entity Extraction and Disambiguation Experiments
+  [Heading 2] 4.5 Knowledge Graph Construction Experiments
+  [Heading 2] 4.6 GNN Architecture and Training Experiments
+  [Heading 2] 4.7 Trust Scoring and Evaluation Experiments
+  [Heading 2] 4.8 Summary
+  [Heading 1] REFERENCES
+  [Heading 1] 
+  [Heading 1] APPENDICES
+  [Heading 1] CHAPTER 4: EXPERIMENTAL DESIGN
+  [Heading 2] 4.1 Introduction
+  [Heading 2] 4.2 Experimental Environment
+  [Heading 2] 4.3 Data Preparation Experiments
+  [Heading 2] 4.4 Entity Extraction and Disambiguation Experiments
+  [Heading 2] 4.5 Knowledge Graph Construction Experiments
+  [Heading 2] 4.6 GNN Architecture and Training Experiments
+  [Heading 2] 4.7 Trust Scoring and Evaluation Experiments
+  [Heading 2] 4.8 Summary

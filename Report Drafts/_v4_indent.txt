@@ -1,0 +1,63 @@
+CHAPTER 5 starts at [451]
+
+=== INDENTATION CHECK ===
+[451] (Heading 1) indent=none | CHAPTER 5
+[452] (Normal) indent=none | (empty)
+[453] (Heading 1) indent=none | PRELIMINARY IMPLEMENTATION
+[454] (Normal) indent=none | (empty)
+[455] (Normal) indent=none | (empty)
+[456] (Heading 2) indent=none | 5.1 Introduction
+[457] (Normal) indent=none | This chapter presents the preliminary implementation of the proposed multi-modal framework, covering
+[458] (Normal) indent=firstLine=1 | Three research objectives are addressed across the pipeline: PO1 (NLP-based reliability scoring) thr
+[459] (Heading 2) indent=none | 5.2 Stage 1: Data Ingestion Pipeline
+[460] (Heading 3) indent=none | 5.2.1 Biographical Corpus Parsing
+[461] (Normal) indent=none | The first processing step extracts individual biographical entries (tarājim) from the raw Maktaba Sh
+[462] (Normal) indent=firstLine=1 | Key parameters used: volume range 1–35 (Tahdhīb) + 1 (Taqrīb) for complete coverage of both sources;
+[463] (Normal) indent=firstLine=1 | The parser produced a unified narrator encyclopedia of 3,797 entries. Entries with teachers and stud
+[464] (Normal) indent=firstLine=1 | A notable finding was that only 3 of the 1,100+ matched narrators had exact name matches against the
+[465] (Heading 3) indent=none | 5.2.2 Two-Tier Alignment Framework
+[466] (Normal) indent=none | The alignment pipeline cross-references Hadith records between the Sanadset 650K corpus and the Hugg
+[467] (Normal) indent=firstLine=1 | A SHA-256 hash of the normalized text skeleton serves as the immutable primary key for each matched 
+[468] (Normal) indent=firstLine=1 | Results: Of the 1,200 queries, 1,030 were successfully matched (85.8%), while 170 were quarantined (
+[469] (Normal) indent=firstLine=1 | The 85.8% match rate falls short of the 95% target that a strict threshold-based alignment would ide
+[470] (Heading 3) indent=none | 5.2.3 Quarantine Analysis
+[471] (Normal) indent=none | The 170 quarantined records were written to a separate JSON log for manual inspection. Analysis reve
+[472] (Normal) indent=firstLine=1 | These findings directly inform improvements planned for FYP2: a more aggressive normalization stage 
+[473] (Heading 2) indent=none | 5.3 Stage 2: Knowledge Graph Construction
+[474] (Heading 3) indent=none | 5.3.1 Narrator Name Matching
+[475] (Normal) indent=none | All unique narrator names were extracted from the 1,030 matched Hadith chains and looked up against 
+[476] (Normal) indent=firstLine=1 | Results: Out of 1,229 unique narrators, 1,102 were successfully matched (89.7%): 3 exact matches and
+[477] (Normal) indent=firstLine=1 | The very low number of exact matches (3 out of 1,102) is a significant finding. It indicates that th
+[478] (Heading 3) indent=none | 5.3.2 Grade Attachment
+[479] (Normal) indent=none | For the 1,102 matched narrators, grade terms extracted from the biographical encyclopedia were mappe
+[480] (Normal) indent=firstLine=1 | The grade distribution across matched narrators showed that the majority fell into the Trustworthy–T
+[481] (Heading 3) indent=none | 5.3.3 Graph Topology
+[482] (Normal) indent=none | The Knowledge Graph was constructed from 100,000 Sanadset rows, extracting narrator names from each 
+[483] (Normal) indent=firstLine=1 | Resulting graph statistics: 42,021 total nodes, 147,329 total edges, 1,102 nodes with grades, grade 
+[484] (Normal) indent=firstLine=1 | The graph exhibits a typical scale-free topology common to social networks: a small number of narrat
+[485] (Normal) indent=firstLine=1 | A notable observation is that the 42,021 nodes far exceed the 1,102 matched narrators. This is becau
+[486] (Heading 3) indent=none | 5.3.4 Semantic Feature Extraction
+[487] (Normal) indent=none | To provide semantic node features for the GNN ablation study, CAMeL-BERT (bert-base-arabic-camelbert
+[488] (Normal) indent=firstLine=1 | A separate lexicon-based variant was also generated, using 7 sentiment features (severity, threat ra
+[489] (Heading 2) indent=none | 5.4 Stage 3: Preliminary Reliability Scoring
+[490] (Normal) indent=none | The following sections describe preliminary Stage 3 runs. These experiments were conducted to valida
+[491] (Heading 3) indent=none | 5.4.1 GCN Architecture
+[492] (Normal) indent=none | A two-layer Graph Convolutional Network (GCN) was implemented using PyTorch Geometric. The model tak
+[493] (Heading 3) indent=none | 5.4.2 Ablation Study
+[494] (Normal) indent=none | Three model variants were compared using 3 runs each with different random seeds: (1) graph-only: 8 
+[495] (Normal) indent=firstLine=1 | Preliminary results for the graph-only variant showed: MAE of 0.248, R² of −0.093, Spearman correlat
+[496] (Normal) indent=firstLine=1 | Key observations: The graph-only model achieves an R² of −0.093, indicating that structural features
+[497] (Normal) indent=firstLine=1 | The low accuracy (~20%) confirms that node regression on this task is non-trivial. The grade distrib
+[498] (Heading 3) indent=none | 5.4.3 Interactive Authenticator
+[499] (Normal) indent=none | A working interactive demonstrator (hadith_authenticator.py) was built to validate the pipeline conn
+[500] (Normal) indent=firstLine=1 | The tool supports three input formats: Python-style narrator lists, raw Arabic sanad text, and evalu
+[501] (Heading 2) indent=none | 5.5 Preliminary Findings and Planned Improvements
+[502] (Normal) indent=none | The implementation revealed several issues that will drive refinements in FYP2. First, the low exact
+[503] (Normal) indent=firstLine=1 | Third, the near-random GNN accuracy (R² near zero for graph-only features) confirms that edge risk m
+[504] (Heading 2) indent=none | 5.6 Summary
+[505] (Normal) indent=none | The preliminary implementation successfully constructed the core pipeline: 3,797 biographical entrie
+[506] (Heading 1) indent=none | REFERENCES
+[507] (Normal) indent=none | (empty)
+[508] (Normal) indent=none | Ahmad, N., Ahmed, S., & Abdullah, M. (2025). Hadith grading & machine learning: Feasibility of isnād
+[509] (Normal) indent=none | Ahmed, M., & Anas, M. (2025). Hadith narrators’ biographies and their role in the reliability of tra
+[510] (Normal) indent=none | Alghamdi, J., Albukhari, A., & Al-Dala’in, T. (2025). Pretrained models against traditional machine 

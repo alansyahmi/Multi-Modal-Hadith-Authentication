@@ -1,0 +1,63 @@
+Total paragraphs: 543
+Total tables: 19
+
+CHAPTER 4: paragraphs [379–450]
+CHAPTER 5: paragraphs [451–505]
+REFERENCES: paragraph [506]
+
+=== CHAPTER 5 PARAGRAPHS ===
+[451] (Heading 1) CHAPTER 5
+[452] (Normal) (empty)
+[453] (Heading 1) PRELIMINARY IMPLEMENTATION
+[454] (Normal) (empty)
+[455] (Normal) (empty)
+[456] (Heading 2) 5.1 Introduction
+[457] (Normal) This chapter presents the preliminary implementation of the proposed multi-modal framework, covering all three stages de
+[458] (Normal) Three research objectives are addressed across the pipeline: PO1 (NLP-based reliability scoring) through the GRADE_SCORE
+[459] (Heading 2) 5.2 Stage 1: Data Ingestion Pipeline
+[460] (Heading 3) 5.2.1 Biographical Corpus Parsing
+[461] (Normal) The first processing step extracts individual biographical entries (tarājim) from the raw Maktaba Shamela volumes of Tah
+[462] (Normal) Key parameters used: volume range 1–35 (Tahdhīb) + 1 (Taqrīb) for complete coverage of both sources; confidence labels o
+[463] (Normal) The parser produced a unified narrator encyclopedia of 3,797 entries. Entries with teachers and students were identified
+[464] (Normal) A notable finding was that only 3 of the 1,100+ matched narrators had exact name matches against the encyclopedia — the 
+[465] (Heading 3) 5.2.2 Two-Tier Alignment Framework
+[466] (Normal) The alignment pipeline cross-references Hadith records between the Sanadset 650K corpus and the HuggingFace Kutub as-Sit
+[467] (Normal) A SHA-256 hash of the normalized text skeleton serves as the immutable primary key for each matched pair. The full strat
+[468] (Normal) Results: Of the 1,200 queries, 1,030 were successfully matched (85.8%), while 170 were quarantined (14.2%). The average 
+[469] (Normal) The 85.8% match rate falls short of the 95% target that a strict threshold-based alignment would ideally achieve. This s
+[470] (Heading 3) 5.2.3 Quarantine Analysis
+[471] (Normal) The 170 quarantined records were written to a separate JSON log for manual inspection. Analysis revealed three primary f
+[472] (Normal) These findings directly inform improvements planned for FYP2: a more aggressive normalization stage (including full cons
+[473] (Heading 2) 5.3 Stage 2: Knowledge Graph Construction
+[474] (Heading 3) 5.3.1 Narrator Name Matching
+[475] (Normal) All unique narrator names were extracted from the 1,030 matched Hadith chains and looked up against the biographical enc
+[476] (Normal) Results: Out of 1,229 unique narrators, 1,102 were successfully matched (89.7%): 3 exact matches and 1,099 fuzzy matches
+[477] (Normal) The very low number of exact matches (3 out of 1,102) is a significant finding. It indicates that the name strings in th
+[478] (Heading 3) 5.3.2 Grade Attachment
+[479] (Normal) For the 1,102 matched narrators, grade terms extracted from the biographical encyclopedia were mapped to continuous reli
+[480] (Normal) The grade distribution across matched narrators showed that the majority fell into the Trustworthy–Truthful range (0.70–
+[481] (Heading 3) 5.3.3 Graph Topology
+[482] (Normal) The Knowledge Graph was constructed from 100,000 Sanadset rows, extracting narrator names from each chain and creating d
+[483] (Normal) Resulting graph statistics: 42,021 total nodes, 147,329 total edges, 1,102 nodes with grades, grade score range [0.0, 1.
+[484] (Normal) The graph exhibits a typical scale-free topology common to social networks: a small number of narrators (the prominent c
+[485] (Normal) A notable observation is that the 42,021 nodes far exceed the 1,102 matched narrators. This is because the graph is buil
+[486] (Heading 3) 5.3.4 Semantic Feature Extraction
+[487] (Normal) To provide semantic node features for the GNN ablation study, CAMeL-BERT (bert-base-arabic-camelbert-msa-sentiment) was 
+[488] (Normal) A separate lexicon-based variant was also generated, using 7 sentiment features (severity, threat ratio, mercy ratio, et
+[489] (Heading 2) 5.4 Stage 3: Preliminary Reliability Scoring
+[490] (Normal) The following sections describe preliminary Stage 3 runs. These experiments were conducted to validate that the pipeline
+[491] (Heading 3) 5.4.1 GCN Architecture
+[492] (Normal) A two-layer Graph Convolutional Network (GCN) was implemented using PyTorch Geometric. The model takes node features as 
+[493] (Heading 3) 5.4.2 Ablation Study
+[494] (Normal) Three model variants were compared using 3 runs each with different random seeds: (1) graph-only: 8 structural features 
+[495] (Normal) Preliminary results for the graph-only variant showed: MAE of 0.248, R² of −0.093, Spearman correlation of 0.068, Pearso
+[496] (Normal) Key observations: The graph-only model achieves an R² of −0.093, indicating that structural features alone (degree centr
+[497] (Normal) The low accuracy (~20%) confirms that node regression on this task is non-trivial. The grade distribution is heavily ske
+[498] (Heading 3) 5.4.3 Interactive Authenticator
+[499] (Normal) A working interactive demonstrator (hadith_authenticator.py) was built to validate the pipeline connectivity. It loads t
+[500] (Normal) The tool supports three input formats: Python-style narrator lists, raw Arabic sanad text, and evaluation dataset browsi
+[501] (Heading 2) 5.5 Preliminary Findings and Planned Improvements
+[502] (Normal) The implementation revealed several issues that will drive refinements in FYP2. First, the low exact-match rate — only 3
+[503] (Normal) Third, the near-random GNN accuracy (R² near zero for graph-only features) confirms that edge risk modifiers (tadlīs, ik
+[504] (Heading 2) 5.6 Summary
+[505] (Normal) The preliminary implementation successfully constructed the core pipeline: 3,797 biographical entries were parsed, 1,030

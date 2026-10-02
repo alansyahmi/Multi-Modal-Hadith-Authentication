@@ -1,0 +1,82 @@
+CHAPTER 4: EXPERIMENTAL DESIGN
+4.1 Introduction
+This chapter describes the experimental framework designed to validate the three research objectives of this project: (PO1) developing an NLP-based reliability scoring model, (PO2) constructing a Knowledge Graph with GNN-based structural analysis, and (PO3) evaluating the framework against established scholarly Hadith gradings. Each experiment is organised according to the three-stage methodology described in Chapter 3, with explicit mappings back to the relevant objectives. The chapter documents the hardware and software environment, dataset specifications, model configurations, evaluation protocols, and reproducibility measures adopted throughout the study.
+Where the actual implementation diverges from the idealised methodology in Chapter 3, these deviations are noted and justified within the context of practical constraints encountered during development. The goal is to provide a complete, reproducible account of every experiment such that another researcher can replicate the results.
+4.2 Experimental Environment
+All experiments were conducted on a local development machine. The hardware and software configurations are documented below to ensure reproducibility.
+4.2.1 Hardware Configuration
+4.2.2 Software Configuration
+4.3 Dataset Preparation Experiments
+The dataset preparation phase addresses PO1 and PO2 by ensuring that both the biographical corpora and transmission chain corpora are clean, aligned, and ready for downstream entity extraction and graph construction. Three experiments were designed.
+4.3.1 Experiment 1: Biographical Text Parsing
+Objective: To evaluate the Regex-based parser for isolating individual biographical entries (tarājim) from the OpenITI-formatted raw volumes of Tahdhīb al-Kamāl (35 volumes) and Taqrīb al-Tahdhīb (1 volume).
+Design:
+The parser (src.shamela.narrator_parser.segment_volume) applies a multi-stage Regex pipeline to each raw volume: first stripping architectural metadata (YAML headers, page number selectors, editorial notes), then identifying entry boundaries via historical entry identifiers and narrator name patterns. Each extracted entry is assigned a confidence label (high/medium/low) based on structural completeness. The parser was evaluated on all 35 volumes of Tahdhīb al-Kamāl and the single Taqrīb al-Tahdhīb volume, producing a unified narrator encyclopedia JSON.
+Parameters:
+Expected output:
+A structured JSON export containing all extracted entries with fields: entry_id, volume, name, full_text, teachers, students, grades, death_info, and confidence. The parser should achieve high-confidence extraction for at least 70% of entries, with remaining entries falling into medium or low confidence categories due to orthographic ambiguity or structural inconsistency in the source text.
+4.3.2 Experiment 2: Two-Tier Alignment Framework
+Objective: To evaluate the two-tier hybrid alignment pipeline that cross-references Hadith records between the Sanadset 650K corpus and the HuggingFace Kutub as-Sitta evaluation dataset.
+Design:
+The alignment pipeline (src.alignment.hybrid_aligner) implements the methodology described in Section 3.2.3. Tier 1 uses a sparse TF-IDF vectorizer with character n-grams to reduce the search space from the full Sanadset corpus to a top-K candidate pool. Tier 2 applies the rapidfuzz partial_ratio function with a strict threshold to verify the match. Records falling below the threshold are routed to a quarantine log. The alignment is tested on a stratified sample of 1,200 Hadiths (200 per book × 6 books), with the fixed random seed of 42 ensuring replicability across runs.
+Parameters:
+Expected output:
+A JSON file containing alignment results for all 1,200 query Hadiths. Each record includes the similarity score, TF-IDF score, match status, and quarantine flag. The target is to achieve at least 75% successful match rate with less than 5% of records routed to quarantine.
+4.4 Entity Extraction and Disambiguation Experiments
+This section documents experiments related to PO1 and PO2, covering the extraction of narrator identities and their disambiguation across textual variants.
+4.4.1 Experiment 3: BERT Embedding Extraction for Narrator Representation
+Objective: To generate deep contextual embeddings for narrator-attributed matn texts, providing semantic features for the GNN node representations.
+Design:
+Note on deviation from Chapter 3: The original methodology specified a fine-tuned AraBERT v2 model for BIO tagging (token classification) to perform Named Entity Recognition on narrator names. During implementation, it was determined that (a) the Sanadset 650K dataset already provides structured narrator chains, making NER-based extraction redundant for Stage 2, and (b) a more productive use of transformer models was to generate dense semantic embeddings of the matn texts associated with each narrator. Accordingly, the experiment uses CAMeL-BERT (bert-base-arabic-camelbert-msa-sentiment) — a model pre-trained on ~70B tokens of Arabic text — to produce [CLS] token embeddings that serve as semantic node features in the Knowledge Graph.
+Parameters:
+Expected output:
+Two augmented graph files: (1) pyg_graph_bert.npz with 8 graph features + 128 BERT-PCA features = 136 dimensions; (2) pyg_graph_lexicon.npz with 8 graph features + 7 lexicon sentiment features = 15 dimensions. These are used in the GNN ablation study (Experiment 6).
+4.4.2 Experiment 4: Narrator Name Matching and Encyclopedia Coverage
+Objective: To evaluate the coverage and accuracy of matching Sanadset narrator names against the biographical encyclopedia extracted from classical kutub ar-rijal.
+Design:
+Narrator names extracted from the matched Hadith chains are normalised (diacritic stripping, character normalisation) and looked up against the narrator encyclopedia. Exact matches are accepted immediately. For names without an exact match, fuzzy matching using rapidfuzz partial_ratio is applied with a threshold of 80%. The experiment tracks the proportion of narrators successfully matched, along with the availability of biographical attributes (grades, death dates, teacher-student lists) for matched entries.
+Parameters:
+Expected output:
+A JSON file (narrator_matches.json) documenting the match status for each narrator. Target metrics: ≥ 80% overall match rate (exact + fuzzy combined), with at least 60% of matched narrators having grade annotations from the encyclopedia.
+4.5 Knowledge Graph Construction Experiments
+4.5.1 Experiment 5: Graph Topology and Feature Engineering
+Objective: To construct the narrator Knowledge Graph from Sanadset transmission chains and evaluate the effect of graph scale on structural properties and downstream GNN performance.
+Design:
+The graph is constructed by iterating over Sanadset rows, extracting narrator names from each chain, and creating directed edges representing teacher-student transmission relationships (teacher → student). Node features include: (1) appearance count (log-transformed), (2) in-degree, (3) out-degree, (4) average chain position, (5) grade score (from Ibn Hajar 12-tier mapping), (6–8) auxiliary flags (has_grade, has_death, has_tabaqa). Edges are aggregated with positional and frequency attributes. The experiment varies the number of Sanadset rows from 10,000 to 100,000 to observe the effect on node count, edge density, and degree distribution.
+Grade score mapping:
+Ibn Hajar al-Asqalānī's 12-tier grading system is mapped to continuous scores in [0.0, 1.0] as defined in src/stage2/config.py. The mapping follows the traditional hierarchy: Companions (Ṣaḥāba) receive 1.0; Thiqa Thiqa (supremely reliable) receives 0.95; Thiqa (trustworthy) receives 0.85; Ṣadūq (truthful) receives 0.70; down to Kaḏḏāb (liar) and Waḍḍāʿ (fabricator) receiving 0.0. Unknown or missing grades default to 0.30.
+Parameters:
+Expected output:
+A PyTorch Geometric-compatible graph (pyg_graph_large.npz) with node features, edge indices, and edge attributes. The graph is expected to contain approximately 50,000–60,000 nodes and 200,000–300,000 edges when built from 100,000 Sanadset rows. The grade-attached variant (pyg_graph_large_graded.npz) adds ground-truth labels to the first feature column for semi-supervised GNN training.
+4.6 GNN Architecture and Training Experiments
+4.6.1 Experiment 6: Graph Convolutional Network Ablation Study
+Objective: To evaluate the contribution of different feature modalities to narrator reliability prediction using a two-layer Graph Convolutional Network (GCN).
+Design:
+A two-layer GCN is implemented using PyTorch Geometric. The model takes node features as input and predicts a continuous reliability score in [0.0, 1.0] for each narrator. Three variants are compared:
+(a) Graph-only: Uses only the 8 graph-structural features (degree, position, appearance, flags).
+(b) Graph + BERT: Augments graph features with 128-dimensional PCA-reduced CAMeL-BERT [CLS] embeddings.
+(c) Graph + Lexicon: Augments graph features with 7-dimensional lexicon-based sentiment features.
+Training uses semi-supervised learning: 70% of nodes have their grade score masked and the model predicts them based on graph neighbourhood propagation. The remaining 30% serve as training labels.
+Hyperparameters:
+Expected output:
+A comparison of the three model variants on metrics: MAE, R², Spearman correlation, Pearson correlation, and binary classification accuracy (threshold at ≥ 0.65 for "accepted"). The ablation study quantifies the marginal contribution of semantic features over graph-structural features alone.
+4.7 Trust Scoring and Evaluation Experiments
+4.7.1 Experiment 7: Semantic Sentiment Scoring
+Objective: To evaluate the lexicon-based sentiment scoring of Hadith matn texts and its utility as a supplementary reliability indicator.
+Design:
+Note on deviation from Chapter 3: The original methodology described two parallel tracks for reliability scoring — Track A (AraBERT v2 regression) and Track B (keyword lookup). As of the current implementation stage, only Track B has been fully implemented. The lexicon-based scorer (src.stage3.sentiment.lexicon_sentiment_score) analyses matn text for semantically charged terms, producing scores for severity, threat ratio, and mercy ratio. Track A remains as planned future work for FYP2. The current experiment validates Track B's output distribution and establishes the baseline against which Track A will be compared.
+Parameters:
+4.7.2 Experiment 8: Chain-Level Reliability Scoring
+Objective: To evaluate the overall reliability scoring pipeline from individual narrator predictions to chain-level authenticity verdicts, and to validate these against canonical grades from Kutub as-Sitta.
+Design:
+The chain scoring pipeline (implemented in hadith_authenticator.py) proceeds in four steps: (1) parse the sanad text into a list of narrator names; (2) look up each narrator in the Knowledge Graph to retrieve the GNN-predicted reliability score; (3) compute chain statistics (mean, min, variance); (4) map the aggregate score to a traditional Hadith grade (Ṣaḥīḥ/Ḥasan/Ḍaʿīf/Mawḍūʿ) using calibrated thresholds. The evaluation uses the 1,200-sample stratified dataset from Experiment 2, comparing predicted grades against the ground-truth Grade column from the HuggingFace dataset.
+Verdict mapping thresholds:
+Expected output:
+For each of the 1,200 evaluation Hadiths, a predicted grade and confidence score. The overall evaluation reports accuracy, macro-averaged F1-score, RMSE (against normalised ordinal grades), and Cohen's Kappa (agreement corrected for chance). A baseline comparison against a naive majority-class classifier quantifies the added value of the full pipeline.
+4.7.3 Experiment 9: Multi-Sanad Matn Analysis
+Objective: To test the ʿIlm ar-Rijāl principle of ṭuruq (multiple independent chains) by identifying matn texts that appear with multiple different narrator chains and comparing their aggregate reliability scores.
+Design:
+Matn texts from the Sanadset corpus are normalised and grouped by hash (SHA-256 of normalised text). Groups with three or more different narrator chains are selected for analysis. Each chain is scored independently using the GNN prediction pipeline, and aggregate scores are computed using four methods: (a) simple mean of chain means, (b) best-path (strongest single chain), (c) consensus score (penalising cross-chain variance), and (d) worst-chain (weakest-link pessimism). The experiment categorises results into unanimous strong, unanimous weak, and conflicted chains.
+Parameters:
+4.8 Summary
+This chapter has presented the complete experimental design for validating the proposed multi-modal framework. Nine experiments were described across the three pipeline stages: data preparation (Experiments 1–2), entity extraction and graph construction (Experiments 3–5), and GNN training and evaluation (Experiments 6–9). Each experiment was mapped to its corresponding research objective, with explicit documentation of parameters, expected outputs, and target metrics. The following chapter presents the results of implementing Stages 1 and 2, covering the data ingestion pipeline, alignment statistics, biographical corpus parsing outcomes, graph construction results, and preliminary GNN training curves.

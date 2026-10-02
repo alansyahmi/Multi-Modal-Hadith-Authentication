@@ -1,0 +1,676 @@
+A MULTI-MODAL FRAMEWORK FOR QUANTIFYING NARRATOR RELIABILITY IN ʿILM AR-RIJAL USING SEMANTIC SENTIMENT ANALYSIS AND GRAPH NEURAL NETWORKS
+
+ALAN SYAHMI BIN SANIH @ SANI
+
+FACULTY OF COMPUTING AND INFORMATICS UNIVERSITY MALAYSIA SABAH
+
+2026
+
+NAME         	        	: ALAN SYAHMI BIN SANIH @ SANI
+
+MATRIC NUMBER	: BI23110344
+
+TITLE          	: A MULTI-MODAL FRAMEWORK FOR QUANTIFYING NARRATOR RELIABILITY IN ʿILM AR-RIJAL USING SEMANTIC SENTIMENT ANALYSIS AND GRAPH NEURAL NETWORKS
+
+DEGREE     	        	: BACHELOR OF COMPUTER SCIENCE WITH HONOURS
+
+(DATA SCIENCE)
+
+VIVA’S DATE         	: DD SEPTEMBER 2027
+
+CERTIFIED BY;
+
+1.    	SUPERVISOR        	                                          	 Signature
+
+       	DR. KHALIFA CHEKIMA					
+
+DECLARATION
+
+I hereby declare that the material in this thesis is my own except for quotations, equations, summaries and references, which have been duly acknowledged.
+
+30 APRIL 2026						         
+							         ALAN SYAHMI BIN SANIH @ SANI                                                                            
+
+         BI23110344
+
+ACKNOWLEDGEMENT
+
+“خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ”
+“The best of people are those who are most beneficial to others.”
+– Prophet Muhammad ﷺ
+
+(At-Tabarani in Al-Muʿjam al-Awsat Hadith: 5787, graded Ṣaḥīḥ by Al-Albani)
+
+All praise and gratitude belong to Allah for giving me the strength, patience, and clarity to complete this proposal. This work is a small attempt to serve the tradition of ʿIlm ar‑Rijal, and I pray that it benefits others in some way.
+
+I would like to express my deepest thanks to my supervisor, Dr. Khalifa Chekima, for his guidance, patience, and honest feedback throughout this journey. He gave me the freedom to explore an ambitious idea while quietly making sure I didn’t go off the rails.
+
+I am also grateful to the researchers and developers behind the OpenITI corpus, Shamela Digital Library, and CAMeL Tools, as their work made this project possible in the first place. Likewise, I thank the authors of the AR‑Sanad 280K dataset and the Ifta’ Sunnah platform for making high‑quality Arabic Hadith data accessible to the research community.
+
+To my parents and family: thank you for your endless prayers, for believing in me and for never asking “when will you finish?” with the wrong tone. This degree is as much yours as it is mine.
+
+Finally, to my friends who listened to me ramble about narrators and isnād at odd hours, you know who you are. Thank you for the many “spinning” sessions and for the generous amount of ideas we all made.
+
+May Allah accept this small effort of mine, forgive my shortcomings, and make it beneficial to those who study His religion.
+
+Alan Syahmi Bin Sanih @ Sani
+8 May 2026
+
+ABSTRACT
+
+The authentication of Prophetic reports (Ḥadīth) through the science of narrator criticism (ʿIlm ar‑Rijal/Jarḥ wa Taʿdīl) is a cornerstone of Islamic scholarship, yet the digital era has outpaced manual verification methods. This project proposes a multi‑modal framework that automates narrator reliability scoring by integrating three computational modalities: Arabic Named Entity Recognition (NER) using a fine‑tuned AraBERT v2 model to extract narrator names, kunya, and nisba from classical biographical texts (Taqrīb al-Tahḏīb of Ibn Ḥajar al-ʿAsqalāni and the Tahḏīb al-Kamāl of al-Mizzī) and isnād chains (AR‑Sanad 280K); a Knowledge Graph (KG) constructed with NetworkX (~1,500 narrator nodes, verbal edges e.g. heard_from and reported_from, rich attributes including tabaqa, travel history, and classical Jarḥ wa Taʿdīl labels) to enable structural and temporal integrity checks; and semantic sentiment quantisation that maps qualitative terms (e.g., Thiqa, Ṣadūq, Kaḏḏāb) to continuous reliability weights (0.00–1.00) and applies edge‑level risk modifiers (e.g., 0.80 for tadlīs). The final chain score is computed as the product of node weights and edge modifiers, then mapped to Ṣaḥīḥ/Ḥasan/Ḍaʿīf/Mawḍūʿ grades. Evaluation against ground‑truth gradings from the Kutub as‑Sitta (the Six Canonical Hadith Collections; i.e. Ṣaḥīḥ al‑Bukhārī, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, Jāmiʿ at‑Tirmiḏī, Sunan al‑Nasāʾī and Sunan Ibn Mājah) uses accuracy, F1, RMSE, and Cohen’s Kappa. The framework addresses the research gap of end‑to‑end automated trust scoring, providing an explainable, reproducible decision‑support tool for Ḥadith scholars.
+
+Keywords: Hadith authentication, ʿIlm ar‑Rijal, Jarḥ wa Taʿdīl, Arabic NER, Knowledge Graph, Graph Neural Networks, semantic sentiment quantisation, multi‑modal framework
+
+ABSTRAK
+
+RANGKA KERJA MULTIMOD UNTUK MENGUANTIFIKASI KEBOLEHPERCAYAAN PERAWI DALAM ILMU RIJAL MENGGUNAKAN ANALISIS SENTIMEN SEMANTIK DAN RANGKAIAN NEURAL GRAF
+
+Pengesahan riwayat-riwayat Nabi Muhammad (hadis) melalui ilmu kritik perawi (ilmu rijal/al-jarh wa al-ta’dil) merupakan suatu tunjang kesarjanaan Islam, namun era digital telah mendahului kaedah-kaedah pengesahan manual. Projek ini mencadangkan rangka kerja multimodal yang mengautomasikan penskoran kebolehpercayaan perawi dengan mengintegrasikan tiga modaliti pengiraan: Pengecaman Entiti Nama (NER) Bahasa Arab dengan menggunakan model AraBERT v2 yang ditala halus untuk mengekstrak nama perawi, kunyah dan nisbah daripada teks biografi klasik (Taqrīb al‑Tahḏīb karya Ibn Ḥajar al‑ʿAsqalānī dan Tahḏīb al‑Kamāl karya al‑Mizzī) serta rangkaian isnad (AR‑Sanad 280K); Graf Pengetahuan (KG) yang dibina dengan NetworkX (~1,500 nod perawi, tepi lisan seperti heard_from dan reported_from, atribut kaya seperti tabaqa, sejarah perjalanan, dan label Jarḥ wa Taʿdīl klasik) untuk membolehkan pemeriksaan integriti struktur dan temporal; dan kuantifikasi sentimen semantik yang memetakan istilah kualitatif (contohnya, Thiqa, Ṣadūq, Kaḏḏāb) kepada pemberat kebolehpercayaan berterusan (0.00–1.00) serta menggunakan pengubah suai tepi (contohnya, 0.80 untuk tadlīs). Skor rantai akhir dihitung sebagai hasil darab pemberat nod dan pengubah suai tepi, kemudian dipetakan kepada gred Ṣaḥīḥ/Ḥasan/Ḍaʿīf/Mawḍūʿ. Penilaian terhadap penggredan kebenaran daripada Kutub as‑Sittah (Enam Kitab Hadis kanonik iaitu Ṣaḥīḥ al‑Bukhārī, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, Jāmiʿ at‑Tirmiḏī, Sunan al‑Nasāʾī dan Sunan Ibn Mājah) menggunakan ketepatan, F1, RMSE, dan Kappa Cohen. Rangka kerja ini menangani jurang penyelidikan dalam penskoran kebolehpercayaan automatik dari hujung ke hujung, langsung menyediakan alat sokongan keputusan yang boleh dijelaskan dan dihasilkan semula untuk ulama hadis.
+
+Kata kunci: Pengesahan Hadis, Ilmu Rijal, Al-Jarh wa al-Ta’dil, NER Bahasa Arab, Graf Pengetahuan, Rangkaian Neural Graf, kuantifikasi sentimen semantik, rangka kerja multimodal
+
+TABLE OF CONTENTS
+
+DECLARATION	i
+
+ACKNOWLEDGEMENT	ii
+
+ABSTRACT	iii
+
+ABSTRAK	iv
+
+TABLE OF CONTENTS	v
+
+LIST OF TABLES	vii
+
+LIST OF FIGURES	viii
+
+CHAPTER 1: INTRODUCTION	1
+
+1.1 Overview	1
+
+1.2 Problem Background	2
+
+1.3 Problem Statements	3
+
+1.4 Project Objectives	3
+
+1.5 Project Scope	3
+
+1.5.1 Data Sources	3
+
+1.5.2 Scale and Dataset	4
+
+1.5.3 Technical Scope	4
+
+1.5.4 Application Domain Limitations	4
+
+1.5.5 Out of Scope	4
+
+CHAPTER 2: LITERATURE REVIEW	5
+
+2.1 Hadith and its Structure	5
+
+2.2 Impact of Hadith Grading	6
+
+2.3 Hadith Authentication Process	6
+
+2.4 'Ilm ar-Rijal: An Expansive Biographical Study	7
+
+2.5 Advancements in Arabic Named Entity Recognition (NER)	8
+
+2.6 Knowledge Graphs (KG) for Entity Disambiguation	8
+
+2.7 Advancements in Graph Neural Networks (GNN) for Isnād Analysis	9
+
+2.8 Advancements in Semantic Sentiment Quantisation	9
+
+2.9 The Research Gap: Automated Trust & Reliability Scoring	9
+
+CHAPTER 3: PROJECT METHODOLOGY	11
+
+3.1 Research Design	11
+
+3.2 Stage 1: Data Ingestion and Preprocessing	11
+
+3.2.1 Data Sources	11
+
+3.2.2 Preprocessing Pipeline	11
+
+3.2.3 Expected Output	12
+
+3.3 Stage 2: Named Entity Recognition and Knowledge Graph Construction	12
+
+3.3.1 NER Model Architecture	12
+
+3.3.2 Knowledge Graph Construction	13
+
+3.3.3 Expected Output	15
+
+3.3.4 Enriched Sanad Knowledge Graph	16
+
+3.4 Stage 3: Probabilistic Trust Scoring and Evaluation	16
+
+3.4.1 Continuous Reliability Scoring	16
+
+3.4.2 Chain-Level Scoring	17
+
+3.4.3 Evaluation Protocol	19
+
+3.5 Multi-Modal Framework Flowchart	20
+
+3.6 Milestones and Dates	21
+
+3.7 Gantt Chart	22
+
+3.8 Tools and Technologies	23
+
+REFERENCES	24
+
+APPENDICES	28
+
+LIST OF TABLES
+
+Table 1: Example of Narrator Entity for the Companion Abu Hurayra	13
+
+Table 2: Attributes in a Rich Narrator Node	14
+
+Table 3: Example of Term Weighting	16
+
+Table 4: Standardised Modifier Range for Risk Cases	18
+
+Table 5: Purposes of Metrics Used in this Project	19
+
+Table 6: Milestones and Deliverables by Week	22
+
+Table 7: Tools, Libraries, and their Purposes by Category	24
+
+LIST OF FIGURES
+
+Figure 1.1: Graph Visualisation of a Sanad.	6
+
+Figure 2.1: Example of a Rich Narrator Node	15
+
+Figure 2.2: Enriched Sanad Knowledge Graph Mock-up	16
+
+Figure 2.3: The Multi-Modal Framework Flowchart Summarising the Methodology	20
+
+Figure 2.4: The Flowchart that Summarises the Methodology of this Project	21
+
+CHAPTER 1
+
+INTRODUCTION
+
+1.1 Overview
+
+The authentication of prophetic traditions (Sunna) through the reports attributed to the Prophet Muhammad (Hadith) forms one of the most intricate scholarly endeavours in classical Islamic civilisation. To achieve such rigorous requirements, the science of evaluating the men and women who form the chains of narration (isnād) through which a Hadith is transmitted is then employed. In Arabic, this science is known as ʿIlm ar-Rijal. Additionally, an inner layer of the science known as the discipline of Jarḥ wa Taʿdīl (literally "criticism and commendation") provides the epistemological framework by which scholars assess the moral probity (ʿadālah) and mnemonic precision (ḍabṭ) of every individual narrator in a given chain (Kamali, 2014). Over the centuries, this civilisational practice produced vast historical corpora of biographical literature, such as Ibn Hajar al-ʿAsqalāni's twelve-volume Tahdhīb al-Tahdhīb, representing thousands of qualitative evaluative judgements that collectively determine the trustworthiness of the prophetic record.
+
+The digitisation of classical texts through global repositories in recent years has made the Hadith corpus accessible on an unprecedented scale. Yet paradoxically, this very accessibility has created a new challenge; the capacity of modern scholarship to rigorously authenticate and verify Hadith at the speed of digital dissemination has not kept pace with the volume of their circulation. Recent work by Mosa (2025) highlights a pervasive issue of general anxiety, wherein the rapidity of digital access frequently surpasses the capacity to authenticate transmission chains. The manual cross-referencing labour of biographical entries across hundreds of classical volumes remains an expert-dependent process that is resistant to scale, thus presenting a compounding challenge for the field as a whole (Mosa, 2025).
+
+In hopes of closing such gaps, this project proposes to develop a multi-modal and data-driven framework that automates and hopefully streamlines the whole process of narrator reliability evaluation while being grounded in the classical principles of Jarḥ wa Taʿdīl. The framework shall also aim to integrate these three advanced computational techniques:
+
+Transformer-based Arabic Named Entity Recognition (NER) for the precise extraction and disambiguation of narrator identities from classical texts (Muther et al., 2023);
+
+Graph Neural Networks (GNN) for modelling the structural and temporal integrity of isnād transmission chains (Mahmoud et al., 2024); and
+
+Semantic Sentiment Quantisation to translate qualitative scholarly evaluations into a standardised, continuous reliability index (Ghriss, 2025). 
+
+The integration of these methodologies is significantly informed by foundational studies, including Mahmoud et al. (2022) on narrator disambiguation, Farooqi et al. (2024) on structured transmission datasets, and sequence-based isnād modelling by Najeeb (2022) and Oumer (2025). This research seeks to develop a reproducible, explicable, and epistemologically robust system that directly enhances the traditional discipline of ʿIlm ar-Rijal through contemporary data science techniques.
+
+1.2 Problem Background
+
+The evaluation of Hadith authenticity through ʿIlm ar-Rijal remains a cornerstone of Islamic scholarship, as the credibility of a prophetic tradition is fundamentally tied to the reliability of its chain of transmission (isnād). This rigorous verification system necessitates that every link in the chain be scrutinised for both moral integrity (ʿadāla) and mnemonic precision (ḍabṭ) (Kamali, 2022). Traditionally, this process is a labour-intensive endeavour that requires scholars to manually cross-reference thousands of qualitative biographical entries across vast historical corpuses, such as the 12-volume Tahdhib at-Tahdhib of Ibn Hajar or the foundational Andalusian Maliki assessments in Ibn ʿAbd al-Barr’s At-Tamhid (Al-Asqalani, d. 852 AH; Ibn ʿAbd al-Barr, d. 463 AH).
+
+Feasibility studies have confirmed that machine learning can indeed assist in automating isnād analysis, provided that the nuances of classical Arabic and the methodological standards of traditional jurisprudence are preserved (Usman, 2025; Mahmoud et al., 2022). The consonantal script and orthographic ambiguity of classical texts, however, make this particularly challenging, as minor variations in name orthography can lead to misidentification of narrators across manuscript traditions (El Ganadi et al., 2025). This results in an urgent need for Natural Language Processing (NLP) techniques to extract and disambiguate narrator identities, and for Graph Neural Networks (GNN) to model the complex relational networks those narrators form (Farooqi et al., 2024; Mahmoud et al., 2022).
+
+Recent work has confirmed the technical viability of this approach, where transformer-based models like AraBERT have achieved high accuracy in identifying ambiguous narrators from biographical text, while GNN frameworks can generate node embeddings to capture the relative position and credibility of a narrator within the broader transmission network (Ahmad et al., 2025; Mahmoud et al., 2022). By transitioning to a systematically quantified framework, researchers can achieve higher consistency and speed in evaluation without compromising the epistemological roots of the science (Tarmom, 2022).
+
+1.3 Problem Statements
+
+Two primary and significant challenges remain in the computational study of Hadith despite promising advancements in Arabic NLP:
+
+While current models have improved in Named Entity Recognition (NER) for extracting narrator names and lineages, there is a critical lack of computational frameworks capable of quantifying narrator reliability. Identifying a narrator is insufficient, as the framework must be able to "judge" their standing based on historical evidence (Ahmad et al., 2025).
+
+Recent work by Mosa (2025) and Oumer (2025) has shown that transformer models are capable of extracting narration chains from Hadith text as graphs. Nonetheless, those approaches stop at the graph, as they did not assign a reliability score to any narrator or use any actual Jarḥ wa Taʿdīl praise or criticism terms to judge narrator trustworthiness. This research goes beyond graph construction by adding a quantitative reliability index and GNN‑based structural analysis.
+
+1.4 Project Objectives
+
+The main objectives of this project are as follows,
+
+To develop an NLP classification model that maps qualitative scholarly judgments to a standardised, quantitative reliability index (0.0 - 1.0).
+
+To construct a Knowledge Graph representing teacher-student relationships and utilise GNNs supported with geospatial data to evaluate the structural integrity and geographical feasibility of transmission chains.
+
+To evaluate the framework's accuracy by comparing automated reliability scores against established scholarly Hadith gradings (Ṣaḥīḥ, Ḥasan, Ḍaʿīf).
+
+1.5 Project Scope
+
+To ensure that the research remains focused, this project operates within a clearly defined set of boundaries, a technically feasible methodology, and is evaluable within the constraints of a single academic year.
+
+1.5.1 Data Sources
+
+The framework will be trained and tested exclusively on digitised classical Arabic biographical texts available through the OpenITI and Shamela repositories, specifically the Taqrīb al-Tahdhīb of Ibn Hajar al-Asqalāni and the Tahdhīb al-Kamāl of al-Mizzī. These texts contain the most comprehensive and widely referenced collections of narrator biographical assessments and thus represent the most suitable ground-truth source for Jarḥ wa Taʿdīl labels.
+
+1.5.2 Scale and Dataset
+
+The initial experimental scope targets approximately 1,500 narrator biographical entries for building the reliability model and 1,000 validated Hadith isnāds drawn from the Al-Kutub al-Sittah (The Six Canonical Books, i.e. Ṣaḥīḥ al-Bukhari, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, Jāmiʿ at‑Tirmiḏī (Sunan at‑Tirmiḏī), Sunan al‑Nasāʾī and Sunan Ibn Mājah) for end-to-end testing. While this is a small scale compared to the hundreds of thousands of available data points, this scale remains consistent with comparable feasibility studies in the literature (Mahmoud et al., 2022; Najeeb, 2022) and is sufficiently large to support statistically meaningful evaluation without exhausting available computational resources.
+
+1.5.3 Technical Scope
+
+The system will focus on four interconnected tasks,
+
+Narrator extraction: Identifying proper names, kunya (honorifics), and nisba (place-based identifiers) from isnād;
+
+Entity disambiguation: Resolving alias variations to canonical narrator identities via a Knowledge Graph;
+
+Reliability scoring: Mapping aggregated Jarḥ wa Taʿdīl labels to a continuous index . The primary programming language is Python, utilising Arabic-specific NLP libraries (e.g., CAMeL Tools, PyArabic) and transformer models (e.g., AraBERT, MARBERT);
+
+Geospatial Mapping: Extracting narrator locations (nisba) and mapping them to coordinates to verify if a student and teacher were in the same region at the same time.
+
+1.5.4 Application Domain Limitations
+
+This research is strictly concerned with the structural evaluation of isnād (sanad criticism). The analysis of Hadith textual content (Matn criticism) requires comparative jurisprudential reasoning across the four Sunni schools and falls outside the scope of this project. Furthermore, any automated reliability score produced by the framework is intended as a decision-support tool for scholars, not as a definitive Islamic ruling or fatwa. The epistemological authority of qualified human muhaddithun is expressly preserved.
+
+1.5.5 Out of Scope
+
+The following are explicitly excluded from this project:
+
+Matn (textual body) analysis or content-based Hadith grading,
+
+Coverage of Shīʿa isnād evaluation methodologies,
+
+Real-time or web-based deployment of the scoring pipeline, and
+
+Languages other than Arabic (e.g. Urdu or Persian Hadith commentaries).
+
+CHAPTER 2
+
+LITERATURE REVIEW
+
+2.1 Hadith and its Structure
+
+According to Almaany (n.d.), a Hadith (حَدِيث) is an Arabic noun that means a “report; account; tale; narrative; yarn” or a “talking; discourse; words; utterance; address; conversation; dialogue; saying; speaking; speech; talk”. Islamically, Hadith due to its nature as the embodiment of the direct speech, talk, words, actions, approvals, and attributes from the Prophet Muhammad himself, plays a very important role in reconstructing the Sunna (“practice”) as practiced by the Prophet and his companions (Shaffat, 2024). The Sunna on the other hand is essential in shaping the human understanding behind the divinely revealed law of the Sharia. If the Quran provides the broad legal axioms, the Sunna provides the operational parameters, and the Hadith serves as the transmission medium for those parameters, consequently making the Hadith corpora as the primary empirical data through which the Sunna is accessed and reconstructed (Nyazee, 2019).
+
+	In terms of structure, a Hadith consists of a sanad (chain of transmission, literally “support”, plural: isnād) and a matn (content) (Shaffat, 2024). Below is an example of a Hadith and the aforementioned structure:
+
+وَحَدَّثَنِي عَنْ مَالِكٍ، عَنِ ابْنِ شِهَابٍ، عَنْ عَلِيِّ بْنِ حُسَيْنِ بْنِ عَلِيِّ بْنِ أَبِي طَالِبٍ، أَنَّ رَسُولَ اللَّهِ صلى الله عليه وسلم قَالَ ‏"‏ مِنْ حُسْنِ إِسْلاَمِ الْمَرْءِ تَرْكُهُ مَا لاَ يَعْنِيهِ ‏"‏ ‏.‏ 
+
+And it was related to me (Yahya ibn Yahya al-Laythi) from Malik, from Ibn Shihab, from Ali ibn Husayn ibn Ali ibn Abi Talib, that the Messenger of Allah ﷺ said, “Part of the excellence of a man's Islam is that he leaves what does not concern him” (Mālik ibn Anas, 1989, Book 47, Hadith 3).
+
+Based on the example Hadith, the part “And it was related to me (Yahya ibn Yahya al-Laythi) from Malik, from Ibn Shihab, from Ali ibn Husayn ibn Ali ibn Abi Talib, that the Messenger of Allah ﷺ said” can be considered as the sanad (chain of transmission), while the quote itself, “Part of the excellence of a man’s Islam is that he leaves what does not concern him” is the matn (content). In order to grade Hadiths, the individuals specified in the sanad must have their reliability be verified, and this is done through the meticulous science of ʿIlm ar-Rijal, literally the “Studies of Men” or the more common Sunni and synonymous term, Jarḥ wa Taʿdīl, literally “critiscm and praise”. Essentially, ʿIlm ar-Rijal or Jarḥ wa Taʿdīl functions as a metadata layer for the sanad, providing qualitative attributes such as reliability, memory, and lifespan for each node in the transmission graph (Indra Yuliasti et al., 2025; Ismail, 2024). A sanad therefore can be visualised as follows:
+
+Figure 1.1: Graph Visualisation of a Sanad.
+
+2.2 Impact of Hadith Grading
+
+The grading of Hadith carries profound consequences for Islamic law (fiqh), theology (ʿaqida), and especially in everyday Muslim practice. Hadith that are classified as Ṣaḥīḥ (sound) or Ḥasan (good) are considered legally normative and form the second most authoritative source of Islamic jurisprudence after the Quran (Kamali, 2014). Conversely, acting upon Ḍaʿīf (weak) or Mawḍūʿ (fabricated) traditions without qualification risks introducing groundless practices into religious life (Umanah, 2024). The stakes of misclassification are therefore real and can be detrimental, as they directly affect rulings on worship, commerce, family law, and ethics observed by more than 1.9 billion Muslims worldwide.
+
+The reliability of this grading system relies entirely on the truthfulness of the individuals who transmitted these reports across generations. A single unreliable narrator anywhere in the chain is sufficient to downgrade a Hadith, regardless of how credible the surrounding transmitters may be (Kamali, 2014). This sensitivity to individual narrator credibility implies that even small errors in evaluation, whether due to misidentification of a narrator or misapplication of a critical term, can disseminate into downstream jurisprudential decisions. Therefore, the cumulative impact of such errors, particularly in the rapidly expanding digital Hadith landscape, represents a serious epistemological risk that this research directly seeks to mitigate (Umanah, 2024; Sri Wahyuningsih, 2025).
+
+Looking beyond just the religious domain, the science of Hadith grading has also drawn increasing attention from historians, linguists, and information scientists as one of the oldest and most systematic peer-review and source-criticism methodologies in human intellectual history (Usman, 2025). The methodological rigour of classical muhaddithun (Hadith scholars), who developed chains of trust, biographical verification, and cross-referencing centuries before modern academic citation standards, offers a compelling analogue to contemporary knowledge verification challenges (Ghriss, 2025). Applying computational tools to this tradition, therefore, carries interdisciplinary significance that extends well beyond Islamic studies alone (A'thoina & Hasballah, 2025).
+
+2.3 Hadith Authentication Process
+
+The classical process of authenticating a Hadith is a dual-track methodology that evaluates both the sanad (chain of narrators) and the matn (textual body) of a tradition (Kamali, 2014). Sanad criticism, the focus of this research, concerns the continuity and credibility of the transmission chain from its originator (typically the Prophet Muhammad ﷺ) to the collector who recorded it. Each narrator in the chain must be proven to have met the preceding narrator, to have possessed an accurate memory, and to have been morally upright throughout their life. Any break in the chain (inqita') or identified moral failing in a transmitter is sufficient grounds to weaken or reject the report entirely (Ahmed & Anas, 2025).
+
+The grading system that emerges from this process is hierarchical and multi-tiered. At the apex sits the Ṣaḥīḥ (“sound”) Hadith, which satisfies all criteria of chain continuity, narrator credibility, and absence of hidden defects (ʿillah) or contradictions (shudhadh). Below this are degrees of Ḥasan (“good”), where minor shortcomings in narrator memory are present but do not fatally undermine the report. Ḍaʿīf (“weak”) Hadiths fail one or more of these conditions, whereas Mawḍūʿ (“fabricated”) traditions are those for whose narrators deliberate falsehood has been established (Kamali, 2014). This taxonomy forms the classification target for the automated scoring system proposed in this research, where the aim is to computationally approximate the output of this traditional grading process (Ahmad et al., 2025).
+
+The process of collecting the qualitative assessments that inform these grades is documented in a vast body of biographical literature known as kutub ar-rijal (books on narrators). Scholars such as Yahya ibn Maʿin, Ahmad ibn Hanbal, and later Ibn Hajar al-ʿAsqalani dedicated their careers to interviewing, cross-referencing, and documenting the reliability status of thousands of narrators (Mghari et al., 2024; A'thoina & Hasballah, 2025). These books contain the raw Jarḥ wa Taʿdīl labels, i.e. terms of praise and criticism that this project aims to computationally extract, quantify, and aggregate into an automated reliability index.
+
+2.4 ʿIlm ar-Rijal: An Expansive Biographical Study
+
+ʿIlm ar-Rijal (“the science of narrators”) or also synonymously known as Jarḥ wa Taʿdīl (“criticsm and praise”) is one of the most elaborate biographical knowledge systems ever developed in any civilisation (Ahmed & Anas, 2025). At its peak, classical scholars tracked the life histories, teachers, students, travel records, and credibility assessments of over 500,000 narrators, a feat of multi-generational data collection that has no direct parallel in pre-modern scholarship (Usman, 2025). The core output of this science, the biographical dictionary (muʿjam or tabaqat), catalogues narrators by generation, geographic region, or alphabetical order, and assigns each an evaluative standing based on the consensus of prior critics (Maraoui et al., 2022).
+
+The terminology employed within ʿIlm ar-Rijal is highly technical and hierarchically structured. Terms of commendation (taʿdil) range from the superlative Thiqa Thiqa (supremely reliable) down to Saduq (truthful but occasionally erring), with each grade carrying different implications for the admissibility of a narratorʿs reports. Terms of criticism (jarh) range from mild reservations such as Layyin (“soft”, i.e., slightly weak) to severe condemnations such as Kadhdhab (“liar”) or even Dajjal (“arch-deceiver”) (Kamali, 2014). The precise semantic weight of each term and the conditions under which it strengthens or overrides competing assessments are the subject of a dedicated sub-discipline (Mghari et al., 2024), one that this project attempts to operationalise through Semantic Sentiment Quantisation.
+
+A central computational challenge in this science is the problem of resolving narrator identity. The Arabic naming convention comprises a given name (ism), teknonym (kunya), patronym, matronym or a series of it (nasab), tribal affiliation (nisba), and nickname (laqab), which means that a single narrator may be referred to by dozens of orthographic variants across different texts and centuries (Mahmoud et al., 2022). The scholar known canonically as Abu Dawud as-Sijistani, for example, may appear across manuscripts in numerous abbreviated or dialectally inflected forms. Disambiguating these variants into a single canonical identity is a prerequisite for any reliable automated grading system, and is the primary challenge that the Knowledge Graph and NER components of this research are designed to solve (Najeeb, 2022; Mosa, 2025).
+
+2.5 Advancements in Arabic Named Entity Recognition (NER)
+
+Modern processing of classical Arabic text has moved decisively away from rule-based constraints toward deep bidirectional representations. Research by Mahmoud et al. (2022) using the AR-Sanad 280K dataset established a new baseline for narrator disambiguation, proving that large-scale datasets are essential for handling the morphological density of biographical entries.
+
+The current "State of the Art" (SOTA) by Mosa (2025) and Oumer (2025) utilises Pretrained Language Models (PLMs). Alghamdi et al. (2025) demonstrated that Transformer-based models like AraBERT and MARBERT significantly outperform previous iterations in identifying fraudulent content and extracting technical entities. These advancements facilitate high-accuracy Entity Linking, allowing the system to resolve identities across centuries even when names are identical (Mahmoud et al., 2022; Najeeb, 2022).
+
+2.6 Knowledge Graphs (KG) for Entity Disambiguation
+
+A Knowledge Graph (KG) is a structured representation of real-world entities and the semantic relationships between them, encoded as a directed graph of nodes and edges (Ji et al., 2022). In the context of ʿIlm ar-Rijal, this structure is particularly well-suited to the problem of narrator identity resolution: each node represents a canonical narrator identity, edges encode transmission relationships (teacher-student pairs), and node attributes store the accumulated biographical metadata, including Jarḥ wa Taʿdīl assessments drawn from classical kutub ar-rijal (Maraoui et al., 2022; Shafie, 2021). Unlike flat relational databases, KGs allow queries that traverse multi-hop relationships, enabling the system to infer that two orthographically different name mentions in separate manuscripts refer to the same historical individual based on their shared network neighbourhood (Hogan et al., 2021).
+
+Within the domain of digital Hadith studies, several prominent Knowledge Graphs (KGs) have been developed to model the complex interdependencies of isnād chains (Alam, 2021). Systems such as NarratorsKG encode the topological structure of narrator transmission networks, mapping tens of thousands of distinct identities alongside their diverse kunya and nisba variants (Mahmoud et al., 2024). In a typical hybrid retrieval pipeline, an NER model extracts name mentions, which are then resolved against the KG's candidate pool using both local semantic context and global graph signals (Mahmoud et al., 2024). Specifically, graph-level metrics like PageRank centrality are utilised to weigh a narrator's historical prominence; this helps resolve ambiguities where purely lexical matching fails, a common issue in the classical corpus where a single name may refer to five or more distinct individuals (Mosa, 2025). 
+
+More recently, the integration of KGs with Transformer-based models has defined the current state of the art. Mosa (2025) proposed a KG-Transformer framework that encodes narrator node embeddings directly into the attention mechanism of a pre-trained Arabic language model, allowing the model to simultaneously process the local textual context of a name mention and its global relational position within the transmission network. This synergy between structural and semantic representations addresses what earlier approaches treated as separate problems, which are text understanding and graph reasoning, and produces entity disambiguation accuracy that approaches or exceeds 97% on the AR-Sanad 280K-v2 benchmark (Mahmoud et al., 2024; Mosa, 2025). The construction and querying of such a KG therefore constitute a foundational prerequisite for the GNN-based reliability analysis described in the following section.
+
+2.7 Advancements in Graph Neural Networks (GNN) for Isnād Analysis
+
+Traditionally, the "structural integrity" of an isnād was analysed using Social Network Analysis (SNA), focusing on explicit metrics like degree centrality and betweenness to visualise transmission flows (Shafie, 2026; Siddiqui et al., 2023). While useful for visualisation, SNA is limited in its ability to learn latent relational features (Apgar et al., 2023).
+
+The field has recently evolved toward Graph Neural Networks (GNN) and Knowledge Graphs (KG). Mahmoud et al. (2024) introduced narrator identification by utilising graph query embeddings and a knowledge graph (NarratorsKG), while Mosa (2025) proposed a Knowledge Graph-Transformer framework to synergise structure and semantics. Unlike SNA, GNNs can represent a narrator’s "reliability" as a latent feature influenced by their entire neighbourhood of teachers and students. This allows for the detection of "hidden" patterns, such as temporal inconsistencies where a student claims to have heard from a teacher they could not have met, thus automating a core task of the muhaddithun.
+
+A recent master’s thesis (Oumer, 2025) successfully fine‑tuned AraT5 and CAMeLBERT‑CA to turn Hadith text into relational tuples and graph representations. While it is a useful structural work, it explicitly leaves out narrator reliability scoring, entity linking, and any quantification of Jarḥ wa Taʿdīl terms. This project aims to take graphs from the work as a starting point and add the missing “trust layer”, something clearly stated as out of scope in the aforementioned thesis.
+
+2.8 Advancements in Semantic Sentiment Quantisation
+
+A major challenge in automating Hadith grading is translating qualitative scholarly praise (Ta'dil) or criticism (Jarh) into numerical formats. Recent feasibility studies by Ahmad et al. (2024) confirm that Machine Learning is increasingly capable of automating isnād analysis when technical labels are correctly weighted.
+
+Current advancements focus on Semantic Sentiment Quantisation, where technical terms such as Thiqa (reliable), Saduq (truthful), and Munkar (rejected) are mapped to specific reliability weights. Mghari et al. (2024) introduced Narrator2Vec, which uses word embeddings to create dense representations of a narrator’s standing. This allows for a continuous reliability index , where the framework calculates a composite probability score for an entire chain by aggregating the individual quantised weights of each narrator. This move toward "Explainable AI" ensures that the quantitative output remains rooted in traditional Islamic epistemology (I’thoina & Hasballah, 2024). The synthesis of these three advancements, i.e. transformer-based identity resolution, GNN-driven structural analysis, and sentiment-based weight quantisation, forms the multi-modal foundation of this research.
+
+2.9 The Research Gap: Automated Trust & Reliability Scoring
+
+Despite the significant advancements documented in the preceding sections, a critical gap persists at the intersection of these research streams: no published study has yet delivered a complete, end-to-end pipeline that unifies narrator extraction, identity disambiguation, and probabilistic reliability scoring into a single, evaluatable system. The majority of existing work ceases at either the extraction or disambiguation stage, treating the production of a quantified trustworthiness score as a future direction rather than an achieved outcome (Ahmad et al., 2025). While text-based automated classification methods do exist (Tarmom, 2022), what remains absent is an end-to-end system that unifies knowledge graphs with probabilistic reliability scoring.
+
+The separation between textual NLP work and graph-structural work further compounds this gap. Studies employing AraBERT or similar transformer models for NER do not, as a rule, feed their outputs into Knowledge Graph or GNN frameworks for structural validation (Alghamdi et al., 2025). Conversely, graph-based analyses of isnād networks rarely incorporate the semantic richness of biographical Jarḥ wa Taʿdīl texts as node features (Mosa, 2025; Mahmoud et al., 2024). This disciplinary fragmentation means that existing systems capture either the semantic dimension of narrator reliability or the structural dimension, but not both simultaneously. The multi-modal integration that would make automated grading genuinely robust remains a largely unexplored frontier (Ghriss, 2025).
+
+The standardisation of evaluation metrics also presents a significant gap. While individual studies report precision, recall, or F1-scores for their specific sub-tasks, no shared benchmark protocol exists for assessing the accuracy of an end-to-end automated grading system against the ground-truth classifications found in the Kutub as-Sitta (Farooqi et al., 2024). This absence of a common evaluation framework makes it difficult to compare approaches across studies. Establishing such a benchmark protocol is therefore a secondary but also an important contribution of the present research (Mahmoud et al., 2022).
+
+The closest existing work by Oumer (2025) builds a pipeline from Hadith text to a graph of narrators. While it is a real contribution, it does not answer the question that ‘Ilm ar‑Rijal actually asks: given this chain of narrators, how reliable are they? The output in the aforementioned work is a graph, while the aimed output of this project is a graded Hadith (Ṣaḥīḥ/Ḥasan/Ḍaʿīf) with an explainable score. No published study has yet combined semantic sentiment from Jarḥ wa Taʿdīl texts with GNN‑based structural analysis to produce a narrator reliability score.
+
+This project directly targets these gaps by proposing a unified pipeline that integrates transformer-based NER, Knowledge Graph entity linking, GNN structural analysis, and Semantic Sentiment Quantisation into a single framework evaluated against pre-graded Hadith from the canonical collections. This in turn advances the field from the current state of fragmented sub-system studies toward a reproducible and multi-modal solution grounded in both classical Islamic epistemology and contemporary machine learning practice.
+
+CHAPTER 3
+
+PROJECT METHODOLOGY
+
+3.1 Research Design
+
+This project adopts an experimental research design underpinned by the Design Science Research Methodology (DSRM). The central artefact is an end-to-end automated pipeline that ingests classical Arabic biographical text, extracts and disambiguates narrator entities, and produces a continuous reliability score for each narrator, thereby operationalising the traditional science of Jarḥ wa Taʿdīl through computational means. Development proceeds through three sequential stages, each corresponding to a distinct research objective defined in Section 1.4. Each stage produces a testable intermediate output that feeds into the next, ensuring that failures can be isolated and addressed incrementally. 
+
+The model will operate according to these three stages, 1) establishing the data foundation; 2) constructing the extraction and disambiguation engine; and 3) implementing the scoring model and end-to-end evaluation. This framework will add a probabilistic trust score for each narrator and use graph neural networks to evaluate chain‑level reliability, defining the novelty of this project. Together, these phases form the technical pipeline as illustrated in Section 3.5 below.
+
+3.2 Stage 1: Data Ingestion and Preprocessing
+
+3.2.1 Data Sources
+
+The framework ingests data from two primary streams to satisfy both the semantic evaluation of narrators and the structural evaluation of transmission networks:
+
+Biographical Corpora: Digitized classical Arabic biographical evaluation texts (kutub ar-rijāl) are sourced directly from the OpenITI corpus and the Shamela Digital Library. The primary targeted texts are the Taqrīb al-Tahdhīb by Ibn Ḥajar al-ʿAsqalānī and the Tahdhīb al-Kamāl by al-Mizzī. These texts provide the critical Jarḥ wa Taʿdīl labels required to generate the foundational narrator reliability ground-truth index.
+
+Transmission Chain Corpora: To train and evaluate the Named Entity Recognition (NER) boundary parsing modules, the system ingests the Sanadset 650K dataset, which provides 650,986 Hadiths with their respective isnād and book references. Additionally, an evaluation benchmark consisting of 1,000 validated isnād is systematically drawn from the hadith_datasets (obtained from HuggingFace) which contains the important ‘Grade’ column (e.g., "Sahih (Darussalam)").
+
+Used exclusively for ground truth evaluation to serve as an end-to-end testing matrix.
+
+3.2.2 Biographical Text Parsing and Block Extraction
+
+The raw text documents acquired from the OpenITI corpus contain extensive architectural metadata, including custom YAML headers, page number selectors, and editorial comments that present noise to machine learning classifiers.
+
+To isolate individual biographical entries (tarājim), a specialised Regular Expression (Regex) parser is deployed. The algorithm scans for historical entry identifiers and structural patterns typical of OpenITI formatting (e.g., `# $Tarjama` tags or numeric indices followed by narrator names). Once identified, the algorithm isolates each biography as an independent text block, discarding peripheral text, page numbers, and editorial notes.
+
+3.2.3 Two-Tiered Algorithmic Alignment Framework
+
+Because classical Hadith collections lack a universal indexing convention, records cannot be integrated using flat database joins on numerical indices. To cross-reference records accurately and efficiently, this project implements a reproducible, two-tiered hybrid alignment pipeline that combines sparse vector space modeling with token-level edit distance calculations. This architecture drastically reduces the search space, preventing computational bottlenecks while maintaining strict deterministic reproducibility.
+
+Tier 1: Heuristic Search Space Reduction (Information Retrieval Layer)
+
+To avoid computing the Levenshtein distance across a computationally prohibitive  string pairs, a sparse vector retrieval layer is introduced to reduce the search space from the entire population () to a narrow candidate pool ().
+
+The normalised Matn strings of the entire Sanadset 650K corpus are fitted into a sparse TF-IDF (Term Frequency-Inverse Document Frequency) vectorizer using character n-grams () to capture sub-word variations and typos.
+
+A stratified sample of 1,200 Hadiths is drawn from the hadith_datasets HuggingFace corpus, consisting of 200 Hadiths per canonical book from the Kutub as-Sitta (Ṣaḥīḥ al-Bukhārī, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, Jāmiʿ at-Tirmiḏī, Sunan al-Nasāʾī, and Sunan Ibn Mājah). This per-book stratification ensures balanced representation across all six collections, providing sufficient statistical power (margin of error ≈ 2.8%) while remaining feasible within the project timeline. Each of the 1,200 sampled Hadiths from the HuggingFace corpus is tokenized and transformed into the same vector space.
+
+A cosine similarity dot product is calculated between the sample vector and the corpus matrix, extracting the top  highest-scoring candidate documents for each sample Hadith within milliseconds.
+
+Tier 2: Fine-Grained Lexical Verification (Fuzzy Matching Layer)
+
+Once the search space is isolated to the top 10 candidates per sample, a localized Levenshtein distance metric is applied via the rapidfuzz library to determine the absolute match:
+
+
+A strict similarity threshold of  is enforced. In instances where multiple candidates yield identical fuzzy similarity ratios due to brief text lengths or overlapping phrasing, a secondary deterministic validation sweep is triggered.
+
+This module parses and cross-references the first two ancestral nodes (the immediate transmitters closest to the collector) within the Sanad sequence to break the tie.
+
+Reproducibility and Quality Control Constraints
+
+To guarantee that this pipeline can be fully replicated by future researchers, three strict compliance mechanisms are built into the source code:
+
+Deterministic Seeding: The stratified sampling module fixes a global pseudo-random number of generator seed (), ensuring that the identical subset of 1,200 Hadiths is generated on every execution.
+
+Immutable Hashing: Upon a successful match, the records are merged and assigned an unalterable primary key (id) generated via a SHA-256 hash of the normalized consonantal text skeleton.
+
+Quarantine Routing Vector: Any record where the top candidate falls below the 95% fuzzy threshold or yields irreconcilable node mismatches during secondary validation is automatically routed to an isolated JSON quarantine log for manual scholar-in-the-loop remediation, preserving the integrity of the primary training dataset.
+
+3.3 Stage 2: Named Entity Recognition and Knowledge Graph Construction
+
+3.3.1 NER Model Architecture
+
+Narrator extraction is performed using a fine-tuned Transformer-based model. The base model is AraBERT v2, a pre-trained bidirectional encoder trained on a large Modern Standard Arabic corpus (Mahmoud et al., 2022). The model is fine-tuned on the Sanadset 650K dataset for a token classification task using the BIO (Beginning, Inside, Outside) tagging scheme. The following entity types are annotated:
+
+Table 1: Example of Narrator Entity for the Companion Abu Hurayra
+
+
+	The model is trained for 10 epochs with a learning rate of , using the AdamW optimiser with a linear warmup schedule over the first 10% of training steps. Evaluation is performed on a held-out 20% test split of the Sanadset 650K dataset, with micro-averaged F1-score as the primary metric.
+
+3.3.2 Knowledge Graph Construction
+
+Extracted entity mentions are linked to canonical narrator identities stored in a Knowledge Graph (KG). The KG is constructed using the Python ‘NetworkX’ library (with optional migration to Neo4j for scalability) and populated from the biographical entries in the Tahdhīb al-Kamāl. Each node in the KG represents a unique narrator and stores the following attributes:
+
+Table 2: Attributes in a Rich Narrator Node
+
+Figure 2.1: Example of a Rich Narrator Node
+
+Edges represent transmission relationships (teacher → student) extracted from isnād chains. When the NER model produces a name mention, the KG is queried using a combination of string similarity (Levenshtein distance on the consonantal skeleton) and graph neighbourhood matching (shared teachers/students) to resolve the mention to its most probable canonical identity.
+
+To prevent any anachronisms and further augment the reliability of this system, an extended metadata system of Tabaqat (generations) based on Ibn Hajar’s 12-tiered generational system will be implemented on every narrator. The generational system will cover from 622 CE (the start of the Islamic calendar) until 870 CE (around the mid-3rd century AH), and the narrators will be mapped to these discrete categories:
+
+The Ṣaḥāba (Companions of the Prophet).
+
+Senior Tābiʿūn (senior Followers of the Companions).
+
+Intermediate Tābiʿūn (middle Followers of the Companions).
+
+Junior Tābiʿūn (junior Followers of the Companions).
+
+Senior Atbāʿ at-Tābiʿīn (senior students of the Tābiʿūn).
+
+Intermediate Atbāʿ at-Tābiʿīn (middle students of the Tābiʿūn).
+
+Junior Atbāʿ at-Tābiʿīn (junior students of the Tābiʿūn).
+
+Senior Kibar atbāʿ al-atbāʿ (senior followers of the followers).
+
+Intermediate Kibar atbāʿ al-atbāʿ.
+
+Junior Kibar atbāʿ al-atbāʿ.
+
+Later narrators (students of the great successors, up to the early compilers).
+
+Compilers and their immediate students (ending around the late 3rd century AH / ~900 CE).
+
+3.3.3 Expected Output
+
+The output of Stage 2 is a populated Knowledge Graph containing approximately 1,500 canonical narrator nodes with linked aliases, biographical metadata, and transmission edges, alongside an NER model capable of extracting narrator mentions from unseen isnād with a target F1-score of ≥ 0.90.
+
+3.3.4 Enriched Sanad Knowledge Graph
+
+Each narrator node stores the full set of attributes listed in Table 1.2 (Section 3.3.2), including birth/death dates, travel history, recension, and inferred reliability score. For visual clarity, only ID, common name, tabaqa, and reliability are shown here.
+
+Figure 2.2: Enriched Sanad Knowledge Graph Mock-up
+
+3.4 Stage 3: Probabilistic Trust Scoring and Evaluation
+
+3.4.1 Semantic Sentiment Analysis for Continuous Reliability Scoring
+
+The core innovation of this stage is the translation of qualitative Jarḥ wa Taʿdīl labels into a continuous reliability score on the interval [0.0, 1.0], initially developed by Ghriss (2025) in their Iterative Co-Update Algorithm (ICUA) framework. This framework specifically formalises narrator reliability scores () on a scale of 0 to 1. This is achieved through semantic sentiment analysis, an NLP-based approach where it learns from the full contextual wording of scholarly assessments rather than relying on keyword-to-weight lookup alone. This proceeds in two parallel tracks that are compared empirically.
+
+3.4.1.1 Track A: Transformer-Based Semantic Sentiment Classifier
+
+A fine-tuned Arabic transformer model (AraBERT v2) is trained as a regression model to directly predict a reliability score from the raw text of a Jarḥ wa Taʿdīl statement. The training data consists of evaluative sentences extracted from the biographical entries in Taqrīb al-Tahdhīb and Tahdhīb al-Kamāl, where each statement is paired with its corresponding ordinal grade in the classical hierarchy (e.g., Thiqa Thiqa, Thiqa, Ṣadūq, Layyin, Kaḏḏāb). The model architecture is as follows:
+
+Base model: AraBERT v2, a bidirectional transformer pre-trained on ~70B tokens of Modern Standard and Classical Arabic text.
+
+Classification head: A pooling layer (mean of all token embeddings) followed by a linear layer with a single output neuron and a sigmoid activation, producing a score in [0.0, 1.0].
+
+Loss function: Mean Squared Error (MSE) between the predicted score and the normalised ground-truth grade.
+
+Unlike a static lookup table, the transformer model captures semantic context: it learns that "kāna thiqa ḍabt ḥāfiẓ" ("he was reliable, firm, and had a strong memory") carries the same weight as the single term thiqa despite different wording. It can also detect when a positive term is negated (e.g., "laysa bi-thiqa", "he is not reliable"), which a keyword lookup would misclassify.
+
+The biographical entries are then segmented into individual evaluative sentences using Arabic sentence boundary detection (via CAMeL Tools). Each sentence is labelled with the normalised score of its highest-grade term. The model is fine-tuned for 10 epochs with a learning rate of 2 × 10⁻⁵, using the AdamW optimiser with a linear warmup over the first 500 steps and a batch size of 16. A stratified 80/20 train-test split ensures all grade categories are proportionally represented.
+
+3.4.1.2 Track B: Baseline Keyword Lookup
+
+For comparison, a static term-weight mapping (Table 3) is also implemented as a baseline. Each Jarḥ wa Taʿdīl term is assigned a base weight according to the classical hierarchy (from 1.00 for Aḍbaṭ an-nās to 0.00 for Kaḏḏāb). Two aggregation strategies are compared:
+
+Weighted arithmetic mean, where the weight of each assessment is influenced by the historical prominence of the assessing scholar; and
+
+Bayesian posterior estimation, where each successive assessment updates a prior Beta distribution over the narrator's reliability.
+
+	Table 3: Example of Term Weighting
+
+3.4.1.3 Track Selection
+
+Both tracks are evaluated on a validation set of 200 Hadiths held out from the 1,200-sample evaluation corpus. The track that yields a higher Cohen's Kappa agreement with the ground-truth grades is selected for the final pipeline. If Track A outperforms Track B, it validates the hypothesis that contextual semantic analysis adds value over keyword matching, directly supporting the "Semantic Sentiment Analysis" framing of the project.
+
+3.4.2 Graph Neural Network for Structural Integrity Analysis
+
+While the Knowledge Graph (Section 3.3.2) provides the static relational backbone for entity disambiguation and metadata storage, it does not model the latent structural patterns that classical muhaddithun used to assess chain reliability. To address this, a Graph Neural Network (GNN) component is integrated to perform two tasks: structural reliability augmentation and anomaly detection.
+
+3.4.2.1 Node Embedding and Reliability Augmentation
+
+A two-layer Graph Convolutional Network (GCN) is implemented using PyTorch Geometric. The GCN operates on the Knowledge Graph, treating each narrator node as a vertex and each teacher-student transmission relationship as an edge. The input node feature vector  for each  is composed of:
+
+The base reliability weight  from semantic sentiment analysis (Section 3.4.1);
+
+The narrator's tabaqa encoded as an integer 1–12;
+
+A binary flag for known geographic region;
+
+Degree centrality (number of teachers and students) as a prominence proxy.
+
+The GCN computes a neighbourhood-aggregated representation  through two message-passing layers with ReLU activation and a hidden dimension of 128:
+
+where  is the neighbour set and AGG is mean aggregation. The output embedding passes through a linear head with sigmoid activation to produce a structurally augmented reliability score 
+
+3.4.2.2 Edge-Level Anomaly Detection
+
+The GCN additionally predicts a probability score  for each teacher-student edge , representing the likelihood of a genuine meeting. Edge features include:
+
+Transmission method (explicit terms like ḥaddathanā vs. ambiguous ʿan);
+
+Tabaqa difference between student and teacher;
+
+Binary geographic overlap feature;
+
+Known risk modifiers from Table 4 (tadlīs, ikhtilāṭ, etc.).
+
+Edges with  are flagged for manual review. Edges with  contribute their probability as a multiplicative factor to the edge modifier  in the chain scoring formula.
+
+3.4.2.3 Training and Integration
+
+The GCN is trained semi-supervised using two losses:
+
+Node-level: Binary cross-entropy against classical Jarḥ wa Taʿdīl labels for 300 narrators with unambiguous consensus grades;
+
+Edge-level: Binary cross-entropy on 500 teacher-student pairs with known temporal feasibility.
+
+The training is then set with 200 epochs, using Adam optimiser, learning rate set to 1 × 10⁻³, and dropout set to 0.3. Evaluation uses AUC-ROC on a 20% test split. An ablation study comparing the full pipeline (base weights + GCN + edge modifiers) against the baseline (without GCN) quantifies the marginal contribution of graph-structural analysis.
+
+3.4.3 Chain-Level Scoring
+
+Once each narrator in each isnād has been assigned an individual reliability score , the chain-level reliability  is computed as the product of individual scores for all narrators  in the chain:
+
+Equation 3.1
+
+where wᵢ is the Jarḥ wa Taʿdīl reliability weight for narrator , and  is the number of narrators in the chain.
+
+This multiplicative model developed by Ghriss (2025) will be employed, though with slight changes. The original model demonstrates that the score of a transmission path can be mathematically formulated using methods like the "product" or "average of reliabilities," though it ultimately leans toward a minimum "weakest link" function. The chain-level score  is then mapped to the traditional grading categories (Ṣaḥīḥ, Ḥasan, Ḍaʿīf, Mawḍūʿ) using threshold boundaries calibrated against the ground-truth labels in the evaluation set: 
+
+To further enhance the reliability of this model, the Edge Modifier () is added in the multiplication model to address transmission‑specific risks such as tadlīs cases, where a narrator would say “from from (narrator)” instead of “from (narrator) from (narrator)”, breaking the expected continuous entity-to-entity chaining, thus yielding the following model:
+
+Equation 3.2
+
+where  is the Jarḥ wa Taʿdīl weight for all narrators  in the chain, and  is the edge modifier applied if there are known risk cases, with the value reducing from the default 1.00 depending on the severity of the risk cases. The following table lists the standardised edge modifier penalties when dealing with sanad risk cases:
+
+Table 4: Standardised Modifier Range for Risk Cases
+
+
+	Only risk cases of tadlīs, poor memory and šāḏ remain after careful considerations as described in the notes of Table 4 to avoid further penalising until 0.00, which would render the quantification goal of this project as futile. 
+
+Geospatial consistency is checked for every edge. For each narrator, the travelled locations attribute (Table 2) is geocoded using the Geopy library with a gazetteer of classical Islamic cities (e.g., Medina, Kufa, Basra, Damascus, Cordoba). If both the student and the teacher have at least one location with a known year of residence (derived from birth/death dates and travel history), the system verifies whether their lifespans and geographic movements could have enabled a meeting. If a student’s known locations do not overlap with the teacher’s at any plausible time, a geospatial penalty factor  is multiplied into the edge modifier . If location data is missing or uncertain, no penalty is applied (). This penalty is applied independently of the risk cases modifiers.
+
+3.4.4 Evaluation Protocol
+
+The automated grades are evaluated against ground-truth Hadith classifications drawn from pre-graded collections in the Kutub as-Sitta (the Six Canonical Hadith Collections), i.e. Ṣaḥīḥ al‑Bukhārī, Ṣaḥīḥ Muslim, Sunan Abī Dāwūd, Jāmiʿ at‑Tirmiḏī (Sunan at‑Tirmiḏī), Sunan al‑Nasāʾī (al‑Mujtabā) and Sunan Ibn Mājah. The following metrics are reported:
+
+Table 5: Purposes of Metrics Used in this Project
+
+
+	A baseline comparison is conducted against a naive majority-class classifier and a simple lexical lookup model (direct term-to-grade mapping without graph features) to quantify the contribution of each pipeline component. To model structural and temporal integrity, a lightweight two-layer Graph Convolutional Network (GCN) is implemented using PyTorch Geometric. Node features include the base reliability weight wnodei, tabaqa (encoded as an integer), and a binary flag indicating whether the narrator has a known geographic region. Edge features include the transmission method (explicit direct vs. ambiguous) extracted via pattern matching. The GCN predicts an edge probability for each teacher‑student pair; probabilities below 0.50 trigger a manual review flag for potential anachronisms (e.g., a student claiming to have heard from a teacher who died before the student was born). The final node embeddings are also used to compute PageRank‑like centrality scores, which serve as an auxiliary feature for outlier detection.
+
+3.5 Flow Chart of Activities
+
+Figure 2.3: The Multi-Modal Framework Flowchart Summarising the Methodology
+
+3.6 Milestones and Dates
+
+The following table shows the weekly milestones with their deliverable respectively:
+
+Table 6: Milestones and Deliverables by Week
+
+3.7 Gantt Chart
+
+3.8 Tools and Technologies
+
+Below are the tools, libraries and technologies used to build this project, along with their purpose for the project:
+
+Table 7: Tools, Libraries, and their Purposes by Category
+
+REFERENCES
+
+Ahmad, N., Ahmed, S., & Abdullah, M. (2025). Hadith grading & machine learning: Feasibility of isnād-analysis. AL-JAMEI Research Journal, 3(2), 202–215. https://doi.org/10.5281/ 
+
+Ahmed, M., & Anas, M. (2025). Hadith narrators’ biographies and their role in the reliability of transmission. Contemporary Journal of Social Science Review, 3(3), 139–155. https://doi.org/10.63878/cjssr.v3i3.1131 
+
+Alghamdi, J., Albukhari, A., & Al-Dala’in, T. (2025). Pretrained models against traditional machine learning for detecting fake hadith. Electronics, 14(17), 3484. https://doi.org/10.3390/electronics14173484 
+
+Apgar, M., Fournie, G., Haesler, B., Higdon, G. L., Kenny, L., Oppel, A., Pauls, E., Smith, M., Snijder, M., Vink, D., & Hossain, M. (2023). Revealing the relational mechanisms of research for development through social network analysis. The European Journal of Development Research, 35(2), 323–350. https://doi.org/10.1057/s41287-023-00576-y 
+
+A’thoina, I., Hasballah, F., & Fadillah, N. A. (2025). Bridging revelation and algorithm. Digital Muslim Review, 3(1), 40–57. https://doi.org/10.32678/dmr.v3i1.38 
+
+Boukhaled, M.-A. (2022). A Machine Learning based Study on Classical Arabic Authorship Identification. Proceedings of the 14th International Conference on Agents and Artificial Intelligence, 489–495. https://doi.org/10.5220/0010969100003116 
+
+Dabeek, N., Jaber, R., Bsharat, Y., Hawash, A., & Abdalhaq, B. (2021). Visualizing ruwah related data by interactive graph. 2021 International Conference on Innovation and Intelligence for Informatics, Computing, and Technologies (3ICT), 268–273. https://doi.org/10.1109/3ict53449.2021.9582081 
+
+El Ganadi, A., Gagliardelli, L., & Ruozzi, F. (2025). Digital Maktaba project: Toward a metadata-driven, LLM-assisted framework for arabic digital libraries. International Journal on Digital Libraries, 26(4). https://doi.org/10.1007/s00799-025-00432-w 
+
+Farooqi, A. M., Malick, R. A. S., Shaikh, M. S., & Akhunzada, A. (2024). Multi-Isnadset mids for sahih muslim hadith with chain of narrators, based on multiple isnad. Elsevier BV. https://doi.org/10.2139/ssrn.4726768 
+
+Ghriss, A. (2025, June 19). Crowdsourced Information Authentication: A Graph-based Model from the Science of Hadith. 4th Muslims in ML Workshop Co-Located with ICML 2025 Oral. https://openreview.net/forum?id=F7CgAEPvAv 
+
+Hogan, A., Blomqvist, E., Cochez, M., d’Amato, C., de Melo, G., Gutierrez, C., Gayo, J. E. L., Kirrane, S., Neumaier, S., Polleres, A., Navigli, R., Ngomo, A.-C. N., Rashid, S. M., Rula, A., Schmelzeisen, L., Sequeda, J., Staab, S., & Zimmermann, A. (2021, September 9). Knowledge graphs. arXiv.Org. https://arxiv.org/abs/2003.02320 
+
+Ji, S., Pan, S., Cambria, E., Marttinen, P., & Yu, P. S. (2022). A survey on knowledge graphs: representation, acquisition, and applications. IEEE Transactions on Neural Networks and Learning Systems, 33(2), 494–514. https://doi.org/10.1109/tnnls.2021.3070843 
+
+Kamali, M. H. (2014). A textbook of hadith studies: Authenticity, compilation, classification and criticism of hadith. Kube Publishing Ltd.
+
+Mahmoud, S., Nabil, E., Saif, O., & Torki, M. (2024). Narrator identification by querying Sanad graph and utilizing the NarratorsKG on AR-Sanad 280K-v2 dataset. Neural Computing and Applications, 36(36), 23169–23180. https://doi.org/10.1007/s00521-024-10194-2 
+
+Mahmoud, S., Saif, O., Nabil, E., Abdeen, M., ElNainay, M., & Torki, M. (2022). AR-Sanad 280K: A novel 280K artificial Sanads dataset for Hadith narrator disambiguation. Information, 13(2), 55. https://doi.org/10.3390/info13020055 
+
+Maraoui, H., Haddar, K., & Romary, L. (2022). Development of a normalized hadith narrator  encyclopedia with TEI. Computación y Sistemas, 26(3). https://doi.org/10.13053/cys-26-3-4349 
+
+Mghari, M., Bouras, O., & El Hibaoui, A. (2024). Narrator2vec: an efficient narrator representation in hadith literature using word embedding. Arabian Journal for Science and Engineering, 49(3), 4479–4494. https://doi.org/10.1007/s13369-023-08224-7 
+
+Mohamed Emad Elden, F. (2025). Isnad AI at IslamicEval 2025: A rule-based system for identifying religious texts in LLM outputs. Proceedings of The Third Arabic Natural Language Processing Conference: Shared Tasks, 540–559. https://doi.org/10.18653/v1/2025.arabicnlp-sharedtasks.74 
+
+Mosa, M. A. (2025). Synergizing structure and semantics: A knowledge graph-transformer framework for narrator disambiguation in hadith networks. Digital Scholarship in the Humanities, 40(4), 1085–1100. https://doi.org/10.1093/llc/fqaf088 
+
+Muther, R., Smith, D., & Savant, S. B. (2023). From networks to named entities and back again: exploring classical Arabic isnād networks. Journal of Historical Network Research, 8(1). https://doi.org/10.25517/jhnr.v8i1.135 
+
+Najeeb, M. M. A. (2022). A hidden Markov model-based tagging approach for Arabic isnads of Hadiths. Mathematical Problems in Engineering, 2022, 1–12. https://doi.org/10.1155/2022/7160509 
+
+Oumer, J. M. (2025). Relation extraction for graph‐based representation of Hadith Isnad [Dissertation, Università ta’ Malta]. https://www.um.edu.mt/library/oar/handle/123456789/137629 
+
+Pavlova, V. (2025, January 17). Multi-stage Training of Bilingual Islamic LLM for Neural Passage Retrieval. arXiv. https://doi.org/10.48550/arxiv.2501.10175 
+
+Raval, H. (2025). Disambiguating investment entities in enterprise graphs: a hybrid approach with graph neural networks and embedding models. 2025 International Conference on Intelligent and Secure Engineering Solutions (CISES), 521–526. https://doi.org/10.1109/cises66934.2025.11265192 
+
+Shafie, O. A. (2021). KASHAF: A knowledge-graphs approach search-engine for hadith analysis & flow-visualization [Hamad Bin Khalifa University]. https://doi.org/10.57945/manara.hbku.28032971 
+
+Sri Wahyuningsih, Istianah, I., & Suhono, S. (2025). The contribution of hadith digitalization to the development of hadith studies: Voices from students in indonesian higher education. International Journal of Community Engagement Payungi, 5(3), 414–427. https://doi.org/10.58879/ijcep.v5i3.104 
+
+Tarmom, T. A. (2022). Compression versus machine learning for classifying modern Arabic code-switching in social media and classical Arabic Hadith. University of Leeds.
+
+Umanah, R. (2024). The digital era of hadith: Challenges of authenticity and opportunities for innovation. Al-Iftah: Journal of Islamic Studies and Society, 5(2), 136–148. https://doi.org/10.35905/aliftah.v5i2.12647 
+
+Usman, A. H. (2025). Islamic scholarship in the modern era: Contributions, critiques and innovations. Al-Irsyad: Journal of Islamic and Contemporary Issues, 10(2), xxx–xli. https://doi.org/10.53840/alirsyad.v10i2.588
+
+APPENDICES
+

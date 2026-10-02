@@ -1,0 +1,22 @@
+1. UK SPELLING
+   ✓ All UK
+
+2. GEOSPATIAL IN Ch5
+   ✓ [503]: 	Third, the near-random GNN accuracy (R² near zero for graph-only features) confirms that edge risk modifiers (tadlīs, ikhtilāṭ) and geospatial verifi...
+
+3. MULTI-WORD ITALIC RUNS
+   ? [458] 'Kutub as-Sitta' exists in text but not as single italic run
+   ✓ [461] 'Tahdhīb al-Kamāl' is one italic run
+   ✓ [463] 'Jarḥ wa Taʿdīl' is one italic run
+   ? [466] 'Kutub as-Sitta' exists in text but not as single italic run
+   ✓ [476] 'Tahdhīb al-Kamāl' is one italic run
+   ? [490] 'Kutub as-Sitta' exists in text but not as single italic run
+
+4. CH4 GEOSPATIAL
+   ✓ [417]: 	The graph is built by walking through Sanadset rows, pulling narrator names from each chain, and creating directed edge...
+   ✓ [424]: To answer the experimental question, a two-layer GCN is built in PyTorch Geometric. The model reads node features and ou...
+
+5. STATS
+   Paragraphs: 545
+   Tables: 19
+   Ch5: [450] to [506]

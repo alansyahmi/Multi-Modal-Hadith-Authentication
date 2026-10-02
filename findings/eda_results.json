@@ -1,0 +1,245 @@
+{
+  "grade_distribution": {
+    "Thiqah": {
+      "count": 3409,
+      "pct": 28.4
+    },
+    "Saduq": {
+      "count": 2607,
+      "pct": 21.7
+    },
+    "Maqbul": {
+      "count": 2088,
+      "pct": 17.4
+    },
+    "Daif": {
+      "count": 851,
+      "pct": 7.1
+    },
+    "Matruk": {
+      "count": 215,
+      "pct": 1.8
+    },
+    "Majhul": {
+      "count": 1157,
+      "pct": 9.6
+    },
+    "Other": {
+      "count": 1692,
+      "pct": 14.1
+    }
+  },
+  "text_lengths": {
+    "count": 15448,
+    "mean_chars": 1097.9,
+    "median_chars": 332.5,
+    "pct_very_short": 43.3
+  },
+  "alias_density": {
+    "total_forms": 24545,
+    "avg_per_narrator": 4.02,
+    "max_per_narrator": 1848,
+    "pct_ge5": 7.9
+  },
+  "degree_distribution": {
+    "full_nodes": 262497,
+    "graded_nodes": 2172,
+    "edges": 3541,
+    "mean_degree": 4.12,
+    "median_degree": 2.0,
+    "max_degree": 291,
+    "gamma": 1.612,
+    "top_1pct_share": 19.8,
+    "cold_start_pct": 99.17
+  },
+  "cold_start": {
+    "full_nodes": 262497,
+    "graded_subgraph": 2172,
+    "cold_start_nodes": 260325,
+    "cold_start_pct": 99.17,
+    "with_grade_in_subgraph": 1987,
+    "with_tabaqa_in_subgraph": 1915,
+    "with_death_in_subgraph": 1386
+  },
+  "tabaqa_distribution": {
+    "2": {
+      "count": 48,
+      "pct": 2.5
+    },
+    "3": {
+      "count": 124,
+      "pct": 6.5
+    },
+    "4": {
+      "count": 49,
+      "pct": 2.6
+    },
+    "5": {
+      "count": 56,
+      "pct": 2.9
+    },
+    "6": {
+      "count": 124,
+      "pct": 6.5
+    },
+    "7": {
+      "count": 135,
+      "pct": 7.0
+    },
+    "8": {
+      "count": 76,
+      "pct": 4.0
+    },
+    "9": {
+      "count": 169,
+      "pct": 8.8
+    },
+    "10": {
+      "count": 394,
+      "pct": 20.6
+    },
+    "11": {
+      "count": 592,
+      "pct": 30.9
+    }
+  },
+  "geo_top_cities": [
+    {
+      "city": "الكوفة",
+      "count": 1374,
+      "pct": 24.7
+    },
+    {
+      "city": "المدينة",
+      "count": 1189,
+      "pct": 21.4
+    },
+    {
+      "city": "البصرة",
+      "count": 983,
+      "pct": 17.7
+    },
+    {
+      "city": "مكة",
+      "count": 274,
+      "pct": 4.9
+    },
+    {
+      "city": "الشام",
+      "count": 226,
+      "pct": 4.1
+    },
+    {
+      "city": "مصر",
+      "count": 195,
+      "pct": 3.5
+    },
+    {
+      "city": "دمشق",
+      "count": 194,
+      "pct": 3.5
+    },
+    {
+      "city": "بغداد",
+      "count": 186,
+      "pct": 3.3
+    },
+    {
+      "city": "حمص",
+      "count": 170,
+      "pct": 3.1
+    },
+    {
+      "city": "مرو",
+      "count": 154,
+      "pct": 2.8
+    },
+    {
+      "city": "واسط",
+      "count": 140,
+      "pct": 2.5
+    },
+    {
+      "city": "الجزيرة",
+      "count": 82,
+      "pct": 1.5
+    },
+    {
+      "city": "خراسان",
+      "count": 62,
+      "pct": 1.1
+    },
+    {
+      "city": "الري",
+      "count": 61,
+      "pct": 1.1
+    },
+    {
+      "city": "حران",
+      "count": 49,
+      "pct": 0.9
+    }
+  ],
+  "geo_regions": {
+    "Kufa": {
+      "count": 1374,
+      "pct": 24.7
+    },
+    "Medina": {
+      "count": 1189,
+      "pct": 21.4
+    },
+    "Basra": {
+      "count": 983,
+      "pct": 17.7
+    },
+    "Other": {
+      "count": 752,
+      "pct": 13.5
+    },
+    "Mecca": {
+      "count": 274,
+      "pct": 4.9
+    },
+    "Egypt": {
+      "count": 195,
+      "pct": 3.5
+    },
+    "Damascus": {
+      "count": 194,
+      "pct": 3.5
+    },
+    "Baghdad": {
+      "count": 186,
+      "pct": 3.3
+    },
+    "Marw": {
+      "count": 154,
+      "pct": 2.8
+    },
+    "Wasit": {
+      "count": 140,
+      "pct": 2.5
+    },
+    "Rayy": {
+      "count": 61,
+      "pct": 1.1
+    },
+    "Nishapur": {
+      "count": 41,
+      "pct": 0.7
+    },
+    "Jerusalem": {
+      "count": 7,
+      "pct": 0.1
+    },
+    "Spain": {
+      "count": 2,
+      "pct": 0.0
+    },
+    "Yemen": {
+      "count": 1,
+      "pct": 0.0
+    }
+  }
+}

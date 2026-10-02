@@ -1,0 +1,32 @@
+Automating Narrator Evaluation in Hadith Studies through Natural Language Processing and Text Mining Techniques
+Other titles:
+Automated Jarh wa Taʿdīl scoring from sanads using knowledge graphs and probabilistic models
+Multi‑source narrator reliability aggregation with provenance and uncertainty estimation
+Semantics‑aware narrator credibility: integrating biographical text sentiment into reliability scores
+Real‑time isnād grader: live parsing, disambiguation, and probabilistic trust scoring pipeline
+Benchmarking narrator reliability metrics using AR‑Sanad and NarratorsKG datasets
+
+Tools:
+- Literature Review: Scispace, Grok
+- Writing: Claude
+
+My title difference compared to recents:
+- Most papers focus on narrator extraction and disambiguation (bcs some narrations provide narrators with not full names, example is Muhammad ibn Ishaq can be 5 different individuals)
+- only one directly explores automated hadith grading (even so only for feasibility)
+- Recent progress centers on knowledge graphs, large annotated sanad datasets, and KG+Transformer disambiguation, 
+leaving end-to-end automated reliability scoring underdeveloped.
+
+TL;DR
+Automated narrator evaluation is technically feasible using a mix of rule-based NER, statistical/sequence models, pretrained transformers, and knowledge-graph methods; recent datasets and KG resources enable disambiguation and graph-based verification but narrator-name variation and scarce labelled Jarh/Ta'dil labels remain core challenges.
+
+NER and entity linking
+This section summarizes the concrete NLP approaches applied to extract narrator names and link them to identities in Hadith chains, showing a progression from rule-based to transformer+KG methods. The literature reports hybrid pipelines combining linguistically driven rules, sequence models, and transformer fine-tuning plus dedicated linking into narrators knowledge graphs.
+
+Datasets resources and practical inputs
+This section lists the concrete datasets and corpora used by the reviewed studies and notes typical provenance used for experiments and evaluation. Several public and constructed datasets are in active use for extraction, disambiguation, and graph experiments.
+1. (MDPI) AR‑Sanad 280K A 280K artificial sanads dataset with labelled narrator identities has been created and used as a primary benchmark for narrator disambiguation experiments
+2. (ScienceDirect) Sanadset 650K: Data on Hadith narrators
+3. Real canonical books Models trained/evaluated on AR‑Sanad have also been tested on real sanads drawn from the classical “six books” of hadith to measure real-world transfer
+4. Sahih Muslim subsets Some extraction and processing studies used Sahih Muslim corpora for training/testing of Isnad POI extraction methods
+5. Manually annotated corpora Prior work created manually annotated Hadith corpora for NER and converted extracted sequences to graph format for downstream analysis
+6. Knowledge graph resources NarratorsKG and other KG-based indices are emerging as reusable resources to support entity linking and graph queries

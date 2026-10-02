@@ -1,0 +1,35 @@
+Chapter 4 starts at [379]
+
+=== All geo/location mentions in Chapter 4 ===
+[421] 
+	The expected result will be a PyTorch Geometric graph file (pyg_graph_large.npz) with ~50K–60K nodes and ~200K–300K edges. The graded variant (pyg_graph_large_graded.npz) would put ground-truth labels in the first feature column for semi-supervised GNN training.
+
+[425] To answer the experimental question, a two-layer GCN is built in PyTorch Geometric. The model reads node features and outputs a continuous reliability score in [0, 1] for each narrator. Three variants were compared: (a) graph-only with just the 8 structural features; (b) graph + BERT with structural features plus the 128-dimensional PCA-reduced embeddings; (c) graph + lexicon with structural featu
+
+
+=== Experiment 6 / GCN Ablation node features ===
+[405] 4.4.1 Experiment 3: BERT Embedding Extraction for Biographical Jarḥ wa Taʿdīl Features
+
+[406] The following question is posed: could deep contextual embeddings of the biographical text passages that contain Jarḥ wa Taʿdīl assessments give us useful semantic features for GNN node representations?
+
+[407] The classical kutub ar-rijal contain qualitative judgements about each narrator’s moral probity (ʿadāla) and mnemonic precision (ḍabṭ). These are expressed through a technical vocabulary such as Thiqa, Ṣadūq, Kadhdhāb, Layyin and through longer contextual phrases a simple keyword lookup might miss. 
+
+[409] 
+	Two augmented graph files are expected as results: one with 8 graph features plus 128 BERT-PCA features (136 dimensions total), another with 8 graph features plus 7 lexicon features (15 dimensions). These would feed into the GNN ablation study in Experiment 6.
+
+[416] 4.5.1 Experiment 5: Graph Topology and Feature Engineering
+
+[418] 	The graph is built by walking through Sanadset rows, pulling narrator names from each chain, and creating directed edges to represent teacher-student relationships (teacher → student). Node features include log-transformed appearance count, in-degree, out-degree, average chain position, and the gra
+
+[421] 
+	The expected result will be a PyTorch Geometric graph file (pyg_graph_large.npz) with ~50K–60K nodes and ~200K–300K edges. The graded variant (pyg_graph_large_graded.npz) would put ground-truth labels in the first feature column for semi-supervised GNN training.
+
+[424] The following question is then posed: how much does adding semantic features (BERT embeddings of biographical Jarḥ wa Taʿdīl passages, GRADE_SCORE_MAP keyword scores) improve narrator reliability prediction over graph-structural features alone?
+
+[425] To answer the experimental question, a two-layer GCN is built in PyTorch Geometric. The model reads node features and outputs a continuous reliability score in [0, 1] for each narrator. Three variants were compared: (a) graph-only with just the 8 structural features; (b) graph + BERT with structural
+
+
+=== Geospatial-related scripts ===
+check_ch4_geo.py
+
+=== Geospatial output files ===

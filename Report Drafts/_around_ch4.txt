@@ -1,0 +1,123 @@
+[375] [Heading 2   ] 3.8 Tools and Technologies
+[376] [Normal      ] Below are the tools, libraries and technologies used to build this project, along with their purpose
+[377] [Normal      ] Table 7: Tools, Libraries, and their Purposes by Category
+[379] [Heading 1   ] CHAPTER 4: EXPERIMENTAL DESIGN
+[380] [Heading 2   ] 4.1 Introduction
+[381] [Normal      ] This chapter lays out the experiments we designed to test each of the three research objectives — de
+[382] [Normal      ] I cover the full experimental environment — hardware, software, datasets — before walking through ea
+[383] [Heading 2   ] 4.2 Experimental Environment
+[384] [Normal      ] All experiments ran on a local development workstation with the specs below. When GPU training was n
+[385] [Heading 3   ] 4.2.1 Hardware Configuration
+[386] [Heading 3   ] 4.2.2 Software Configuration
+[387] [Heading 2   ] 4.3 Data Preparation Experiments
+[388] [Normal      ] Before any entity extraction or graph building could happen, the raw data had to be cleaned and cros
+[389] [Heading 3   ] 4.3.1 Experiment 1: Biographical Text Parsing
+[390] [Normal      ] What we wanted to know:
+[391] [Normal      ] Could a Regex-based parser reliably isolate individual biographical entries (tarajim) from the raw O
+[392] [Normal      ] How we tested it
+[393] [Normal      ] The parser (src.shamela.narrator_parser.segment_volume) runs a multi-stage Regex pipeline over each 
+[394] [Normal      ] Key parameters
+[395] [Normal      ] What we expected
+[396] [Normal      ] A structured JSON export of every extracted entry — entry ID, volume, name, full text, teachers, stu
+[397] [Heading 3   ] 4.3.2 Experiment 2: Two-Tier Alignment Framework
+[398] [Normal      ] What we wanted to know:
+[399] [Normal      ] Could we reliably cross-reference Hadith records between the Sanadset 650K corpus and the HuggingFac
+[400] [Normal      ] How we tested it
+[401] [Normal      ] Tier 1 uses a sparse TF-IDF vectorizer with character n-grams (3-5) to reduce the search space from 
+[402] [Normal      ] Key parameters
+[403] [Normal      ] What we expected
+[404] [Normal      ] A JSON file of alignment results for all 1,200 queries. Target: >= 75% match rate, < 5% quarantined.
+[405] [Heading 2   ] 4.4 Entity Extraction and Disambiguation Experiments
+[406] [Normal      ] These experiments bridge Stages 1 and 2. Once the data is clean and aligned, the next question is ho
+[407] [Heading 3   ] 4.4.1 Experiment 3: BERT Embedding Extraction for Biographical Jarḥ wa Taʿdīl Features
+[408] [Normal      ] What we wanted to know:
+[409] [Normal      ] Could deep contextual embeddings of the biographical text passages that contain Jarḥ wa Taʿdīl asses
+[410] [Normal      ] How we tested it
+[411] [Normal      ] The classical kutub ar-rijal contain qualitative judgements about each narrator’s moral probity (ʿad
+[412] [Normal      ] Key parameters
+[413] [Normal      ] What we expected
+[414] [Normal      ] An augmented graph file (pyg_graph_bert.npz) with 8 structural + 128 BERT features per node (136 tot
+[415] [Heading 3   ] 4.4.2 Experiment 4: Narrator Name Matching and Encyclopedia Coverage
+[416] [Normal      ] What we wanted to know:
+[417] [Normal      ] How well can we match Sanadset narrator names to the biographical encyclopedia extracted from classi
+[418] [Normal      ] How we tested it
+[419] [Normal      ] Narrator names from aligned Hadith chains were normalised (diacritic strip, alif variants, ya/ha col
+[420] [Normal      ] Key parameters
+[421] [Normal      ] What we expected
+[422] [Normal      ] narrator_matches.json with match status per narrator. Target: >= 80% overall match rate, >= 60% with
+[423] [Heading 2   ] 4.5 Knowledge Graph Construction Experiments
+[424] [Heading 3   ] 4.5.1 Experiment 5: Graph Topology and Feature Engineering
+[425] [Normal      ] What we wanted to know:
+[426] [Normal      ] How does the scale of the transmission network affect graph properties and downstream GNN performanc
+[427] [Normal      ] How we tested it
+[428] [Normal      ] We built the graph from Sanadset chains as directed edges (teacher to student). Node features: log a
+[429] [Normal      ] Grade scoring
+[430] [Normal      ] Ibn Hajar’s 12-tier system maps to [0.0, 1.0] via src/stage2/config.py. Companions (Sahaba): 1.0; Th
+[431] [Normal      ] Key parameters
+[432] [Normal      ] What we expected
+[433] [Normal      ] pyg_graph_large.npz with ~50K-60K nodes and ~200K-300K edges. The graded variant adds ground-truth l
+[434] [Heading 2   ] 4.6 GNN Architecture and Training Experiments
+[435] [Heading 3   ] 4.6.1 Experiment 6: Graph Convolutional Network Ablation Study
+[436] [Normal      ] What we wanted to know:
+[437] [Normal      ] How much do BERT embeddings of Jarḥ wa Taʿdīl passages and GRADE_SCORE_MAP keyword scores improve na
+[438] [Normal      ] How we tested it
+[439] [Normal      ] A two-layer GCN in PyTorch Geometric predicts continuous reliability scores [0, 1] for each narrator
+[440] [Normal      ] Hyperparameters
+[441] [Normal      ] What we expected
+[442] [Normal      ] Comparison of MAE, R-squared, Spearman and Pearson correlations, and binary accuracy (threshold >= 0
+[443] [Heading 2   ] 4.7 Trust Scoring and Evaluation Experiments
+[444] [Normal      ] These experiments close the loop on PO1 and PO3 — converting GNN scores into Sahih/Hasan/Daʿif/Mawdu
+[445] [Heading 3   ] 4.7.1 Experiment 7: Semantic Sentiment Quantisation of Jarḥ wa Taʿdīl Terms
+[446] [Normal      ] What we wanted to know:
+[447] [Normal      ] Can the qualitative Jarḥ wa Taʿdīl terms extracted from the biographical encyclopedia be reliably ma
+[448] [Normal      ] How we tested it
+[449] [Normal      ] This experiment operationalises the core idea behind PO1: translating the classical critics’ vocabul
+[450] [Normal      ] Key parameters
+[451] [Heading 3   ] 4.7.2 Experiment 8: Chain-Level Reliability Scoring
+[452] [Normal      ] What we wanted to know:
+[453] [Normal      ] Can the full pipeline — from sanad text to final Hadith grade — produce scores that agree with canon
+[454] [Normal      ] How we tested it
+[455] [Normal      ] The pipeline (hadith_authenticator.py) parses the sanad, looks up each narrator in the KG for GNN-pr
+[456] [Normal      ] Grade thresholds
+[457] [Normal      ] What we expected
+[458] [Normal      ] Predicted grades for all 1,200 evaluation Hadiths. Metrics: accuracy, macro F1, RMSE, Cohen’s Kappa.
+[459] [Heading 3   ] 4.7.3 Experiment 9: Multi-Sanad Matn Analysis
+[460] [Normal      ] What we wanted to know:
+[461] [Normal      ] When the same matn appears with different narrator chains, how well do their scores agree — and does
+[462] [Normal      ] How we tested it
+[463] [Normal      ] Matn texts from Sanadset were normalised and grouped by SHA-256 hash. Groups with >= 3 distinct narr
+[464] [Normal      ] Key parameters
+[465] [Heading 2   ] 4.8 Summary
+[466] [Normal      ] Nine experiments were described across the three pipeline stages: data preparation (Experiments 1–2)
+[467] [Normal      ] The next chapter moves from design to execution. It presents the results of implementing Stages 1 an
+[468] [Heading 1   ] REFERENCES
+[470] [Normal      ] Ahmad, N., Ahmed, S., & Abdullah, M. (2025). Hadith grading & machine learning: Feasibility of isnād
+[471] [Normal      ] Ahmed, M., & Anas, M. (2025). Hadith narrators’ biographies and their role in the reliability of tra
+[472] [Normal      ] Alghamdi, J., Albukhari, A., & Al-Dala’in, T. (2025). Pretrained models against traditional machine 
+[473] [Normal      ] Apgar, M., Fournie, G., Haesler, B., Higdon, G. L., Kenny, L., Oppel, A., Pauls, E., Smith, M., Snij
+[474] [Normal      ] A’thoina, I., Hasballah, F., & Fadillah, N. A. (2025). Bridging revelation and algorithm. Digital Mu
+[475] [Normal      ] Boukhaled, M.-A. (2022). A Machine Learning based Study on Classical Arabic Authorship Identificatio
+[476] [Normal      ] Dabeek, N., Jaber, R., Bsharat, Y., Hawash, A., & Abdalhaq, B. (2021). Visualizing ruwah related dat
+[477] [Normal      ] El Ganadi, A., Gagliardelli, L., & Ruozzi, F. (2025). Digital Maktaba project: Toward a metadata-dri
+[478] [Normal      ] Farooqi, A. M., Malick, R. A. S., Shaikh, M. S., & Akhunzada, A. (2024). Multi-Isnadset mids for sah
+[479] [Normal      ] Ghriss, A. (2025, June 19). Crowdsourced Information Authentication: A Graph-based Model from the Sc
+[480] [Normal      ] Hogan, A., Blomqvist, E., Cochez, M., d’Amato, C., de Melo, G., Gutierrez, C., Gayo, J. E. L., Kirra
+[481] [Normal      ] Ji, S., Pan, S., Cambria, E., Marttinen, P., & Yu, P. S. (2022). A survey on knowledge graphs: repre
+[482] [Normal      ] Kamali, M. H. (2014). A textbook of hadith studies: Authenticity, compilation, classification and cr
+[483] [Normal      ] Mahmoud, S., Nabil, E., Saif, O., & Torki, M. (2024). Narrator identification by querying Sanad grap
+[484] [Normal      ] Mahmoud, S., Saif, O., Nabil, E., Abdeen, M., ElNainay, M., & Torki, M. (2022). AR-Sanad 280K: A nov
+[485] [Normal      ] Maraoui, H., Haddar, K., & Romary, L. (2022). Development of a normalized hadith narrator  encyclope
+[486] [Normal      ] Mghari, M., Bouras, O., & El Hibaoui, A. (2024). Narrator2vec: an efficient narrator representation 
+[487] [Normal      ] Mohamed Emad Elden, F. (2025). Isnad AI at IslamicEval 2025: A rule-based system for identifying rel
+[488] [Normal      ] Mosa, M. A. (2025). Synergizing structure and semantics: A knowledge graph-transformer framework for
+[489] [Normal      ] Muther, R., Smith, D., & Savant, S. B. (2023). From networks to named entities and back again: explo
+[490] [Normal      ] Najeeb, M. M. A. (2022). A hidden Markov model-based tagging approach for Arabic isnads of Hadiths. 
+[491] [Normal      ] Oumer, J. M. (2025). Relation extraction for graph‐based representation of Hadith Isnad [Dissertatio
+[492] [Normal      ] Pavlova, V. (2025, January 17). Multi-stage Training of Bilingual Islamic LLM for Neural Passage Ret
+[493] [Normal      ] Raval, H. (2025). Disambiguating investment entities in enterprise graphs: a hybrid approach with gr
+[494] [Normal      ] Shafie, O. A. (2021). KASHAF: A knowledge-graphs approach search-engine for hadith analysis & flow-v
+[495] [Normal      ] Sri Wahyuningsih, Istianah, I., & Suhono, S. (2025). The contribution of hadith digitalization to th
+[496] [Normal      ] Tarmom, T. A. (2022). Compression versus machine learning for classifying modern Arabic code-switchi
+[497] [Normal      ] Umanah, R. (2024). The digital era of hadith: Challenges of authenticity and opportunities for innov
+[498] [Normal      ] Usman, A. H. (2025). Islamic scholarship in the modern era: Contributions, critiques and innovations
+[503] [Heading 1   ] APPENDICES

@@ -1,0 +1,158 @@
+# ==============================================================================
+# FYP Project - .gitignore
+# Prevents large datasets, ML weights, generated outputs, caches, and temporary
+# files from bloating the Git repository and exceeding GitHub's 100MB limit.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Big Data & Raw Datasets (Exceeds GitHub file size limits)
+# ------------------------------------------------------------------------------
+Dataset/
+dataset/
+datasets/
+data/
+*.iso
+*.csv
+*.tsv
+*.parquet
+*.arrow
+*.jsonl
+*.sqlite
+*.sqlite3
+*.db
+
+# ------------------------------------------------------------------------------
+# 2. Pipeline Outputs, Models & Machine Learning Weights
+# ------------------------------------------------------------------------------
+output/
+results/
+runs/
+checkpoints/
+eval_results/
+
+# Model weights and heavy binary matrices
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.onnx
+*.ckpt
+*.h5
+*.npz
+*.npy
+*.pkl
+*.pickle
+
+# ------------------------------------------------------------------------------
+# 3. Third-party Tools, Installers & Large Binaries
+# ------------------------------------------------------------------------------
+Tools/
+shamela-epub-exporter-1.4.2-chrome/
+*.exe
+*.dll
+*.so
+*.dylib
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# ------------------------------------------------------------------------------
+# 4. Scratch & Ad-hoc Experiment Scripts
+# ------------------------------------------------------------------------------
+scratch/
+tmp/
+temp/
+
+# ------------------------------------------------------------------------------
+# 5. University Guides, Templates & Downloaded References (Heavy PDFs / Docs)
+# ------------------------------------------------------------------------------
+FYP Guides/
+Templates/
+References/
+
+# ------------------------------------------------------------------------------
+# 6. Sensitive Personal / Academic Credentials & Official Signatures
+# ------------------------------------------------------------------------------
+*signature*
+*chop*
+*.pem
+*.key
+*.env
+*.env.*
+*.secret
+
+# ------------------------------------------------------------------------------
+# 7. Python, Package & Virtual Environment Artifacts
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Checkpoints & Test Caches
+.ipynb_checkpoints/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ------------------------------------------------------------------------------
+# 8. Office, Editor & System Temporary / Lock Files
+# ------------------------------------------------------------------------------
+# MS Office lock files & Windows temp files
+~$*
+~*.tmp
+*.tmp
+*.bak
+*.bkp
+.$*
+
+# Windows system
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS system
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor swap files
+*~
+*.swp
+*.swo
+
+# IDE settings
+.vscode/
+.idea/
+
+# AI tool local state & lock files
+.claude/settings.local.json
+.claude/*.lock
+.ecc-design/

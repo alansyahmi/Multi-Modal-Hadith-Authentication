@@ -1,0 +1,123 @@
+CHAPTER 5 starts at [451]
+
+=== RUN-LEVEL FORMATTING CHECK ===
+
+[458] Three research objectives are addressed across the pipeline:...
+  run[0]: normal | Three research objectives are addressed across the pipeline: PO1 (NLP-based reli
+  run[1]: ITALIC | Kutub as-Sitta
+  run[2]: normal | ) through the alignment and matching validation. Each section reports concrete o
+
+[461] The first processing step extracts individual biographical e...
+  run[0]: normal | The first processing step extracts individual biographical entries (
+  run[1]: ITALIC | tarājim
+  run[2]: normal | ) from the raw 
+  run[3]: ITALIC | Maktaba Shamela
+  run[4]: normal |  volumes of 
+  run[5]: ITALIC | Tahdhīb al-Kamāl
+  run[6]: normal |  (35 volumes) and 
+  run[7]: ITALIC | Taqrīb at-Tahdhīb
+  run[8]: normal |  (1 volume). The parser, implemented in src.shamela.narrator_parser.segment_volu
+
+[463] The parser produced a unified narrator encyclopedia of 3,797...
+  run[0]: normal | The parser produced a unified narrator encyclopedia of 3,797 entries. Entries wi
+  run[1]: ITALIC | رَوَى عَن
+  run[2]: normal | " (narrated from) and "
+  run[3]: ITALIC | رَوَى عَنه
+  run[4]: normal | " (narrated by him) patterns in the biographical text, while grade-bearing entri
+  run[5]: ITALIC | Jarḥ wa Taʿdīl
+  run[6]: normal |  keywords such as "
+  run[7]: ITALIC | ثقة
+  run[8]: normal | " (
+  run[9]: ITALIC | thiqa
+  run[10]: normal | ), "
+  run[11]: ITALIC | صدوق
+  run[12]: normal | " (
+  run[13]: ITALIC | ṣadūq
+  run[14]: normal | ), and "
+  run[15]: ITALIC | ضعيف
+  run[16]: normal | " (
+  run[17]: ITALIC | ḍaʿīf
+  run[18]: normal | ). The confidence distribution showed that entries with explicit teacher-student
+
+[466] The alignment pipeline cross-references Hadith records betwe...
+  run[0]: normal | The alignment pipeline cross-references Hadith records between the Sanadset 650K
+  run[1]: ITALIC | Kutub as-Sitta
+  run[2]: normal |  evaluation dataset. The implementation follows the two-tier design described in
+  run[3]: ITALIC | matn
+  run[4]: normal |  and each candidate, enforcing a strict threshold of 95%. Matches falling below 
+
+[468] Results: Of the 1,200 queries, 1,030 were successfully match...
+  run[0]: normal | Results: Of the 1,200 queries, 1,030 were successfully matched (85.8%), while 17
+  run[1]: ITALIC | matn
+  run[2]: normal |  extract and the HuggingFace Arabic_Text field, where the Sanadset entry carries
+  run[3]: ITALIC | matn
+  run[4]: normal |  portion while the HuggingFace entry includes both 
+  run[5]: ITALIC | sanad
+  run[6]: normal |  and 
+  run[7]: ITALIC | matn
+  run[8]: normal |  together. This was mitigated by the partial_ratio approach, which finds the bes
+  run[9]: ITALIC | matn
+  run[10]: normal |  length remained below threshold.
+
+[471] The 170 quarantined records were written to a separate JSON ...
+  run[0]: normal | The 170 quarantined records were written to a separate JSON log for manual inspe
+  run[1]: ITALIC | matn
+  run[2]: normal |  is very short (< 20 characters), providing insufficient signal for substring ma
+  run[3]: ITALIC | alif maqṣūra
+  run[4]: ITALIC |  (ى vs ي) and 
+  run[5]: ITALIC | tāʾ marbūṭa
+  run[6]: ITALIC |  (ة vs ه) that survived the normalisation step; and (3) numerical discrepancies 
+
+[472] These findings directly inform improvements planned for FYP2...
+  run[0]: normal | These findings directly inform improvements planned for FYP2: a more aggressive 
+  run[1]: ITALIC | matn
+  run[2]: normal | s.
+
+[487] To provide semantic node features for the GNN ablation study...
+  run[0]: normal | To provide semantic node features for the GNN ablation study, CAMeL-BERT (bert-b
+  run[1]: ITALIC | Jarḥ wa Taʿdīl
+  run[2]: normal |  content. The 768-dimensional output was reduced to 128 dimensions via PCA.
+
+[490] The following sections describe preliminary Stage 3 runs. Th...
+  run[0]: normal | The following sections describe preliminary Stage 3 runs. These experiments were
+  run[1]: ITALIC | Kutub as-Sitta
+  run[2]: normal |  ground truth are FYP2 work.
+
+[497] The low accuracy (~20%) confirms that node regression on thi...
+  run[0]: normal | The low accuracy (~20%) confirms that node regression on this task is non-trivia
+  run[1]: ITALIC | tadlīs
+  run[2]: normal | , 
+  run[3]: ITALIC | ikhtilāṭ
+  run[4]: normal | ) as described in Section 3.4.2.2, (b) adding geospatial consistency verificatio
+
+[499] A working interactive demonstrator (hadith_authenticator.py)...
+  run[0]: normal | A working interactive demonstrator (hadith_authenticator.py) was built to valida
+  run[1]: ITALIC | sanad
+  run[2]: normal |  string as input and produces a chain-level authenticity verdict. The verdict is
+  run[3]: ITALIC | isnād
+  run[4]: normal |  analysis (no 
+  run[5]: ITALIC | matn
+  run[6]: normal |  analysis, per project scope in Section 1.5.4).
+
+[500] The tool supports three input formats: Python-style narrator...
+  run[0]: normal | The tool supports three input formats: Python-style narrator lists, raw Arabic 
+  run[1]: ITALIC | sanad
+  run[2]: normal |  text, and evaluation dataset browsing. While the current verdict reliability is
+  run[3]: ITALIC | sanad
+  run[4]: normal |  → narrator lookup → GNN inference → chain statistics → grade mapping.
+
+[502] The implementation revealed several issues that will drive r...
+  run[0]: normal | The implementation revealed several issues that will drive refinements in FYP2. 
+  run[1]: ITALIC | matn
+  run[2]: normal | s and improved diacritic handling is needed.
+
+[503] Third, the near-random GNN accuracy (R² near zero for graph-...
+  run[0]: normal | Third, the near-random GNN accuracy (R² near zero for graph-only features) confi
+  run[1]: ITALIC | tadlīs
+  run[2]: normal | , 
+  run[3]: ITALIC | ikhtilāṭ
+  run[4]: normal | ) and geospatial verification must be integrated, and Track A (CAMeL-BERT regres
+
+
+=== UK SPELLING CHECK ===
+UK spelling check complete.

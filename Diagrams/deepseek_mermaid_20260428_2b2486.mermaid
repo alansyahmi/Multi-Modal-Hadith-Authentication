@@ -1,0 +1,17 @@
+graph TD
+  A[Phase A: Data Ingestion] --> B[Phase B: NER + KG]
+  B --> C1[Semantic Sentiment Quantisation]
+  C1 --> C2[GNN Structural Analysis]
+  C2 --> C3[Edge Risk Modifiers]
+  C3 --> C4[Chain Scoring]
+  C4 --> E[Evaluation vs Ground Truth]
+  
+  subgraph Phase_A
+    A1[Inputs: Biographies, AR‑Sanad] --> A2[Preprocess: normalise, tokenise]
+  end
+  subgraph Phase_B
+    B1[NER: AraBERT] --> B2[KG: NetworkX] --> B3[Attributes + Labels]
+  end
+  subgraph Phase_C
+    C1 --> C2 --> C3 --> C4
+  end

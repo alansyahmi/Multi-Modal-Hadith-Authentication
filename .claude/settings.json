@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(python -m py_compile scripts/build_alias_index.py)",
+      "PowerShell(python scripts/build_alias_index.py 2>&1)",
+      "PowerShell(python scratch/check_final_encyclopedia.py)",
+      "PowerShell($OutputEncoding = [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; python -c \"import json, sys; sys.stdout.reconfigure\\(encoding='utf-8'\\); enc=json.load\\(open\\('output/shamela/narrator_encyclopedia.json'\\)\\); taq=sum\\(1 for e in enc if e.get\\('source'\\)=='taqrib'\\); tah=sum\\(1 for e in enc if e.get\\('source'\\)!='taqrib'\\); wg=sum\\(1 for e in enc if e.get\\('grades'\\)\\); print\\(f'Total: {len\\(enc\\):,} | Taqrib: {taq:,} | Tahdhib: {tah:,} | With grades: {wg:,}'\\)\")",
+      "PowerShell($env:HF_HUB_DISABLE_SYMLINKS_WARNING = 1; python scripts/train_arabert_regression.py 2>&1)",
+      "PowerShell(Get-Process -Id 23428 -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Id 23428 -Force)",
+      "PowerShell(Get-Process -Id 15824 -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Id 15824 -Force)",
+      "PowerShell($env:PYTHONUNBUFFERED = 1; $env:HF_HUB_DISABLE_SYMLINKS_WARNING = 1; python scripts/train_arabert_regression.py 2>&1)",
+      "PowerShell(Stop-Process -Name python -ErrorAction SilentlyContinue -Force)",
+      "PowerShell(python -m py_compile scripts/score_and_evaluate_chains.py)",
+      "PowerShell(python scratch/show_no_bio_examples.py)",
+      "PowerShell(python scripts/build_family_graph.py 2>&1)",
+      "PowerShell(Get-Process -Id 26384 -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Id 26384 -Force)",
+      "PowerShell(python scripts/extend_alias_with_fathers.py 2>&1)",
+      "PowerShell(python scratch/check_sanad_format_for_abih.py)",
+      "PowerShell(python scratch/show_categorized_no_bio.py)",
+      "WebSearch",
+      "PowerShell(python -m py_compile scripts/evaluate_chains_weakest_link.py)",
+      "PowerShell($env:PYTHONUNBUFFERED = 1; python scripts/evaluate_chains_weakest_link.py 2>&1)",
+      "PowerShell(python scripts/build_risk_modifiers.py 2>&1)",
+      "PowerShell(python -m py_compile scripts/evaluate_chains_final.py)",
+      "PowerShell($env:PYTHONUNBUFFERED = 1; python scripts/evaluate_chains_final.py 2>&1)",
+      "PowerShell(python -m py_compile scripts/evaluate_final_with_geo.py)",
+      "PowerShell($env:PYTHONUNBUFFERED = 1; python scripts/evaluate_final_with_geo.py 2>&1)",
+      "PowerShell(python scripts/recalibrate_and_eval.py 2>&1)",
+      "PowerShell(python -m py_compile scripts/evaluate_hybrid_arabert.py)",
+      "PowerShell($env:PYTHONUNBUFFERED = 1; python scripts/evaluate_hybrid_arabert.py 2>&1)"
+    ]
+  }
+}

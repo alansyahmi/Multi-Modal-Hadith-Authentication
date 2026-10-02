@@ -1,0 +1,97 @@
+=== Ch4 sections that may need rewriting ===
+
+[384] '4.1 Introduction' (OK)
+  First line: This chapter defines the experiments designed to test each of the three research objectives. The structure follows the p
+
+[386] '4.2 Experimental Environment' (OK)
+  First line: All experiments ran on a local development workstation with the following hardware configuration: an AMD Ryzen 5 5600X p
+
+[388] '4.2.1 Hardware Configuration' (no body paragraphs)
+
+[389] '4.2.2 Software Configuration' (no body paragraphs)
+
+[390] '4.3 Data Preparation Experiments' (OK)
+  First line: Before any entity extraction or graph construction could proceed, the raw data needed cleaning and cross-referencing. Th
+
+[392] '4.3.1 Experiment 1: Biographical Text Parsing' (OK)
+  First line: Experimental question: Can a regex-based parser reliably isolate individual biographical entries from raw Maktaba Shamel
+
+[404] '4.3.2 Experiment 2: Two-Tier Alignment Framework' (OK)
+  First line: Experimental question: Can deep contextual embeddings of biographical Jarḥ wa Taʿdīl passages provide useful semantic fe
+
+[413] '4.4 Entity Extraction and Disambiguation Experiments' (OK)
+  First line: These experiments bridge Stages 1 and 2. Once the data is clean and aligned, the next question is how to identify narrat
+
+[415] '4.4.1 Experiment 3: BERT Embedding Extraction for Biographical Jarḥ wa Taʿdīl Features' (OK)
+  First line: Experimental question: How does the scale of the transmission network affect graph properties and downstream GNN perform
+
+[422] '4.4.2 Experiment 4: Narrator Name Matching and Encyclopaedia Coverage' (OK)
+  First line: Experimental question: How much does adding semantic features improve narrator reliability prediction over graph-structu
+
+[437] 'Experimental question: Can the full pipeline from sanad text to final Hadith grade produce scores that agree with established scholar classifications?' (no body paragraphs)
+
+[438] '• 0.70 to 0.84: Marginally Accepted.' (no body paragraphs)
+
+[439] '• 0.50 to 0.69: Uncertain.' (no body paragraphs)
+
+[440] '• Below 0.50: Rejected (Ḍaʿīf).' (no body paragraphs)
+
+[441] 'Expected output: For all 1,200 evaluation Hadiths, a predicted grade plus confidence score. Overall evaluation uses accuracy, precision, recall, and F1-score against ground-truth Kutub as-Sitta classifications.' (no body paragraphs)
+
+[442] 'Experimental question: When the same matn appears with different narrator chains, how well do their scores converge?' (no body paragraphs)
+
+[443] '• Minimum chains per matn: 3.' (no body paragraphs)
+
+[444] '• Convergence metric: Standard deviation and coefficient of variation.' (no body paragraphs)
+
+[445] 'Expected output: A statistical summary showing how much the chain-level scores vary within each matn group. Low variance across independent chains would suggest internal consistency in the scoring model.' (OK)
+  First line: This chapter laid out nine experiments that cover all three research objectives. The experiments follow the natural pipe
+
+[448] '4.6 GNN Architecture and Training Experiments' (no body paragraphs)
+
+[449] '4.6.1 Experiment 6: Graph Convolutional Network Ablation Study' (OK)
+  First line: The following question is then posed: how much does adding semantic features (BERT embeddings of biographical Jarḥ wa Ta
+
+[454] '4.7 Trust Scoring and Evaluation Experiments' (OK)
+  First line: These experiments close the loop on PO1 and PO3, taking scores from the GNN and turning them into something that maps on
+
+[456] '4.7.1 Experiment 7: Semantic Sentiment Quantisation of Jarḥ wa Taʿdīl Terms' (OK)
+  First line: The posed experimental question: Can the qualitative Jarḥ wa Taʿdīl terms extracted from the biographical encyclopaedia 
+
+[463] '4.7.2 Experiment 8: Chain-Level Reliability Scoring' (OK)
+  First line: Next question to be answered: can the full pipeline from sanad text to final Hadith grade produce scores that agree with
+
+[468] '4.7.3 Experiment 9: Multi-Sanad Matn Analysis' (OK)
+  First line: An interesting question can be posed: when the same matn appears with different narrator chains, how well do their score
+
+[472] '4.8 Summary' (OK)
+  First line: What this chapter set out to do was lay a clean and repeatable foundation for every experiment in this project. Nine exp
+
+
+=== FULL SECTION LIST ===
+[384] (Heading 2) 4.1 Introduction
+[386] (Heading 2) 4.2 Experimental Environment
+[388] (Heading 3) 4.2.1 Hardware Configuration
+[389] (Heading 3) 4.2.2 Software Configuration
+[390] (Heading 2) 4.3 Data Preparation Experiments
+[392] (Heading 3) 4.3.1 Experiment 1: Biographical Text Parsing
+[404] (Heading 3) 4.3.2 Experiment 2: Two-Tier Alignment Framework
+[413] (Heading 2) 4.4 Entity Extraction and Disambiguation Experiments
+[415] (Heading 3) 4.4.1 Experiment 3: BERT Embedding Extraction for Biographical Jarḥ wa Taʿdīl Features
+[422] (Heading 3) 4.4.2 Experiment 4: Narrator Name Matching and Encyclopaedia Coverage
+[437] (Heading 2) Experimental question: Can the full pipeline from sanad text to final Hadith grade produce scores that agree with established scholar classifications?
+[438] (Heading 2) • 0.70 to 0.84: Marginally Accepted.
+[439] (Heading 2) • 0.50 to 0.69: Uncertain.
+[440] (Heading 2) • Below 0.50: Rejected (Ḍaʿīf).
+[441] (Heading 2) Expected output: For all 1,200 evaluation Hadiths, a predicted grade plus confidence score. Overall evaluation uses accuracy, precision, recall, and F1-score against ground-truth Kutub as-Sitta classifications.
+[442] (Heading 3) Experimental question: When the same matn appears with different narrator chains, how well do their scores converge?
+[443] (Heading 3) • Minimum chains per matn: 3.
+[444] (Heading 3) • Convergence metric: Standard deviation and coefficient of variation.
+[445] (Heading 3) Expected output: A statistical summary showing how much the chain-level scores vary within each matn group. Low variance across independent chains would suggest internal consistency in the scoring model.
+[448] (Heading 2) 4.6 GNN Architecture and Training Experiments
+[449] (Heading 3) 4.6.1 Experiment 6: Graph Convolutional Network Ablation Study
+[454] (Heading 2) 4.7 Trust Scoring and Evaluation Experiments
+[456] (Heading 3) 4.7.1 Experiment 7: Semantic Sentiment Quantisation of Jarḥ wa Taʿdīl Terms
+[463] (Heading 3) 4.7.2 Experiment 8: Chain-Level Reliability Scoring
+[468] (Heading 3) 4.7.3 Experiment 9: Multi-Sanad Matn Analysis
+[472] (Heading 2) 4.8 Summary

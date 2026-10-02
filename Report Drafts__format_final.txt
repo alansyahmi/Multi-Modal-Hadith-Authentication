@@ -1,0 +1,10 @@
+=== Ch1 Normal ===
+Line spacing: 1.5
+Alignment: None
+spacing XML: <w:spacing xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/
+
+=== Ch4 Normal ===
+Line spacing: 1.5
+Alignment: JUSTIFY (3)
+spacing XML: <w:spacing xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/
+jc XML: <w:jc xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/offic

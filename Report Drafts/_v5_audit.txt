@@ -1,0 +1,55 @@
+Paragraphs: 592
+Tables: 19
+
+Ch1=[132], Ch4=[379], Ch5=[481], REF=[555]
+
+=== STRUCTURE (Ch4 onwards) ===
+[379] (Heading 1) CHAPTER 4
+[381] (Heading 1) Experimental Design
+[384] (Heading 2) 4.1 Introduction
+[386] (Heading 2) 4.2 Experimental Environment
+[388] (Heading 3) 4.2.1 Hardware Configuration
+[390] (Heading 3) 4.2.2 Software Configuration
+[392] (Heading 2) 4.3 Data Preparation Experiments
+[394] (Heading 3) 4.3.1 Experiment 1: Biographical Text Parsing
+[402] (Heading 3) 4.3.2 Experiment 2: Two-Tier Alignment Framework
+[411] (Heading 2) 4.4 Entity Extraction and Disambiguation Experiments
+[413] (Heading 3) 4.4.1 Experiment 3: BERT Embedding Extraction for Biographical Jarḥ wa Taʿdīl Features
+[422] (Heading 3) 4.4.2 Experiment 4: Narrator Name Matching and Encyclopaedia Coverage
+[430] (Heading 2) 4.5 Knowledge Graph Construction Experiments
+[432] (Heading 3) 4.5.1 Experiment 5: Graph Topology and Feature Engineering
+[440] (Heading 2) 4.6 GNN Architecture and Training Experiments
+[442] (Heading 3) 4.6.1 Experiment 6: Graph Convolutional Network Ablation Study
+[452] (Heading 2) 4.7 Trust Scoring and Evaluation Experiments
+[454] (Heading 3) 4.7.1 Experiment 7: Semantic Sentiment Quantisation of Jarḥ wa Taʿdīl Terms
+[463] (Heading 3) 4.7.2 Experiment 8: Chain-Level Reliability Scoring
+[472] (Heading 3) 4.7.3 Experiment 9: Multi-Sanad Matn Analysis
+[479] (Heading 2) 4.8 Summary
+[481] (Heading 1) CHAPTER 5
+[483] (Heading 1) PRELIMINARY IMPLEMENTATION
+[486] (Heading 2) 5.1 Introduction
+[489] (Heading 2) 5.2 Stage 1: Data Ingestion Pipeline
+[490] (Heading 3) 5.2.1 Biographical Corpus Parsing
+[498] (Heading 3) 5.2.2 Two-Tier Alignment Framework
+[504] (Heading 3) 5.2.3 Quarantine Analysis
+[510] (Heading 2) 5.3 Stage 2: Knowledge Graph Construction
+[511] (Heading 3) 5.3.1 Narrator Name Matching
+[518] (Heading 3) 5.3.2 Grade Attachment
+[523] (Heading 3) 5.3.3 Graph Topology
+[527] (Heading 3) 5.3.4 Semantic Feature Extraction
+[530] (Heading 2) 5.4 Stage 3: Preliminary Reliability Scoring
+[532] (Heading 3) 5.4.1 GCN Architecture
+[535] (Heading 3) 5.4.2 Ablation Study
+[543] (Heading 3) 5.4.3 Interactive Authenticator
+[547] (Heading 2) 5.5 Preliminary Findings and Planned Improvements
+[553] (Heading 2) 5.6 Summary
+[555] (Heading 1) REFERENCES
+[557] (Normal) Ahmad, N., Ahmed, S., & Abdullah, M. (2025). Hadith grading & machine learning: Feasibility of isnād-analysis. AL-JAMEI 
+[558] (Normal) Ahmed, M., & Anas, M. (2025). Hadith narrators’ biographies and their role in the reliability of transmission. Contempor
+[559] (Normal) Alghamdi, J., Albukhari, A., & Al-Dala’in, T. (2025). Pretrained models against traditional machine learning for detecti
+
+=== DASH CHECK (Ch5) ===
+  Total dashes found: 0
+
+=== PRONOUN CHECK (Ch5) ===
+  Total pronouns found: 0

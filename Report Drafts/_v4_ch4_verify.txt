@@ -1,0 +1,24 @@
+Chapter 4 at [379]
+
+=== Updated paragraphs ===
+
+[418] style=Normal
+  run[0] (normal): The graph is built by walking through Sanadset rows, pulling narrator names from each chain, and creating directed edges
+  run[1] (ITALIC): nisba
+  run[2] (normal): ) can be associated with the narrator for geospatial consistency verification. Edges carry positional data and frequency
+
+  [FULL TEXT]:
+  The graph is built by walking through Sanadset rows, pulling narrator names from each chain, and creating directed edges to represent teacher-student relationships (teacher → student). Node features include: log-transformed appearance count, in-degree, out-degree, average chain position, the Ibn Hajar grade score, and a binary flag indicating whether a known geographic region (nisba) can be associated with the narrator for geospatial consistency verification. Edges carry positional data and freq
+
+
+[425] style=Normal
+  run[0] (normal): To answer the experimental question, a two-layer GCN is built in PyTorch Geometric. The model reads node features and ou
+
+  [FULL TEXT]:
+  To answer the experimental question, a two-layer GCN is built in PyTorch Geometric. The model reads node features and outputs a continuous reliability score in [0, 1] for each narrator. Three variants were compared: (a) graph-only with 8 structural features (degree centrality, appearance count, chain position, grade score, and a binary geographic region flag); (b) graph + BERT with structural features plus the 128-dimensional PCA-reduced BERT embeddings; and (c) graph + lexicon with structural f
+
+=== Formatting check ===
+
+Para [418]: align=None, line_spacing=1.5, indent=None
+
+Para [425]: align=None, line_spacing=1.5, indent=457200

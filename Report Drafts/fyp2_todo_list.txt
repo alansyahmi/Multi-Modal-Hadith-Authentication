@@ -1,0 +1,26 @@
+1. Add uncertainty / confidence scoring
+
+Right now your system outputs:
+
+0.0 – 1.0 reliability
+
+But rijāl literature is fundamentally uncertain and opinion-diverse.
+
+So you should output:
+
+ReliabilityScore
+ConfidenceInterval
+DisagreementScore
+
+Example:
+
+Narrator X:
+0.82 reliability
+±0.06 uncertainty
+high disagreement between critics
+
+Why this matters:
+
+makes your “sentiment aggregation” idea much more realistic
+strengthens your FYP against criticism like “overconfident AI grading”
+
