@@ -1,4 +1,4 @@
-"""Convert HTML deck to PPTX — 39 slides, white/azure academic theme."""
+from pathlib import Path
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -356,6 +356,6 @@ TXT(s,2,4.2,9.3,1.0,"Alan Syahmi Bin Sanih @ Sani  |  BI23110344\nSupervisor: Dr
 TXT(s,2,5.8,9.3,0.5,"خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ",16,c=BLUE,a=PP_ALIGN.CENTER)
 
 # Save
-out = r"c:\Projects\FYP Project\FYP1_Ch1-2_Presentation.pptx"
+out = str(Path(__file__).resolve().parent / "FYP1_Ch1-2_Presentation.pptx")
 prs.save(out)
 print(f"Done: {out} ({len(prs.slides)} slides)")

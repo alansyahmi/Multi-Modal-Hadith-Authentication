@@ -6,6 +6,7 @@ Topic: Multi-Modal Framework for Quantifying Narrator Reliability in ʿIlm ar-Ri
        using Semantic Sentiment Analysis and Graph Neural Networks
 """
 
+from pathlib import Path
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
@@ -1058,7 +1059,7 @@ add_textbox(slide, Inches(3.0), Inches(6.3), Inches(7.3), Inches(0.5),
             font_size=18, color=GOLD, alignment=PP_ALIGN.CENTER, font_name="Calibri")
 
 # ── SAVE ────────────────────────────────────────────────────────
-output_path = r"c:\Projects\FYP Project\FYP1_Presentation.pptx"
+output_path = str(Path(__file__).resolve().parent / "FYP1_Presentation.pptx")
 prs.save(output_path)
 print(f"Presentation saved to: {output_path}")
 print(f"Total slides: {len(prs.slides)}")

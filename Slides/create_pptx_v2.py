@@ -5,6 +5,7 @@ Mirrors the interactive HTML presentation in content, layout, and data coverage.
 36 slides covering all 6 chapters with updated content.
 """
 
+from pathlib import Path
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -791,7 +792,7 @@ tb(s, Inches(3.0), Inches(6.3), Inches(7.3), Inches(0.5),
    18, GOLD, al=PP_ALIGN.CENTER)
 
 # ── SAVE ─────────────────────────────────────────────────
-out = r"c:\Projects\FYP Project\FYP1_Presentation_v2.pptx"
+out = str(Path(__file__).resolve().parent / "FYP1_Presentation_v2.pptx")
 prs.save(out)
 print(f"Saved: {out}")
 print(f"Total slides: {len(prs.slides)}")

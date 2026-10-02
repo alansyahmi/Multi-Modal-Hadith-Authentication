@@ -2,8 +2,9 @@ import sys
 import json
 from pathlib import Path
 
-# Ensure src is on path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Ensure project root is on path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.shamela.narrator_parser import _extract_list, _extract_death, TEACHER_RE, STUDENT_RE, GRADE_RE, DEATH_RE
 
