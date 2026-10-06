@@ -1,16 +1,32 @@
 """
+[DEPRECATED / ARCHIVED MODULE]
 Semantic Sentiment Analysis for Matn (Hadith Content) Text.
 
-Implements the "semantic sentiment analysis" component referenced in the
-thesis title. Extracts per-hadith sentiment/severity features and aggregates
-them to per-narrator features for the GNN.
+HISTORICAL CONTEXT & ARCHIVAL RATIONALE (FYP2 Week 2):
+  This module represents an early experimental prototype that attempted to infer
+  narrator reliability from Hadith matn (content) texts by scoring lexical
+  polarity/severity (threat vs mercy terms).
 
-Two modes:
-  - Deep: CAMeL Arabic BERT [CLS] embeddings (requires transformers + GPU)
-  - Lexicon: Rule-based severity scoring (always available, fast)
+  As noted in examiner feedback (Dr. Lai) and formalized in the FYP2 Research Design:
+  - The thematic topic of a Hadith matn (e.g. paradise, punishment, eschatology)
+    bears no epistemological correlation to whether the narrator transmitting it
+    is truthful (thiqah/ṣadūq) or untrustworthy (ḍaʿīf/matrūk).
+  - This approach has been SUPERSEDED by the Project Objective 1 (PO1) pipeline:
+    AraBERT semantic classification directly on classical Arabic *rijāl* critic
+    evaluations (e.g. Tahdhīb al-Tahdhīb, Taqrīb al-Tahdhīb) via
+    `scripts/build_sentiment_scores.py` and `scripts/train_arabert_classifier.py`.
 
-Output: per-narrator sentiment features appended to node feature matrix.
+  This file is preserved solely for experimental reproducibility, ablation baselines,
+  and historical audit trail in Chapter 4 / Chapter 5 of the thesis.
 """
+
+import warnings
+warnings.warn(
+    "src.stage3.sentiment is deprecated. Narrator reliability is extracted from "
+    "classical rijāl biographical texts via AraBERT (PO1), not from Hadith matn text.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 from __future__ import annotations
 

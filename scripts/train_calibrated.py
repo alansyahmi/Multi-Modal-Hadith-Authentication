@@ -1,16 +1,27 @@
 """
 Train GNN with proper calibration and compare three feature sets:
-  1. Graph-only (8 graph features)
+  1. Graph-only (8 clean topological features — zero leakage verified)
   2. Graph + Lexicon (8 + 7 = 15 features)
   3. Graph + BERT-PCA (8 + 128 = 136 features)
 
 Applies isotonic regression calibration post-training to align
 predictions with the true grade distribution, then reports
 per-category MAE, Spearman ρ, Pearson r, and prediction statistics.
+
+NOTE (2026-10-02 fix):
+  - Removed dead `create_masks` import (function no longer exists in trainer.py).
+  - Removed leaky pattern where data.x[:,0] (grade_score) was used as label y.
+  - Now loads the clean graph pyg_graph.npz which already contains:
+      x            — (N, 8) zero-leakage topological features
+      y_score      — (N,)   continuous reliability score [0..1] for regression
+      y            — (N,)   integer class label 0–4 for classification
+      train_mask   — (N,)   bool, stratified 70% of annotated narrators
+      val_mask     — (N,)   bool, stratified 15%
+      test_mask    — (N,)   bool, stratified 15%
+  - Masks and labels come from the graph file — no re-generation needed.
 """
 import sys, json, math, os
 from pathlib import Path
-from itertools import product
 
 sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -26,10 +37,10 @@ from sklearn.isotonic import IsotonicRegression
 from scipy.stats import spearmanr, pearsonr
 
 from src.stage3.gnn_model import build_model
-from src.stage3.trainer import set_seed, create_masks
+from src.stage3.trainer import set_seed
 from src.stage3.config import (
     LEARNING_RATE, WEIGHT_DECAY, NUM_EPOCHS, PATIENCE,
-    TRAIN_RATIO, VAL_RATIO, RANDOM_SEED,
+    RANDOM_SEED,
 )
 
 # ── Helper: ordinal category mapping ──
@@ -44,59 +55,6 @@ CATEGORY_VALUES = {
     "thiqah": 0.85, "saduq": 0.70, "maqbul": 0.40,
     "daif": 0.15, "matruk": 0.05,
 }
-
-# ── Training with early stopping ──
-def train_model(data: Data, seed: int = 42, num_epochs: int = 200,
-                patience: int = 30, verbose: bool = False) -> tuple[torch.Tensor, torch.Tensor]:
-    """Train GCN and return (predictions, truths) on TEST set only."""
-    set_seed(seed)
-
-    train_mask, val_mask, test_mask = create_masks(data.num_nodes)
-    data.y = data.x[:, 0].clone()
-    # Mask grade for val+test
-    mask = ~train_mask
-    data.x[mask, 0] = 0.30
-
-    model = build_model(in_channels=data.x.size(1), model_type="gcn")
-    opt = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
-    crit = nn.MSELoss()
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        opt, mode="min", factor=0.5, patience=10,
-    )
-
-    best_val = float("inf")
-    best_state = None
-    patience_count = 0
-
-    for epoch in range(1, num_epochs + 1):
-        model.train()
-        opt.zero_grad()
-        out = model(data.x, data.edge_index, data.edge_attr)
-        loss = crit(out[train_mask], data.y[train_mask])
-        loss.backward()
-        opt.step()
-
-        model.eval()
-        with torch.no_grad():
-            val_out = model(data.x, data.edge_index, data.edge_attr)
-            val_mae = torch.abs(val_out[val_mask] - data.y[val_mask]).mean().item()
-
-        scheduler.step(val_mae)
-
-        if val_mae < best_val - 1e-6:
-            best_val = val_mae
-            best_state = {k: v.clone() for k, v in model.state_dict().items()}
-            patience_count = 0
-        else:
-            patience_count += 1
-            if patience_count >= patience:
-                break
-
-    model.load_state_dict(best_state)
-    model.eval()
-    with torch.no_grad():
-        preds = model(data.x, data.edge_index, data.edge_attr)
-        return preds[test_mask].cpu(), data.y[test_mask].cpu(), preds.cpu(), data.y.cpu()
 
 
 # ── Calibration: Isotonic regression ──
@@ -161,39 +119,46 @@ def compute_metrics(true: np.ndarray, pred: np.ndarray) -> dict:
 # ── Main comparison ──
 def evaluate_variant(x_data: np.ndarray, variant_name: str,
                      edge_index: torch.Tensor, edge_attr: torch.Tensor | None,
+                     y_score: torch.Tensor,
+                     train_mask: torch.Tensor, val_mask: torch.Tensor,
+                     test_mask: torch.Tensor,
                      num_runs: int = 3) -> dict:
-    """Train and evaluate one feature variant with calibration."""
+    """Train and evaluate one feature variant with calibration.
+
+    Args:
+        x_data:      Node feature matrix (N, F) — must NOT contain grade_score.
+        variant_name: Label for display.
+        edge_index:  Graph connectivity (2, E).
+        edge_attr:   Edge weights (E,) or None.
+        y_score:     Continuous reliability target [0..1] — loaded from graph file.
+        train_mask:  Pre-built boolean mask for training nodes.
+        val_mask:    Pre-built boolean mask for validation nodes.
+        test_mask:   Pre-built boolean mask for test nodes.
+        num_runs:    Number of seeds to average over.
+    """
     print(f"\n{'='*60}")
     print(f"Evaluating: {variant_name} ({x_data.shape[1]} features)")
+    print(f"  Train: {train_mask.sum().item()} | Val: {val_mask.sum().item()} "
+          f"| Test: {test_mask.sum().item()} nodes")
     print(f"{'='*60}")
 
     ei = edge_index.clone()
     ea = edge_attr.clone() if edge_attr is not None else None
-
-    # ── Save original ground truth BEFORE any masking ──
-    # The GNN uses data.x[:, 0] as both input feature AND target label.
-    # train_model() masks val+test grade features to 0.30 in data.x.
-    # We must save the original grades before that mutation.
-    original_y = torch.from_numpy(x_data[:, 0].copy()).float()
 
     all_metrics = []
     for run in range(num_runs):
         seed = RANDOM_SEED + run * 100
         print(f"  Run {run+1}/{num_runs} (seed={seed})...")
 
-        # Create fresh data object for each run (avoid mutation from previous run)
+        set_seed(seed)
+
+        # Fresh Data object per run — x has NO grade column, y is y_score
         data = Data(
             x=torch.from_numpy(x_data.copy()).float(),
             edge_index=ei.clone(),
             edge_attr=ea.clone() if ea is not None else None,
+            y=y_score.clone(),
         )
-        data.y = original_y.clone()
-
-        set_seed(seed)
-        train_mask, val_mask, test_mask = create_masks(data.num_nodes)
-        # Mask grade feature for val+test nodes
-        mask = ~train_mask
-        data.x[mask, 0] = 0.30
 
         model = build_model(in_channels=data.x.size(1), model_type="gcn")
         opt = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
@@ -221,23 +186,24 @@ def evaluate_variant(x_data: np.ndarray, variant_name: str,
                 pc = 0
             else:
                 pc += 1
-                if pc >= PATIENCE: break
+                if pc >= PATIENCE:
+                    break
 
         model.load_state_dict(best_state)
         model.eval()
         with torch.no_grad():
             raw_all = model(data.x, data.edge_index, data.edge_attr).cpu().numpy()
             train_preds_raw = raw_all[train_mask.numpy()]
-            train_true_raw = data.y[train_mask].cpu().numpy()
-            val_preds_raw = raw_all[val_mask.numpy()]
-            val_true_raw = data.y[val_mask].cpu().numpy()
-            test_preds_raw = raw_all[test_mask.numpy()]
-            test_true_raw = data.y[test_mask].cpu().numpy()
+            train_true_raw  = data.y[train_mask].cpu().numpy()
+            val_preds_raw   = raw_all[val_mask.numpy()]
+            val_true_raw    = data.y[val_mask].cpu().numpy()
+            test_preds_raw  = raw_all[test_mask.numpy()]
+            test_true_raw   = data.y[test_mask].cpu().numpy()
 
         # Calibrate with isotonic regression
         calibrated = calibrate_isotonic(
             train_preds_raw, train_true_raw,
-            val_preds_raw, val_true_raw,
+            val_preds_raw,   val_true_raw,
             test_preds_raw,
         )
 
@@ -249,10 +215,10 @@ def evaluate_variant(x_data: np.ndarray, variant_name: str,
     avg = {}
     for key in all_metrics[0]:
         if key in ("cat_mae", "cat_counts"):
-            # Average numeric values, preserving keys
             avg[key] = {}
             for subkey in all_metrics[0][key]:
-                vals = [m[key][subkey] for m in all_metrics if not (isinstance(m[key][subkey], float) and np.isnan(m[key][subkey]))]
+                vals = [m[key][subkey] for m in all_metrics
+                        if not (isinstance(m[key][subkey], float) and np.isnan(m[key][subkey]))]
                 avg[key][subkey] = float(np.mean(vals)) if vals else np.nan
         elif isinstance(all_metrics[0][key], (int, float)):
             avg[key] = float(np.mean([m[key] for m in all_metrics]))
@@ -263,40 +229,62 @@ def evaluate_variant(x_data: np.ndarray, variant_name: str,
     return avg
 
 
-# ── Load graph data ──
-print("Loading graph...")
-base = np.load(r"output/stage2/pyg_graph_large_graded.npz")
-x_base = base["x"]
-ei = torch.from_numpy(base["edge_index"]).long() - 1
-ea = torch.from_numpy(base["edge_attr"]).float() if base.get("edge_attr") is not None else None
+# ── Load clean zero-leakage graph ──
+GRAPH_PATH = Path("output/stage2/pyg_graph.npz")
+print(f"Loading clean graph from: {GRAPH_PATH}")
+if not GRAPH_PATH.exists():
+    raise FileNotFoundError(
+        f"{GRAPH_PATH} not found.\n"
+        "Run: python run_stage2.py  (which calls graph_exporter.py)\n"
+        "This generates the zero-leakage graph with pre-built masks."
+    )
 
-# Check which variants exist
+base = np.load(GRAPH_PATH)
+x_base    = base["x"]                                          # (N, 8) — no grade col
+ei        = torch.from_numpy(base["edge_index"]).long()        # already 0-based
+ea_arr    = base.get("edge_attr")
+ea        = torch.from_numpy(ea_arr).float() if ea_arr is not None else None
+y_score   = torch.from_numpy(base["y_score"]).float()          # continuous target
+train_mask = torch.from_numpy(base["train_mask"]).bool()
+val_mask   = torch.from_numpy(base["val_mask"]).bool()
+test_mask  = torch.from_numpy(base["test_mask"]).bool()
+
+print(f"  Nodes: {x_base.shape[0]} | Edges: {ei.shape[1]} | Features: {x_base.shape[1]}")
+print(f"  Train: {train_mask.sum().item()} | Val: {val_mask.sum().item()} "
+      f"| Test: {test_mask.sum().item()}")
+print(f"  y_score range: [{y_score.min():.3f}, {y_score.max():.3f}]")
+
+# ── Build variants ──
 variants = {
-    "graph-only": (x_base, "8 graph features"),
+    "graph-only": (x_base, "8 clean topological features"),
 }
 
-# Try loading lexicon
-lexicon_path = Path(r"output/stage2/pyg_graph_lexicon.npz")
+# Optional: lexicon-augmented graph (must be built separately)
+lexicon_path = Path("output/stage2/pyg_graph_lexicon.npz")
 if lexicon_path.exists():
     lex = np.load(lexicon_path)
     variants["lexicon"] = (lex["x"], "8 graph + 7 lexicon = 15 features")
     print(f"  Lexicon graph found: {lex['x'].shape}")
 else:
-    print(f"  Lexicon graph NOT found (will skip)")
+    print("  Lexicon graph NOT found (will skip — run build_lexicon_graph.py first)")
 
-# Try loading BERT
-bert_path = Path(r"output/stage2/pyg_graph_bert.npz")
+# Optional: BERT-augmented graph
+bert_path = Path("output/stage2/pyg_graph_bert.npz")
 if bert_path.exists():
     bert = np.load(bert_path)
     variants["BERT"] = (bert["x"], "8 graph + 768 BERT = 776 features")
     print(f"  BERT graph found: {bert['x'].shape}")
 else:
-    print(f"  BERT graph NOT found (will skip — run build_bert_embeddings.py first)")
+    print("  BERT graph NOT found (will skip — run build_bert_embeddings.py first)")
 
 # ── Evaluate all variants ──
 results = {}
 for name, (x_data, desc) in variants.items():
-    results[name] = evaluate_variant(x_data, f"{name} ({desc})", ei, ea)
+    results[name] = evaluate_variant(
+        x_data, f"{name} ({desc})",
+        ei, ea,
+        y_score, train_mask, val_mask, test_mask,
+    )
 
 # ── Print comparison table ──
 print(f"\n\n{'='*70}")
@@ -330,10 +318,7 @@ for metric in metric_order:
         v = results[name][metric]
         vals[name] = v
         if best_val is None:
-            if metric in ("mae", "raw_mae"):
-                best_val, best_name = v, name  # lower is better
-            else:
-                best_val, best_name = v, name  # higher is better
+            best_val, best_name = v, name
         else:
             if metric in ("mae", "raw_mae"):
                 if v < best_val:
@@ -359,7 +344,6 @@ for cat in ["thiqah", "saduq", "maqbul", "daif", "matruk"]:
     row = f"{cat:<12s}"
     for name in variants:
         v = results[name]["cat_mae"].get(cat, float("nan"))
-        cnt = results[name]["cat_counts"].get(cat, 0)
         if not np.isnan(v):
             row += f" {v:>12.4f}"
         else:
@@ -376,8 +360,8 @@ for name in variants:
           f"{r['true_mean']:>10.3f} {r['true_std']:>10.3f}")
 
 # ── Save results ──
-out_path = Path(r"output/stage3/calibrated_comparison.json")
-# Convert to serializable
+out_path = Path("output/stage3/calibrated_comparison.json")
+out_path.parent.mkdir(parents=True, exist_ok=True)
 serializable = {}
 for name, r in results.items():
     serializable[name] = {}

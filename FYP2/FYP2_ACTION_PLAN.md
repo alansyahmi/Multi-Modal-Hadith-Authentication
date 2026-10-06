@@ -1,126 +1,160 @@
 # FYP2: Focused Research and Execution Plan
 
 **Project Title:** A Multi-Modal Framework for Quantifying Narrator Reliability in ʿIlm ar-Rijal Using Semantic Sentiment Analysis and Graph Neural Networks  
-**Student:** Alan Syahmi bin Sanih @ Sani (BI23110344) — Bachelor of Computer Science with Honours (Data Science)  
+**Student:** Alan Syahmi bin Sanih @ Sani (BI23110344) (Bachelor of Computer Science with Honours in Data Science)  
 **Supervisor:** Dr. Khalifa Chekima  
 **Faculty:** Faculty of Computing and Informatics, Universiti Malaysia Sabah (UMS)  
-**Current Date / Academic Week:** 1 October 2026 — **Week 2**  
+**Current Date / Academic Week:** 5 October 2026 (Week 3)  
 
 ---
 
-## 1. Official Institutional Timeline & Milestones
+## 1. Official Institutional Timeline and Milestones
 
-| Milestone / Timeline | Official Date | Academic Week | Target Deliverable / Focus |
+| Milestone / Timeline | Official Date | Academic Week | Target Deliverable / Focus | Status |
+|---|---|---|---|---|
+| **Project II Commencement** | 21 Sept to 6 Nov 2026 | Weeks 1 to 7 | Product Development, Testing and Evaluation (Sprint 1) | In Progress |
+| **Project II Progress Report Submission** | **30 Oct 2026** | **Week 6** | Formal Progress Report (Ch. 1 to 7 Complete Draft) | Drafting |
+| **Project II Progress Presentation and Evaluation** | **4 and 6 Nov 2026** | **Week 7** | Viva / Progress Defense with Examiners (Dr. Lai and Dr. Tan) | Scheduled |
+| **Project II Continuation** | 16 Nov 2026 to 1 Jan 2027 | Weeks 8 to 14 | Thesis Finalization, Visualizations, Defense Preparation (Sprint 2) | Ready |
+| **Project II Final Report Submission** | **1 Jan 2027** | **Week 14** | Complete Thesis Submission (Chapters 1 to 9) | Scheduled |
+| **Project II Final Progress Presentation** | **4 to 5 Jan 2027** | **Study Week** | Final Viva Presentation and System Demonstration | Scheduled |
+| **Final Thesis Submission** | **5 Feb 2027** | Post-Exam | Final Hardcover / Bound Thesis with Viva Corrections | Scheduled |
+| *Repeat Presentation (One Chance)* | *19 Feb 2027* | Contingency | *Contingency only* | Contingency |
+
+---
+
+## 2. Operational Execution Plan and Milestone Progress
+
+### Sprint 1: Progress Defense Sprint (Weeks 1 to 7)
+*Primary Goal:* Deliver an airtight Progress Report and Presentation demonstrating that FYP1 methodological flaws are resolved, entity resolution is verified, target leakage is completely eliminated, and experimental benchmarks across PO1, PO2, and PO3 are validated.
+
+* **Week 2 (28 Sept to 4 Oct 2026): Research Design and Leakage Audit**
+  - [x] **Lock Research Design Matrix:** Formalize the *RQ -> Hypothesis -> Experiment -> Metric -> Conclusion* structure (documented in `FYP2/research_design_table.md` v2.0).
+  - [x] **Literature Comparison Table:** Complete benchmark comparison (*Mahmoud et al. / NarratorsKG*, *Narrator2Vec*, *Ahmad et al. 2025*, *Ghriss 2025*).
+  - [x] **Target Leakage Audit:** Discovered and eliminated target leakage where Ibn Hajar's canonical *Taqrib* grade was duplicated in biographical quote arrays (1,659 statements across 937 cards). Filtered exclusively to earlier classical critics (2nd to 4th century AH).
+  - [x] **Corpus Discrepancy Reconciled:** Explicitly audited SanadSet 650K vs. AR-Sanad 280K vs. Hadith-Viz live portal (2,894 cards total: 1,918 unranked placeholders, 821 graded non-Sahabah cards).
+* **Week 3 (5 Oct to 11 Oct 2026): Clean Cohorts and Empirical Execution (COMPLETED EARLY)**
+  - [x] **Phase 1 (Clean Dataset and Condensed Graph):** Executed `scripts/build_clean_dataset.py`. Produced verified cohorts: Level 1 text benchmark ($N=844$), Level 2 multimodal graph ($N=335$ nodes, 354 undirected edges, 8 features), and 5-stage data hygiene funnel (`FYP2/attrition_table.md`).
+  - [x] **Phase 2 (10-Arm 25-Fold Controlled Benchmark):** Executed `scripts/run_clean_experiments.py` and `scripts/run_po1_845_benchmark.py`. Extracted 768-dim AraBERT embeddings. Completed 25 paired cross-validation folds across all 10 model arms.
+  - [x] **Phase 3 (PO3 Downstream Chain Error Propagation):** Executed `scripts/run_po3_chain_validation.py` across 1,578 verified transmission chains under weakest-link aggregation ($S_{chain} = \min_i y_i$).
+  - [x] **Update Action Plan and Documentation:** Synchronized research design, cohort distributions, attrition funnel, and experimental logs.
+* **Week 4 (12 Oct to 18 Oct 2026): Progress Report Drafting (Chapters 1 to 5)**
+  - [ ] Draft Chapter 1 (Introduction, Problem Statements, Bounded Scope).
+  - [ ] Draft Chapter 2 (Literature Review and Critical Comparative Analysis).
+  - [ ] Draft Chapter 3 (Methodology: Attrition Funnel, Multi-Critic Filtering, Graph Construction).
+  - [ ] Draft Chapter 4 (System and Experiment Design: 10-Arm Matrix, 25-Fold Protocol, Metrics).
+  - [ ] Draft Chapter 5 (Implementation Details: Pipeline Architecture, Hyperparameters).
+* **Week 5 (19 Oct to 25 Oct 2026): Progress Report Drafting (Chapters 6 to 7) and Qualitative Disagreement Case Study**
+  - [ ] Draft Chapter 6 (Results: PO1 Benchmark, PO2 10-Arm Ablation, PO3 Downstream Chain Validation).
+  - [ ] Draft Chapter 7 (Conclusion, Graph Heterophily Analysis, References).
+  - [ ] Conduct Qualitative Disagreement Case Study ($N=47$) analyzing Ibn Hajar versus al-Dhahabi variances against computational predictions.
+* **Week 6 (26 Oct to 1 Nov 2026): Report Finalization and Submission**
+  - [ ] Complete peer check of thesis constraints (zero em/en-dashes, clinical tone, structured lists).
+  - [ ] Review report draft with supervisor Dr. Khalifa Chekima.
+  - [ ] **DEADLINE: Friday, 30 October 2026: Project II Progress Report Submission.**
+* **Week 7 (2 Nov to 8 Nov 2026): Progress Presentation and Viva Defense**
+  - [ ] Prepare slide deck addressing examiner critiques, leakage elimination, the graph heterophily finding, and weakest-link chain validation.
+  - [ ] **MILESTONE: 4 and 6 November 2026: Project II Progress Presentation and Evaluation.**
+
+---
+
+### Sprint 2: Final Thesis and Viva Preparation (Weeks 8 to 14)
+*Primary Goal:* Expand the Progress Report into the full 9-chapter thesis, refine figures, polish scholarly discussion, and conduct final viva rehearsals.
+
+* **Weeks 8 to 10 (16 Nov to 6 Dec 2026): Full Thesis Expansion and Figure Polish**
+  - [ ] Expand Chapter 7 into dedicated Discussion chapter (FCI 9-chapter thesis format).
+  - [ ] Generate publication-quality vector diagrams (system architecture, graph topology, confusion matrices).
+  - [ ] Expand cross-domain comparisons with modern graph heterophily literature.
+* **Weeks 11 to 12 (7 Dec to 20 Dec 2026): Comprehensive Error Analysis and Sensitivity Testing**
+  - [ ] Run ablation on edge-density thresholds in transmission networks.
+  - [ ] Document boundary conditions of the weakest-link aggregation rule.
+* **Week 13 (21 Dec to 27 Dec 2026): Full Thesis Review with Supervisor**
+  - [ ] Final compilation of Chapters 1 to 9.
+  - [ ] Final supervisor review by Dr. Khalifa Chekima.
+* **Week 14 (28 Dec 2026 to 1 Jan 2027): FINAL THESIS SUBMISSION**
+  - [ ] Final proofreading, formatting verification, and reference check.
+  - [ ] **DEADLINE: Friday, 1 January 2027: Project II Final Report Submission.**
+* **Study Week (4 to 5 Jan 2027): FINAL PROGRESS PRESENTATION / VIVA**
+  - [ ] Final viva presentation and system demonstration.
+* **Post-Viva (5 Feb 2027): FINAL BOUND THESIS SUBMISSION**
+  - [ ] Implement viva corrections and submit official hardcover thesis.
+
+---
+
+## 3. Research Design and Approved Objectives Mapping
+
+**Core Research Question:** *How accurately can NLP models of classical rijal statements estimate narrator reliability when target leakage is eliminated, and does transmission network topology provide measurable predictive value?*
+
+| Objective | FYP2 Experiment | Primary Metric | Empirical Finding / Conclusion |
 |---|---|---|---|
-| **Project II Commencement** | 21 Sept – 6 Nov 2026 | Weeks 1–7 | Product Development, Testing and Evaluation (Sprint 1) |
-| **Project II Progress Report Submission** | **30 Oct 2026** | **Week 6** | Formal Progress Report (Ch. 1–3 + Preliminary Ch. 4 results) |
-| **Project II Progress Presentation & Evaluation** | **4 & 6 Nov 2026** | **Week 7** | Viva / Progress Defense with Examiners (Dr. Lai & Dr. Tan) |
-| **Project II Continuation** | 16 Nov 2026 – 1 Jan 2027 | Weeks 8–14 | Multimodal GNN, Chain Evaluation, Full Thesis (Sprint 2) |
-| **Project II Final Report Submission** | **1 Jan 2027** | **Week 14** | Complete Thesis Submission (Chapters 1–6) |
-| **Project II Final Progress Presentation** | **4–5 Jan 2027** | **Study Week** | Final Viva Presentation & System Demonstration |
-| **Final Thesis Submission** | **5 Feb 2027** | Post-Exam | Final Hardcover / Bound Thesis with Viva Corrections |
-| *Repeat Presentation (One Chance)* | *19 Feb 2027* | Contingency | *Contingency only* |
-
----
-
-## 2. Two-Sprint Operational Execution Plan
-
-### Sprint 1: Progress Defense Sprint (Weeks 2–7)
-*Primary Goal:* Deliver an airtight Progress Report and Presentation demonstrating that FYP1 methodological flaws are resolved, entity resolution is upgraded, target leakage is eliminated, and preliminary baseline benchmarks are locked.
-
-* **Week 2 (28 Sept – 4 Oct 2026) — CURRENT WEEK: Research Design & Leakage Audit**
-  - [ ] **Lock Research Design Matrix:** Formalize the *RQ → Hypothesis → Experiment → Metric → Conclusion* structure to directly answer Dr. Lai's critique.
-  - [ ] **Literature Comparison Table:** Complete benchmark comparison (*Mahmoud et al. / NarratorsKG*, *Narrator2Vec*, *Ahmad et al. 2025*, *Ghriss 2025*).
-  - [ ] **Target Leakage Audit:** Inspect node features and data pipelines; verify Ibn Ḥajar's grades are excluded from model inputs.
-  - [ ] **Corpus Version Reconciled:** Explicitly document SanadSet 650K (runtime) vs. AR-Sanad 280K (citation reference).
-* **Week 3 (5 Oct – 11 Oct 2026) — Entity Resolution & Cohort Audit**
-  - [ ] **Upgrade Entity Resolution:** Replace naive fuzzy matching with hierarchical disambiguation (Normalized Name → Kunya / Nisba → Tabaqa / Death Year → Teacher/Student Links).
-  - [ ] **Quantify Matching Precision:** Conduct a stratified manual audit to replace the fragile "3 exact / 1,099 fuzzy" statistic with an audited precision score.
-  - [ ] **Freeze Evaluation Cohort:** Finalize the clean narrator evaluation cohort and document class distribution.
-* **Week 4 (12 Oct – 18 Oct 2026) — Baseline & Semantic Modeling (PO1)**
-  - [ ] Implement and evaluate the lexical/keyword rule baseline.
-  - [ ] Train/evaluate the semantic classifier (AraBERT v2) on classical *rijāl* statements.
-  - [ ] Benchmark PO1: Compare Lexical vs. Semantic using **Macro-F1**, Accuracy, and Confusion Matrix.
-* **Week 5 (19 Oct – 25 Oct 2026) — Graph Setup & Progress Report Assembly**
-  - [ ] Construct the clean transmission graph in PyTorch Geometric (leakage-free).
-  - [ ] Run preliminary Graph-only vs. Semantic-only ablations.
-  - [ ] Draft Progress Report: Chapter 1 & 2 updates, Chapter 3 (Research Design & Entity Resolution), Chapter 4 (Preliminary PO1 results).
-* **Week 6 (26 Oct – 1 Nov 2026) — Report Finalization & Submission**
-  - [ ] Review report with supervisor Dr. Khalifa Chekima.
-  - [ ] **DEADLINE: Friday, 30 October 2026 — Project II Progress Report Submission.**
-* **Week 7 (2 Nov – 8 Nov 2026) — Progress Presentation & Defense**
-  - [ ] Prepare slides addressing examiner feedback, audited matching precision, and PO1 results.
-  - [ ] **MILESTONE: 4 & 6 November 2026 — Project II Progress Presentation & Evaluation.**
-
----
-
-### Sprint 2: Full Multimodal GNN, Chain Validation & Thesis (Weeks 8–14)
-*Primary Goal:* Complete the multimodal fusion ablation matrix, downstream isnād chain validation, full thesis writeup, and final viva preparation.
-
-* **Weeks 8–9 (16 Nov – 29 Nov 2026) — Multimodal GNN & Ablations (PO2)**
-  - [ ] Train multimodal model fusing AraBERT embeddings with GNN transmission topology.
-  - [ ] Execute formal Ablation Study:
-    - Model A: Graph-only
-    - Model B: Semantic-only
-    - Model C: Multimodal (Graph + Semantic)
-  - [ ] Report Macro-F1 and Cohen's Kappa to answer: *Does the transmission graph add measurable value over text alone?*
-* **Week 10 (30 Nov – 6 Dec 2026) — Downstream Isnād Evaluation (PO3)**
-  - [ ] Test chain aggregation methods (Minimum, Mean, Product, Geometric Mean) on held-out Hadith chains.
-  - [ ] Evaluate agreement against reference classifications (*Ṣaḥīḥ, Ḥasan, Ḍaʿīf*).
-  - [ ] Document limitation: chain consistency validation, not independent theological authentication.
-* **Weeks 11–12 (7 Dec – 20 Dec 2026) — Results & Discussion Drafting**
-  - [ ] Generate core figures (Architecture, KG subgraph, Reliability distribution, Ablation chart, Confusion matrix, Chain case study).
-  - [ ] Draft Chapter 5 (Results & Scholarly Discussion) and Chapter 6 (Conclusion & Limitations).
-* **Week 13 (21 Dec – 27 Dec 2026) — Full Thesis Polish & Supervisor Review**
-  - [ ] Assemble full thesis (Chapters 1–6).
-  - [ ] Review draft with supervisor Dr. Khalifa Chekima and apply revisions.
-* **Week 14 (28 Dec 2026 – 1 Jan 2027) — FINAL REPORT SUBMISSION**
-  - [ ] Final proofreading, formatting, and reference verification.
-  - [ ] **DEADLINE: Friday, 1 January 2027 — Project II Final Report Submission.**
-* **Study Week (4–5 Jan 2027) — FINAL PROGRESS PRESENTATION / VIVA**
-  - [ ] Final project defense and live system demonstration before the evaluation panel.
-* **Post-Viva (5 Feb 2027) — FINAL BOUND THESIS SUBMISSION**
-  - [ ] Implement viva examiner corrections and submit final hardcover thesis.
-
----
-
-## 3. Research Design & Approved Objectives Mapping
-
-**Core Research Question:** *How well can NLP-based analysis of classical rijāl assessments estimate narrator reliability, and does transmission-network information improve that estimate?*
-
-| Objective | FYP2 Experiment | Primary Metric | Target Conclusion |
-|---|---|---|---|
-| **PO1 — NLP Reliability Index** | Compare lexical/rule baseline against AraBERT semantic classifier on an audited narrator cohort | **Macro-F1** (with confusion matrix & class distribution) | Demonstrates whether deep semantic NLP extracts reliable signals from classical *rijāl* text |
-| **PO2 — Graph & Feasibility** | Controlled ablation: (1) Graph-only vs. (2) Semantic-only vs. (3) Multimodal Fusion | **Macro-F1** (with strict train/test split & leakage controls) | Demonstrates whether transmission network topology adds measurable predictive value |
-| **PO3 — Downstream Evaluation** | Downstream chain aggregation (Min, Mean, Product, GeoMean) evaluated on held-out Hadiths | **Macro-F1 / Cohen’s Kappa** against reference grades | Assesses narrator scores via chain-level consistency with reference classifications |
+| **PO1: NLP Reliability Index** | Compare Lexical TF-IDF baseline against AraBERT semantic classifier on audited cohorts ($N=844$ and $N=335$) | **Macro-F1**, Accuracy, Quadratic Weighted Kappa ($\kappa$) | Text strongly dominates the task. On $N=844$, TF-IDF achieves Macro-F1 of 0.7089 and Accuracy of 81.06%; AraBERT achieves Macro-F1 of 0.5902 and Accuracy of 70.78%. Earlier critic text reliably predicts Ibn Hajar's 9th-century verdicts. |
+| **PO2: Graph and Feasibility** | Controlled 10-arm ablation across 25 paired folds on $N=335$ nodes: Graph-only (G1, G2), Semantic-only (P1-A, P1-B), and Multimodal Fusion (P2-A, P2-B) | **Macro-F1**, Paired t-test ($p$-value), Cohen's Kappa | GNN message passing adds no predictive value over text alone: G2 (GCN with edges, 0.3536) does not outperform G1 (MLP without edges, 0.3628; $p=0.388$); Multimodal GNN Attention (0.4723) does not outperform Early Fusion MLP (0.4763; $p=0.833$). The narrator transmission network exhibits high structural heterophily. |
+| **PO3: Downstream Evaluation** | Downstream chain aggregation ($S_{chain} = \min_i y_i$) evaluated across 1,578 verified transmission chains from SanadSet | **Tier Accuracy**, Binary Acceptance Accuracy, Spearman Rank Correlation ($\rho$) | Narrator-level predictions propagate effectively into chain validity: TF-IDF achieves 71.86% exact chain tier accuracy, 98.42% binary acceptance accuracy, and Spearman $\rho = 0.5317$ ($p < 10^{-15}$). Model classification errors are tightly bounded within adjacent ordinal tiers. |
 
 ---
 
 ## 4. Evaluation Framework (Locked)
 
-* **Primary Metric:** **Macro-F1** (MANDATORY due to severe class imbalance across reliability categories).
-* **Secondary Supporting Metrics:** Accuracy, Cohen’s Kappa, Confusion Matrix, Mean Absolute Error (MAE).
-* **Evaluation Rule:** Fix the cohort, split, and metric before final runs. **Never tune thresholds on the held-out test set.**
+* **Primary Metric:** **Macro-F1** across three ordinal reliability tiers:
+  - Class 0: *Thiqah* (Trustworthy, Grade 1)
+  - Class 1: *Saduq* (Truthful, Grade 2)
+  - Class 2: *Below Saduq* (*Da'if* / *Matruk*, Grades 3 and 4)
+* **Secondary Supporting Metrics:** Overall Accuracy, Quadratic Weighted Kappa ($\kappa$), Confusion Matrix, Spearman Rank Correlation ($\rho$).
+* **Cross-Validation Protocol:** 5-fold Stratified Cross-Validation repeated across 5 random seeds (total of 25 paired iterations). Zero overlap between training and testing identities is enforced in every fold.
+* **Rigorous Hypothesis Testing:** Paired two-tailed t-tests with 95% confidence intervals across all 25 paired test folds.
 
 ---
 
-## 5. Scope Guardrails & Viva Defense Rules
+## 5. Scope Guardrails and Viva Defense Rules
 
-1. **Narrators as Primary Target:** Keep narrator reliability as the central prediction target; treat Hadith grading strictly as a downstream validation check.
-2. **No Claim of Theological Grading:** Do not claim the system independently authenticates Hadith or replaces traditional scholarship. Frame the score as a computational decision-support index.
-3. **No Target Leakage:** Verify that Ibn Ḥajar’s target grade is never encoded as an input feature in graph nodes.
-4. **Controlled Literature Comparison:** Compare results against prior works (*NarratorsKG*, *Narrator2Vec*) with task and dataset differences explicitly noted.
-5. **Hadith-Viz Decision Gate:** If access is granted, test a bounded, matched subset. If access is delayed or denied, proceed strictly with SanadSet 650K + *Taqrīb/Tahdhīb*.
+1. **Narrators as the Primary Target:** Narrator reliability is the central target of prediction; hadith chain grading serves strictly as a downstream evaluation of practical utility.
+2. **Computational Decision Support (No Theological Claim):** The system does not claim to establish independent theological authenticity or replace classical hadith scholarship. It provides a transparent, computational decision-support tool.
+3. **Zero Target Leakage:** Ibn Hajar's canonical *Taqrib* grades and al-Dhahabi's summary verdicts are completely stripped from input text representations. Only quotes from earlier classical critics (2nd to 4th century AH) are retained as textual features.
+4. **Authentic Reporting of Negative Findings:** The lack of performance gain from GNN message passing is embraced as a key scientific finding: hadith transmission networks connect trustworthy masters to students of mixed competence, creating structural heterophily where neighborhood averaging degrades classification.
 
 ---
 
-## 6. Current Status Overview
+## 6. Official Faculty Report and Thesis Structure (FCI UMS)
 
-| Component | Status | Notes |
+```
++------------------------------------+    +------------------------------------+
+|         FYP2 Progress Report       |    |            Final Thesis            |
+|         (Deadline: 30 Oct 2026)    |    |       (Deadline: 1 Jan 2027)       |
++------------------------------------+    +------------------------------------+
+| 1. Introduction                    |    | 1. Introduction                    |
+| 2. Literature Review               |    | 2. Literature Review               |
+| 3. Project Methodology             |    | 3. Project Methodology             |
+| 4. System / Experiment Design      |    | 4. System / Experiment Design      |
+| 5. Implementation                  |    | 5. Implementation                  |
+| 6. Results (Experiments / Testing) |    | 6. Results (Experiments / Testing) |
+| 7. Conclusion and References       |    | 7. Discussion                      |
+|                                    |    | 8. Conclusion and Future Works     |
+|                                    |    | 9. References                      |
++------------------------------------+    +------------------------------------+
+```
+
+### Mapping of FYP2 Deliverables to Progress Report Chapters
+
+| Progress Report Chapter | Primary Content and Focus | Core Artifacts and Reference Files |
 |---|---|---|
-| **Academic Timeline** | **Week 2 of 14** | 4 weeks until Progress Report (30 Oct 2026) |
-| **Examiner Feedback** | Cataloged | Directly mapped to Priority 1–7 action items |
-| **Main Transmission Corpus** | SanadSet 650K | Document exact version/filtering in methodology |
-| **Primary Metric** | Locked to Macro-F1 | Addresses Dr. Tan's feedback |
-| **Narrator Matching** | In progress (Week 3 target) | Replacing naive fuzzy matching with hierarchical disambiguation |
-| **Hadith-Viz Access** | Pending response | Execution plan proceeds independently without blocker |
+| **1. Introduction** | Background in hadith validation, computational subjectivity problem, three formal objectives (PO1, PO2, PO3), explicit scope boundaries. | `FYP2/research_design_table.md` |
+| **2. Literature Review** | Historical rijal terminology, limitations of keyword sentiment lexicons, Arabic transformers, GNNs on citation and transmission graphs, comparative benchmarks. | `FYP2/literature_comparison_table.md` |
+| **3. Project Methodology** | Five-stage data hygiene funnel, multi-critic text corpus construction, strict zero-leakage author filtering, clean undirected transmission graph formation. | `FYP2/attrition_table.md`, `FYP2/cohort_distribution.md` |
+| **4. System / Experiment Design** | RQ to Hypothesis mapping ($H_1, H_{2a}, H_{2b}, H_3$), 10-arm experimental matrix, 25-fold paired cross-validation protocol, weakest-link aggregation rule. | `FYP2/research_design_table.md` |
+| **5. Implementation** | Arabic text preprocessing, TF-IDF and AraBERT embedding extraction, MLP, GCN, GAT, and Multimodal Attention module implementations. | `scripts/run_clean_experiments.py`, `scripts/run_po1_845_benchmark.py` |
+| **6. Results** | Empirical results for PO1 ($N=844$), PO2 10-arm 25-fold ablation ($N=335$), paired statistical hypothesis tests, PO3 downstream chain validation ($N=1,578$). | `FYP2/clean_experiments_report.md`, `FYP2/po1_845_benchmark_report.md`, `FYP2/po3_chain_validation_report.md` |
+| **7. Conclusion and References** | Resolution of research questions, domain explanation of graph heterophily, computational limitations, APA references. | `FYP2/research_design_table.md` |
+
+---
+
+## 7. Current Status Overview
+
+| Component | Status | Details and Quantified Verification |
+|---|---|---|
+| **Academic Timeline** | **Week 3 of 14** | All computational experiments completed; report drafting initiated |
+| **Examiner Audit Critiques** | ✅ **100% Addressed** | Target leakage eliminated; cohort boundaries strictly documented |
+| **Text Benchmark Cohort (PO1)** | ✅ **Completed ($N=844$)** | All non-Sahabah cards with earlier-critic quotes evaluated over 25 folds |
+| **Multimodal Graph Cohort (PO2)** | ✅ **Completed ($N=335$)** | 335 nodes, 354 undirected edges, 8 features; 10-arm ablation completed |
+| **Downstream Isnād Chains (PO3)** | ✅ **Completed ($N=1,578$)** | 1,578 verified transmission chains evaluated via weakest-link aggregation |
+| **Statistical Hypothesis Testing** | ✅ **Completed** | Paired two-tailed t-tests with 95% confidence intervals locked |
+| **Progress Report Drafting** | 🟡 **In Progress** | Drafting 7 chapters in `FYP2/report_draft/` adhering to style guidelines |

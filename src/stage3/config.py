@@ -8,7 +8,8 @@ OUTPUT_DIR = PROJECT_ROOT / "output"
 STAGE3_DIR = OUTPUT_DIR / "stage3"
 
 # ── Input from Stage 2 ──
-GRAPH_NPZ = OUTPUT_DIR / "stage2" / "pyg_graph_large_graded.npz"
+GRAPH_PYG = OUTPUT_DIR / "stage2" / "pyg_graph.pt"
+GRAPH_NPZ = OUTPUT_DIR / "stage2" / "pyg_graph.npz"
 GRAPH_NODES_CSV = OUTPUT_DIR / "stage2" / "graph_nodes.csv"
 GRAPH_EDGES_CSV = OUTPUT_DIR / "stage2" / "graph_edges.csv"
 

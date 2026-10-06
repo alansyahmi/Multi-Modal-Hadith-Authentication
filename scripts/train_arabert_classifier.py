@@ -1,23 +1,42 @@
 """
-Track A v2: AraBERT 5-class classifier instead of regression.
+Track A v2: AraBERT 5-class classifier with explicit grade keyword masking.
 
 Classes: matruk(0), daif(1), maqbul(2), saduq(3), thiqah(4)
 Score map: {0:0.05, 1:0.15, 2:0.40, 3:0.70, 4:0.85}
 
-This forces the model to place narrators in discrete reliability buckets,
-preventing the mean-collapse problem of regression-based scoring.
+Zero-Target-Leakage Remediation:
+  - Explicit jarh wa ta'dil appraisal terms (e.g. ثقة, ضعيف, صدوق, متروك, كذاب,
+    وثقه, ضعفه, etc.) are replaced with `[MASK]` before tokenization.
+  - This prevents the transformer model from exploiting verbatim label tokens as a
+    superficial shortcut, forcing it to learn latent semantic, stylistic, and
+    contextual signals from classical biographical texts.
+  - Stratified 70/15/15 train/val/test splits preserve minority class ratios.
+  - Primary evaluation metric: Macro-F1 (falsifiable hypothesis H1 for PO1).
 """
-import json, re, sys, time
+import argparse, json, os, re, sys, time, types
 from pathlib import Path
 from collections import Counter
+
 sys.stdout.reconfigure(encoding="utf-8")
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+PROJECT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT))
+
+# Bypass transformers strict dependency version check on huggingface-hub<2.0
+if "transformers.dependency_versions_check" not in sys.modules:
+    _dvc = types.ModuleType("transformers.dependency_versions_check")
+    _dvc.dep_version_check = lambda *a, **k: None
+    sys.modules["transformers.dependency_versions_check"] = _dvc
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
-from sklearn.metrics import classification_report, confusion_matrix, cohen_kappa_score, f1_score, accuracy_score
+from sklearn.metrics import (
+    classification_report, confusion_matrix, cohen_kappa_score,
+    f1_score, accuracy_score,
+)
+from sklearn.model_selection import train_test_split
 from scipy.stats import spearmanr, pearsonr
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -33,7 +52,6 @@ RANDOM_SEED = 42
 TEST_SPLIT = 0.15
 VAL_SPLIT = 0.15
 
-PROJECT = Path(__file__).resolve().parent.parent
 ENC_PATH = PROJECT / "output/shamela/narrator_encyclopedia.json"
 OUT_DIR = PROJECT / "output/track_a_classifier"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -49,15 +67,56 @@ GRADE_SCORE_MAP = {
     "صحابي": 1.0, "ثقة ثبت": 0.95, "ثقة حافظ": 0.95, "ثقة متقن": 0.95, "إمام": 0.95,
     "حافظ": 0.90, "ثبت": 0.90, "متقن": 0.90, "ثقة": 0.85, "ثقات": 0.85, "مأمون": 0.85,
     "صدوق": 0.70, "لا بأس به": 0.65, "ليس به بأس": 0.65, "محله الصدق": 0.65,
-    "صدوق يهم": 0.55, "صدوق سيء الحفظ": 0.50, "سيء الحفظ": 0.40, "مقبول": 0.40,
-    "مستور": 0.25, "مجهول الحال": 0.20, "ضعيف": 0.15, "ضعيف الحديث": 0.15,
-    "لين": 0.15, "لين الحديث": 0.15, "ليس بالقوي": 0.15, "فيه ضعف": 0.15,
-    "منكر الحديث": 0.10, "مجهول": 0.10, "مجهول العين": 0.05,
-    "متروك": 0.05, "متروك الحديث": 0.05, "ساقط": 0.05, "مختلط": 0.05,
-    "متهم": 0.0, "كذاب": 0.0, "وضاع": 0.0, "دجال": 0.0,
+    "صدوق يهم": 0.55, "صدوق سيء الحفظ": 0.50, "صدوق سيئ الحفظ": 0.50, "سيء الحفظ": 0.40,
+    "سيئ الحفظ": 0.40, "مقبول": 0.40, "مستور": 0.25, "مجهول الحال": 0.20,
+    "ضعيف": 0.15, "ضعيف الحديث": 0.15, "لين": 0.15, "لين الحديث": 0.15,
+    "ليس بالقوي": 0.15, "فيه ضعف": 0.15, "منكر الحديث": 0.10, "مجهول": 0.10,
+    "مجهول العين": 0.05, "متروك": 0.05, "متروك الحديث": 0.05, "ساقط": 0.05,
+    "مختلط": 0.05, "متهم": 0.0, "كذاب": 0.0, "وضاع": 0.0, "دجال": 0.0,
 }
 
-def norm(t):
+# ── Jarh wa Ta'dil Vocabulary for Text Masking ──
+# Compound multi-word terms ordered first to guarantee greedy longest match
+GRADE_TERMS_VOCAB = [
+    # Multi-word compound grades
+    "ثقة ثبت", "ثقة حافظ", "ثقة متقن", "صدوق سيء الحفظ", "صدوق سيئ الحفظ", "صدوق يهم",
+    "مجهول الحال", "مجهول العين", "ضعيف الحديث", "لين الحديث", "ليس بالقوي", "منكر الحديث",
+    "متروك الحديث", "لا بأس به", "ليس به بأس", "محله الصدق", "سيء الحفظ", "سيئ الحفظ",
+    "فيه ضعف", "لا يحتج به", "ليس بحجة", "ليس بشيء", "يكتب حديثه", "لا يكتب حديثه",
+    # Single-word grade ranks
+    "ثقة", "صدوق", "مقبول", "مجهول", "ضعيف", "متروك", "مستور", "لين", "كذاب",
+    "حافظ", "إمام", "ثبت", "متقن", "ساقط", "حجة", "مأمون", "مختلط", "ضابط",
+    "دجال", "وضاع", "ثقات", "صحابي",
+    # Inflected critic verbs & appraisal forms
+    "وثقه", "وثقوه", "يوثقه", "موثق",
+    "ضعفه", "ضعفوه", "يضعفه", "مضعف",
+    "كذبه", "كذبوه", "يكذبه", "تركوه",
+]
+
+_TERMS_SORTED = sorted(set(GRADE_TERMS_VOCAB), key=len, reverse=True)
+AR_LETTER = r"[\u0621-\u064A\u0671-\u06D3]"
+# Proclitic prefix matches standard Arabic prefixes: و (and), ف (then), ب (by), ك (as), ل/لل (for), ال (the)
+PROCLITIC_PREFIX = r"(?:[وف])?(?:لل|[بكل])?(?:ال)?"
+GRADE_MASK_RE = re.compile(
+    rf"(?<!{AR_LETTER}){PROCLITIC_PREFIX}(?:" + "|".join(re.escape(t) for t in _TERMS_SORTED) + rf")(?!(?:{AR_LETTER}))"
+)
+
+def mask_grade_keywords(text: str, mask_token: str = "[MASK]") -> tuple[str, int]:
+    """Mask explicit jarh wa ta'dil appraisal terms with [MASK].
+
+    Returns:
+        (masked_text, count_of_masked_tokens)
+    """
+    if not text:
+        return "", 0
+    matches = list(GRADE_MASK_RE.finditer(text))
+    if not matches:
+        return text, 0
+    return GRADE_MASK_RE.sub(mask_token, text), len(matches)
+
+def norm(t: str) -> str:
+    """Normalize Arabic diacritics and letter variants."""
+    if not t: return ""
     return re.sub(r"[ً-ٌٍ-َّْٰ]", "", t).replace("أ","ا").replace("إ","ا").replace("آ","ا").replace("ة","ه").replace("ى","ي").strip()
 
 def score_to_class_label(score: float) -> int:
@@ -91,10 +150,18 @@ class ClassifierDataset(Dataset):
                 "attention_mask": enc["attention_mask"].squeeze(0),
                 "labels": torch.tensor(self.labels[idx], dtype=torch.long)}
 
-# ── Data loading ──
-def load_data():
+# ── Data loading with Zero-Leakage Masking ──
+def load_data(mask_grades: bool = True):
+    """Load narrator texts and ground-truth reliability classes.
+
+    Args:
+        mask_grades: If True, replace explicit grade keywords with [MASK]
+                     to prevent target label leakage.
+    """
     enc = json.load(open(ENC_PATH, encoding="utf-8"))
     texts, labels = [], []
+    total_masked_terms = 0
+    texts_masked_count = 0
 
     for e in enc:
         text = e.get("full_text", "")
@@ -108,13 +175,30 @@ def load_data():
 
         avg_score = float(np.mean(scores))
         cls = score_to_class_label(avg_score)
-        texts.append(text[:2000])
+
+        raw_snippet = text[:2000]
+        if mask_grades:
+            clean_text, num_masks = mask_grade_keywords(raw_snippet, mask_token="[MASK]")
+            if num_masks > 0:
+                texts_masked_count += 1
+                total_masked_terms += num_masks
+            texts.append(clean_text)
+        else:
+            texts.append(raw_snippet)
+
         labels.append(cls)
 
-    return texts, labels
+    mask_stats = {
+        "mask_grades": mask_grades,
+        "total_texts": len(texts),
+        "texts_with_masked_tokens": texts_masked_count,
+        "pct_texts_masked": round(texts_masked_count / max(len(texts), 1) * 100, 2),
+        "total_masked_tokens": total_masked_terms,
+    }
+    return texts, labels, mask_stats
 
 # ── Training ──
-def train_epoch(model, loader, optimizer, scheduler, scaler):
+def train_epoch(model, loader, optimizer, scheduler, scaler, criterion):
     model.train()
     total_loss, correct, total = 0, 0, 0
     for batch in loader:
@@ -126,13 +210,13 @@ def train_epoch(model, loader, optimizer, scheduler, scaler):
         if scaler:
             with torch.amp.autocast("cuda"):
                 out = model(input_ids=ids, attention_mask=mask)
-                loss = nn.CrossEntropyLoss()(out.logits, lbl)
+                loss = criterion(out.logits, lbl)
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
         else:
             out = model(input_ids=ids, attention_mask=mask)
-            loss = nn.CrossEntropyLoss()(out.logits, lbl)
+            loss = criterion(out.logits, lbl)
             loss.backward()
             optimizer.step()
 
@@ -157,7 +241,7 @@ def evaluate(model, loader):
     return np.array(all_true), np.array(all_preds)
 
 # ── Score all KG narrators ──
-def score_kg_narrators(model, tokenizer):
+def score_kg_narrators(model, tokenizer, mask_grades: bool = True):
     node_names_path = PROJECT / "output/stage2/node_names.json"
     alias_path = PROJECT / "output/shamela/alias_index.json"
     gnn_pred_path = PROJECT / "output/stage3/narrator_predictions.csv"
@@ -167,19 +251,26 @@ def score_kg_narrators(model, tokenizer):
     alias = json.load(open(alias_path, encoding="utf-8"))
     enc = json.load(open(ENC_PATH, encoding="utf-8"))
 
-    # Build entry_id → text
+    # Build entry_id → text (applying identical masking if enabled)
     entry_text = {}
     for e in enc:
         eid, text = e.get("entry_id"), e.get("full_text", "")
-        if eid and text and len(text) > 30: entry_text[eid] = text[:2000]
+        if eid and text and len(text) > 30:
+            snippet = text[:2000]
+            if mask_grades:
+                snippet, _ = mask_grade_keywords(snippet, mask_token="[MASK]")
+            entry_text[eid] = snippet
 
     name_to_bio = {}
     for ak, eids in alias.items():
-        if eids[0] in entry_text: name_to_bio[norm(ak)] = entry_text[eids[0]]
+        if eids[0] in entry_text:
+            name_to_bio[norm(ak)] = entry_text[eids[0]]
 
     # GNN fallback
-    preds = pd.read_csv(gnn_pred_path)
-    gnn = {int(r["node_id"]): float(r["predicted_score"]) for _, r in pd.read_csv(gnn_pred_path).iterrows()}
+    gnn = {}
+    if gnn_pred_path.exists():
+        preds_df = pd.read_csv(gnn_pred_path)
+        gnn = {int(r["node_id"]): float(r["predicted_score"]) for _, r in preds_df.iterrows()}
 
     all_kg = [(norm(v), int(k)) for k, v in id_to_name.items()]
     scores = {}
@@ -193,7 +284,7 @@ def score_kg_narrators(model, tokenizer):
             has_bio = [nk in name_to_bio for nk, _ in batch]
 
             enc = tokenizer(texts, truncation=True, padding=True,
-                          max_length=128, return_tensors="pt").to(DEVICE)
+                            max_length=128, return_tensors="pt").to(DEVICE)
             out = model(**enc)
             preds_cls = out.logits.argmax(-1).cpu().tolist()
 
@@ -208,26 +299,56 @@ def score_kg_narrators(model, tokenizer):
 
 # ── Main ──
 def main():
+    parser = argparse.ArgumentParser(description="AraBERT 5-class narrator reliability classifier.")
+    parser.add_argument("--mask-grades", action="store_true", default=True,
+                        help="Mask explicit jarh wa ta'dil grade keywords with [MASK] (default: True).")
+    parser.add_argument("--no-mask-grades", dest="mask_grades", action="store_false",
+                        help="Disable grade keyword masking (for leakage ablation study).")
+    parser.add_argument("--epochs", type=int, default=NUM_EPOCHS, help="Number of training epochs.")
+    parser.add_argument("--batch-size", type=int, default=BATCH_SIZE, help="Batch size.")
+    parser.add_argument("--lr", type=float, default=LEARNING_RATE, help="Learning rate.")
+    parser.add_argument("--skip-kg-scoring", action="store_true", default=False,
+                        help="Skip scoring full 262K KG after test evaluation.")
+    args = parser.parse_args()
+
     print("=" * 65)
     print("  AraBERT 5-CLASS CLASSIFIER TRAINING")
+    print(f"  Target Leakage Masking: {'ENABLED ([MASK])' if args.mask_grades else 'DISABLED (Leaky Ablation)'}")
     print("=" * 65)
     print(f"  Device: {DEVICE}")
 
+    # Set seeds for reproducibility
+    torch.manual_seed(RANDOM_SEED)
+    np.random.seed(RANDOM_SEED)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(RANDOM_SEED)
+
     # Load data
     print(f"\n[1] Loading training data...")
-    texts, labels = load_data()
+    texts, labels, mask_stats = load_data(mask_grades=args.mask_grades)
     dist = Counter(labels)
-    print(f"  Total: {len(texts):,} | Per class: {dict(dist)}")
-    print(f"  Class names: {dict(enumerate(CLASS_NAMES))}")
+    print(f"  Total valid entries: {len(texts):,}")
+    print(f"  Class distribution:  {dict(dist)}")
+    print(f"  Class names:         {dict(enumerate(CLASS_NAMES))}")
+    if args.mask_grades:
+        print(f"  Texts with masked tokens: {mask_stats['texts_with_masked_tokens']:,} ({mask_stats['pct_texts_masked']}%)")
+        print(f"  Total masked tokens:      {mask_stats['total_masked_tokens']:,}")
 
-    # Shuffle and split
-    rng = np.random.RandomState(RANDOM_SEED)
-    idx = rng.permutation(len(texts))
-    n_test = max(1, int(len(texts) * TEST_SPLIT))
-    n_val = max(1, int(len(texts) * VAL_SPLIT))
-    test_idx = idx[:n_test]
-    val_idx = idx[n_test:n_test+n_val]
-    train_idx = idx[n_test+n_val:]
+    # Stratified 70/15/15 train/val/test split
+    indices = np.arange(len(texts))
+    train_idx, temp_idx, _, y_temp = train_test_split(
+        indices, labels,
+        test_size=(TEST_SPLIT + VAL_SPLIT),
+        random_state=RANDOM_SEED,
+        stratify=labels,
+    )
+    val_rel_ratio = VAL_SPLIT / (TEST_SPLIT + VAL_SPLIT)
+    val_idx, test_idx = train_test_split(
+        temp_idx,
+        test_size=(1.0 - val_rel_ratio),
+        random_state=RANDOM_SEED,
+        stratify=y_temp,
+    )
 
     train_texts = [texts[i] for i in train_idx]
     train_labels = [labels[i] for i in train_idx]
@@ -236,36 +357,38 @@ def main():
     test_texts = [texts[i] for i in test_idx]
     test_labels = [labels[i] for i in test_idx]
 
-    print(f"\n  Train: {len(train_texts):,} | Val: {len(val_texts):,} | Test: {len(test_texts):,}")
+    print(f"\n  Splits (Stratified 70/15/15):")
+    print(f"    Train: {len(train_texts):,} | Val: {len(val_texts):,} | Test: {len(test_texts):,}")
 
     # Load model
-    print(f"\n[2] Loading AraBERT v2 with 5-class head...")
+    print(f"\n[2] Loading AraBERT v2 ({MODEL_NAME}) with 5-class head...")
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     model = AutoModelForSequenceClassification.from_pretrained(
         MODEL_NAME, num_labels=5).to(DEVICE)
-    print(f"  Params: {sum(p.numel() for p in model.parameters()):,}")
+    print(f"  Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 
-    # Compute class weights (inverse frequency)
+    # Compute class weights for cross entropy
     class_counts = Counter(train_labels)
     max_cnt = max(class_counts.values())
     class_weights = torch.tensor(
-        [max_cnt / class_counts.get(i, 1) for i in range(5)], dtype=torch.float
+        [max_cnt / max(class_counts.get(i, 1), 1) for i in range(5)], dtype=torch.float
     ).to(DEVICE)
-    print(f"  Class weights: {class_weights.tolist()}")
+    print(f"  Class weights (inverse freq): {[round(w, 2) for w in class_weights.tolist()]}")
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
 
     # DataLoaders
     train_ds = ClassifierDataset(train_texts, train_labels, tokenizer)
     val_ds = ClassifierDataset(val_texts, val_labels, tokenizer)
     test_ds = ClassifierDataset(test_texts, test_labels, tokenizer)
 
-    train_loader = DataLoader(train_ds, BATCH_SIZE, shuffle=True)
-    val_loader = DataLoader(val_ds, BATCH_SIZE * 2)
-    test_loader = DataLoader(test_ds, BATCH_SIZE * 2)
+    train_loader = DataLoader(train_ds, args.batch_size, shuffle=True)
+    val_loader = DataLoader(val_ds, args.batch_size * 2)
+    test_loader = DataLoader(test_ds, args.batch_size * 2)
 
     # Training
-    print(f"\n[3] Training...")
-    optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
-    total_steps = NUM_EPOCHS * len(train_loader)
+    print(f"\n[3] Training (Epochs={args.epochs}, LR={args.lr})...")
+    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=WEIGHT_DECAY)
+    total_steps = args.epochs * len(train_loader)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=total_steps, eta_min=1e-6)
     scaler = torch.amp.GradScaler("cuda") if DEVICE.type == "cuda" else None
 
@@ -273,8 +396,8 @@ def main():
     best_state = None
     start = time.time()
 
-    for epoch in range(1, NUM_EPOCHS + 1):
-        loss, acc = train_epoch(model, train_loader, optimizer, scheduler, scaler)
+    for epoch in range(1, args.epochs + 1):
+        loss, acc = train_epoch(model, train_loader, optimizer, scheduler, scaler, criterion)
         yv_true, yv_pred = evaluate(model, val_loader)
         val_f1 = f1_score(yv_true, yv_pred, average="macro")
         val_acc = accuracy_score(yv_true, yv_pred)
@@ -286,11 +409,12 @@ def main():
         print(f"  Epoch {epoch:>2}: loss={loss:.4f}, train_acc={acc:.4f}, val_f1={val_f1:.4f}, val_acc={val_acc:.4f}")
 
     train_time = time.time() - start
-    model.load_state_dict(best_state)
-    print(f"  Complete in {train_time:.0f}s (best val F1: {best_val_f1:.4f})")
+    if best_state is not None:
+        model.load_state_dict(best_state)
+    print(f"  Training complete in {train_time:.0f}s (best val Macro-F1: {best_val_f1:.4f})")
 
     # Test evaluation
-    print(f"\n[4] Test set evaluation...")
+    print(f"\n[4] Test set evaluation (Locked Primary Metric: Macro-F1)...")
     y_true, y_pred = evaluate(model, test_loader)
 
     print(f"\n  Classification Report:")
@@ -308,85 +432,63 @@ def main():
     f1_macro = f1_score(y_true, y_pred, average="macro")
     acc = accuracy_score(y_true, y_pred)
 
-    # For comparison: also compute Spearman if we map classes to scores
     y_true_scores = np.array([CLASS_TO_SCORE[c] for c in y_true])
     y_pred_scores = np.array([CLASS_TO_SCORE[c] for c in y_pred])
     spear_r, _ = spearmanr(y_true_scores, y_pred_scores)
     pear_r, _ = pearsonr(y_true_scores, y_pred_scores)
 
-    print(f"\n  Accuracy:     {acc:.4f}")
-    print(f"  F1 Macro:     {f1_macro:.4f}")
-    print(f"  Cohen's κ:    {kappa:.4f}")
-    print(f"  Spearman ρ:   {spear_r:.4f}")
-    print(f"  Pearson r:    {pear_r:.4f}")
+    print(f"\n  Locked Primary Metric (PO1):")
+    print(f"    Macro-F1:     {f1_macro:.4f}")
+    print(f"  Secondary Metrics:")
+    print(f"    Accuracy:     {acc:.4f}")
+    print(f"    Cohen's κ:    {kappa:.4f}")
+    print(f"    Spearman ρ:   {spear_r:.4f}")
+    print(f"    Pearson r:    {pear_r:.4f}")
 
-    # Compare with regression version
-    print(f"\n  {'=' * 55}")
-    print(f"  REGRESSION vs CLASSIFICATION")
-    print(f"  {'=' * 55}")
-    print(f"  {'Metric':<25s} {'Regression':>12s} {'Classification':>12s}")
-    print(f"  {'-' * 50}")
-    # From saved regression eval
-    try:
-        reg_eval = json.load(open(PROJECT / "output/track_a/evaluation_metrics.json", encoding="utf-8"))
-        for m, reg_val in [("Spearman ρ", reg_eval["spearman_r"]),
-                          ("Cohen's κ", reg_eval["cohen_kappa"]),
-                          ("F1 (binary)", reg_eval["binary_f1"])]:
-            cls_val = {"Spearman ρ": spear_r, "Cohen's κ": kappa, "F1 (binary)": acc}[m]
-            delta = cls_val - reg_val
-            arrow = "↑" if delta > 0 else "↓"
-            print(f"  {m:<25s} {reg_val:>12.4f} {cls_val:>12.4f} {arrow}")
-    except:
-        pass
-
-    # ── Save model ──
-    model.save_pretrained(OUT_DIR / "arabert_classifier")
-    tokenizer.save_pretrained(OUT_DIR / "arabert_classifier")
-    print(f"\n  Saved: {OUT_DIR / 'arabert_classifier'}")
+    # Save model and artifacts
+    model_save_dir = OUT_DIR / ("arabert_classifier" if args.mask_grades else "arabert_classifier_unmasked")
+    model.save_pretrained(model_save_dir)
+    tokenizer.save_pretrained(model_save_dir)
+    print(f"\n  Model saved to: {model_save_dir}")
 
     metrics = {
-        "model": "5-class classifier",
+        "model": "5-class AraBERT classifier",
+        "mask_grades": args.mask_grades,
+        "mask_stats": mask_stats,
         "n_train": len(train_texts),
         "n_val": len(val_texts),
         "n_test": len(test_texts),
-        "accuracy": round(acc, 4),
+        "primary_metric": "f1_macro",
         "f1_macro": round(f1_macro, 4),
+        "accuracy": round(acc, 4),
         "cohen_kappa": round(kappa, 4),
         "spearman_r": round(spear_r, 4),
         "pearson_r": round(pear_r, 4),
-        "train_time_seconds": train_time,
+        "train_time_seconds": round(train_time, 2),
         "class_distribution": {int(k): int(v) for k, v in dist.items()},
         "class_weights": class_weights.tolist(),
+        "random_seed": RANDOM_SEED,
     }
-    with open(OUT_DIR / "classifier_metrics.json", "w") as f:
+    metrics_path = OUT_DIR / ("classifier_metrics.json" if args.mask_grades else "classifier_metrics_unmasked.json")
+    with open(metrics_path, "w", encoding="utf-8") as f:
         json.dump(metrics, f, indent=2)
-    print(f"  Saved: {OUT_DIR / 'classifier_metrics.json'}")
+    print(f"  Metrics saved to: {metrics_path}")
 
-    # ── Score ALL KG narrators ──
-    print(f"\n[5] Scoring all 262K KG narrators...")
-    hybrid_scores, covered = score_kg_narrators(model, tokenizer)
-
-    scores_file = OUT_DIR / "narrator_scores_classifier.json"
-    with open(scores_file, "w", encoding="utf-8") as f:
-        json.dump({str(k): v for k, v in hybrid_scores.items()}, f)
-    print(f"  Saved: {scores_file}")
-    print(f"  Coverage: {covered:,}/{len(hybrid_scores):,} ({covered/len(hybrid_scores)*100:.1f}%)")
-
-    vals = list(hybrid_scores.values())
-    print(f"  Score range: [{min(vals):.4f}, {max(vals):.4f}]")
-    print(f"  Score mean: {np.mean(vals):.4f}, std: {np.std(vals):.4f}")
-
-    # Histogram
-    bins = {0.85: "thiqah", 0.70: "saduq", 0.40: "maqbul", 0.15: "daif", 0.05: "matruk"}
-    for threshold, name in sorted(bins.items(), reverse=True):
-        cnt = sum(1 for v in vals if abs(v - threshold) < 0.01)
-        print(f"    {name:10s} ({threshold:.2f}): {cnt:>8,} ({cnt/len(vals)*100:.1f}%)")
+    # Score KG narrators
+    if not args.skip_kg_scoring:
+        print(f"\n[5] Scoring all KG narrators (masking={args.mask_grades})...")
+        hybrid_scores, covered = score_kg_narrators(model, tokenizer, mask_grades=args.mask_grades)
+        scores_file = OUT_DIR / "narrator_scores_classifier.json"
+        with open(scores_file, "w", encoding="utf-8") as f:
+            json.dump({str(k): v for k, v in hybrid_scores.items()}, f)
+        print(f"  Saved: {scores_file}")
+        print(f"  Coverage: {covered:,}/{len(hybrid_scores):,} ({covered/len(hybrid_scores)*100:.1f}%)")
+    else:
+        print(f"\n[5] Skipped KG scoring (--skip-kg-scoring set).")
 
     print(f"\n{'=' * 65}")
-    print(f"  CLASSIFIER TRAINING COMPLETE")
-    print(f"  F1 Macro: {f1_macro:.4f} | Spearman ρ: {spear_r:.4f}")
+    print(f"  ARABERT CLASSIFIER COMPLETE (Macro-F1: {f1_macro:.4f})")
     print(f"{'=' * 65}")
 
-import pandas as pd
 if __name__ == "__main__":
     main()
