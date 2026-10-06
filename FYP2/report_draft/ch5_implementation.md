@@ -34,20 +34,19 @@ Classical Arabic texts exhibit diverse orthographic variations across digital tr
 
 ### 5.2.2 Lexical Feature Extraction (TF-IDF Pipeline)
 For experimental arm P1-A, normalized biographical statements are processed through a scikit-learn `TfidfVectorizer`:
-* Tokenization spans both word-level n-grams (ranges 1 to 3 words) and character-level n-grams (ranges 3 to 5 characters) to capture morphological root patterns.
-* Sublinear term frequency scaling is enabled: $\text{tf} = 1 + \log(\text{tf})$.
+* Tokenization spans word-level n-grams (1 to 2 words) with sublinear term frequency scaling: $\text{tf} = 1 + \log(\text{tf})$.
 * Minimum document frequency is set to $\text{min\_df} = 2$ to suppress typographical anomalies.
-* The vocabulary is capped at the top 5,000 most informative features ranked by corpus term frequency.
+* The vocabulary is capped at the top 1,000 most informative features ranked by corpus term frequency.
 
 ### 5.2.3 Contextual Semantic Feature Extraction (AraBERT Backbone)
-Contextual embeddings are extracted using the dedicated script `scripts/extract_clean_arabert_embeddings.py`. The extraction workflow executes four sequential steps:
+Contextual embeddings are extracted using the dedicated script `scripts/extract_clean_arabert_embeddings.py` and `scripts/run_po1_benchmark.py`. The extraction workflow executes four sequential steps:
 1. **Model Initialization:** Loads the pretrained `aubmindlab/bert-base-arabertv2` transformer model and its associated Farasa-based tokenizer. Model parameters are frozen to serve as a pure static feature extractor.
 2. **Tokenization and Masking:** Multi-critic statements are tokenized into subword tokens with padding and truncation enforced at a maximum sequence length of 512 tokens:
    $$\text{Input IDs} \in \mathbb{Z}^{B \times 512}, \quad \text{Attention Mask} \in \{0, 1\}^{B \times 512}$$
 3. **Forward Pass and Mean Pooling:** Sequences are processed through the 12 transformer encoder layers on the GPU. To obtain a sequence representation invariant to sequence length, mean pooling is computed across all non-padded token vectors:
    $$e_i = \frac{\sum_{t=1}^T m_{it} h_{it}}{\sum_{t=1}^T m_{it}} \in \mathbb{R}^{768}$$
    where $h_{it} \in \mathbb{R}^{768}$ denotes the output hidden vector of token $t$ in sequence $i$, and $m_{it} \in \{0, 1\}$ represents the corresponding attention mask value.
-4. **Deterministic Storage:** Extracted vectors are serialized into `output/cleaned_cohort/clean_arabert_embeddings.npy` ($335 \times 768$) and `output/cleaned_cohort/po1_845_arabert_embeddings.npy` ($844 \times 768$).
+4. **Deterministic Storage:** Extracted vectors are serialized into `output/cleaned_cohort/clean_arabert_embeddings.npy` ($335 \times 768$) and `output/cleaned_cohort/po1_strict_arabert_embeddings.npy` ($819 \times 768$).
 
 ---
 
@@ -56,48 +55,46 @@ Contextual embeddings are extracted using the dedicated script `scripts/extract_
 The graph processing module (`scripts/build_clean_dataset.py`) parses transmission interactions from SanadSet and compiles the tabular node feature matrix.
 
 ### 5.3.1 Adjacency Matrix and Graph Serialization
-The transmission network is formulated as an unweighted, undirected NetworkX graph $G = (V, E)$. Node identifiers are mapped to contiguous integers from 0 to $N-1$. The symmetric adjacency matrix $A \in \{0, 1\}^{N \times N}$ is saved in compressed sparse format alongside edge lists in `output/cleaned_cohort/clean_graph.npz`.
+The transmission network is formulated as an unweighted, undirected NetworkX graph $G = (V, E)$. Node identifiers are mapped to contiguous integers from 0 to $N-1$ ($N=335$). The 177 unique undirected teacher-student transmission pairs are represented as 354 directed message-passing edges (`edge_index` shape: $2 \times 354$) in PyTorch Geometric format, saved in `output/cleaned_cohort/clean_graph.npz`.
 
 ### 5.3.2 Extraction of Topological Metrics
 For each node $v_i \in V$, five structural metrics are computed:
-* **Degree Centrality:** $k_i = \sum_{j} A_{ij}$.
-* **Directed In-Degree:** Number of distinct teachers listed in verified transmission chains.
-* **Directed Out-Degree:** Number of distinct students listed in verified transmission chains.
-* **PageRank Prestige:** Calculated using power iteration with a damping factor of $\alpha = 0.85$ and a convergence tolerance of $1 \times 10^{-6}$.
-* **Clustering Coefficient:** Ratio of closed triangles connected to node $i$ relative to total possible connections:
-  $$C_i = \frac{2 T_i}{k_i (k_i - 1)}$$
-  where $T_i$ represents the number of triangles through node $i$.
+* **Total Appearances:** Frequency of occurrence across verified transmission chains in the corpus.
+* **In-Degree:** Number of unique teachers from whom the narrator received hadiths.
+* **Out-Degree:** Number of unique students to whom the narrator transmitted hadiths.
+* **Net Flow:** Transmission directionality balance ($\text{in-degree} - \text{out-degree}$).
+* **Mean Chain Position:** Average normalized position within isnād sequences (0 at source, 1 at collector).
 
 ### 5.3.3 Biographical Metadata Processing
 Three biographical demographic attributes are extracted from Hadith-Viz cards:
-* **Generation (*Ṭabaqa*):** Mapped to an integer from 1 to 12. Missing values are imputed using the cohort median.
-* **Normalized Death Year:** The recorded Hijrī year of death, min-max scaled to the continuous interval $[0, 1]$.
-* **Transmission Span:** The difference in death years between the earliest recorded teacher and latest recorded student.
+* **Death Year (AH):** Recorded death year in the Hijrī calendar. Missing values are imputed using generation medians.
+* **Generation Index (*Ṭabaqa*):** Categorical chronological generation mapped to an ordinal scalar normalized by 12.
+* **Classical Statement Count:** Total number of classical earlier critic appraisal statements recorded for the narrator.
 
-All 8 tabular features are standardized using z-score normalization ($z = \frac{x - \mu}{\sigma}$) prior to neural network ingestion.
+All 8 tabular features are standardized using z-score normalization ($z = \frac{x - \mu}{\sigma}$) fitted strictly on training partitions prior to neural network ingestion.
 
 ---
 
 ## 5.4 Neural Architecture Specifications and Training Hyperparameters
 
-All neural network models (P1-B_MLP, G1, G2, P2-A, P2-B_Concat, and P2-B_Attn) are implemented in PyTorch and PyTorch Geometric within `scripts/run_clean_experiments.py`.
+All neural network models across the 13-arm ablation suite (P1-B_MLP, G1, G2, P2-A, P2-B_Concat, P2-B_Attn, P2-C, P2-D) are implemented in PyTorch and PyTorch Geometric within `scripts/run_clean_experiments.py`.
 
 ### Table 5.2: Neural Network Hyperparameter Configuration Across Experimental Arms
 
 | Hyperparameter Setting | Configuration Value | Methodological Rationale |
 |---|---|---|
-| **Optimizer** | AdamW | Decoupled weight decay prevents overfitting on small cohorts. |
-| **Base Learning Rate** | $1 \times 10^{-3}$ | Standard learning rate for transformer embedding classification. |
+| **Optimizer** | Adam | Standard first-order stochastic optimization for neural classifiers. |
+| **Base Learning Rate** | $5 \times 10^{-3}$ | Learning rate chosen for rapid and stable convergence on tabular and GNN layers. |
 | **Weight Decay ($L_2$ Regularization)** | $1 \times 10^{-4}$ | Constrains weight magnitudes to control gradient variance. |
-| **Training Epochs** | 150 Maximum | Sufficient capacity for convergence on tabular and GNN layers. |
-| **Early Stopping Strategy** | Patience: 25 epochs | Training halts if validation Macro-F1 does not improve for 25 epochs. |
+| **Training Epochs** | 100 Maximum | Sufficient capacity for convergence on tabular and GNN layers. |
+| **Early Stopping Strategy** | Inner 5-fold split, Patience: 15 epochs | Early stopping fitted on inner-train fold to prevent test leakage. |
 | **Loss Function** | Weighted Cross-Entropy | Loss weighted by inverse class frequency to handle class imbalance. |
 | **Activation Function** | ReLU | Rectified Linear Unit activation between hidden layers. |
 | **Dropout Probability** | $p = 0.3$ | Injected after hidden layers to mitigate co-adaptation. |
-| **Hidden Layer Dimensions** | 64 (MLP) / 32 (GNN) | Constrained layer sizes prevent parameter explosion on $N=335$. |
+| **Hidden Layer Dimensions** | 64 dimensions | Constrained layer sizes prevent parameter explosion on $N=335$. |
 
 ### 5.4.1 Inverse-Frequency Loss Weighting
-To force neural models to pay proportional attention to the minority reliability class (*Below Ṣadūq*, representing only 3.9% of the multimodal cohort), the cross-entropy loss function is weighted using inverse class frequencies:
+To force neural models to pay proportional attention to the minority reliability class (*Below Ṣadūq*, representing 5.97% of the multimodal cohort), the cross-entropy loss function is weighted using inverse class frequencies:
 
 $$\mathcal{L} = - \sum_{c=1}^C w_c \cdot y_c \log(\hat{p}_c), \quad w_c = \frac{N}{C \cdot N_c}$$
 
@@ -114,7 +111,7 @@ The variables within this loss function are defined as follows:
 
 Before initiating production benchmarking, the computational pipeline was verified through four diagnostic unit tests:
 
-1. **Target Leakage String Scan:** An automated inspection script verified that zero biographical text inputs in `clean_texts.json` contained target phrases such as `قال ابن حجر` or `قال الذهبي`. All 335 entries passed the verification test.
+1. **Target Leakage String Scan:** An automated inspection script verified that zero biographical text inputs in `clean_texts.json` contained target phrases or attributions to Ibn Ḥajar, al-Dhahabī, al-Mizzī, or post-classical compilations. All entries passed the verification test.
 2. **Identity Partition Integrity:** An assertion test verified that for every fold $k \in \{1, \dots, 25\}$, the intersection between training identity IDs and testing identity IDs was strictly empty ($\text{len}(V_{\text{train}} \cap V_{\text{test}}) = 0$).
 3. **Graph Adjacency Symmetry Check:** Verified that the transmission adjacency matrix $A$ satisfies $A = A^T$ with zero self-loops on the diagonal prior to convolution normalization.
 4. **Downstream Isnād Index Alignment:** Verified that all narrator references in the 1,578 downstream test chains correctly mapped to valid out-of-fold predictions without index mismatches or missing values.

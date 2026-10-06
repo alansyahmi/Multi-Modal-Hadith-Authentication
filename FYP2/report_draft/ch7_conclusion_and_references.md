@@ -5,10 +5,10 @@
 The empirical evaluations conducted in this research reveal consistent patterns concerning the representation of classical biographical evaluation text and transmission network topology:
 
 ### 7.1.1 Linguistic and Semantic Dominance
-Biographical text representations strongly dominate the task of narrator reliability assessment. On the large-scale benchmark ($N = 844$), the regularized lexical TF-IDF model achieved a 3-tier Macro-F1 score of **0.7089 ± 0.0422**, an overall classification accuracy of **81.06%**, and a Quadratic Weighted Kappa of **$\kappa = 0.6498$**. This performance confirms that statements recorded by earlier classical critics (2nd to 4th centuries AH) contain explicit, consistent evaluative signals that reliably predict the 9th-century synthesis verdicts formalized by Ibn Ḥajar al-ʿAsqalānī.
+Biographical text representations strongly dominate the task of narrator reliability assessment. On the primary canonical benchmark ($N = 819$), where all later synthesis judgments from al-Mizzī (d. 742 AH) and ten subsequent post-classical compilers were purged, the regularized lexical TF-IDF model achieved a 3-tier Macro-F1 score of **0.6852 ± 0.0514**, an overall classification accuracy of **80.59%**, and a Quadratic Weighted Kappa of **$\kappa = 0.6697$**. This performance confirms that statements recorded by earlier classical critics (2nd to 4th centuries AH) contain explicit, consistent evaluative signals that reliably predict the 9th-century synthesis verdicts formalized by Ibn Ḥajar al-ʿAsqalānī.
 
 ### 7.1.2 Lexical Technical Precision vs. Contextual Embeddings
-Contrary to initial assumptions that deep contextual language models would substantially outperform surface n-gram baselines, the frozen AraBERT contextual semantic model yielded a Macro-F1 of **0.5902 ± 0.0412** on $N = 844$, underperforming lexical TF-IDF by 0.1187 ($p < 0.001$). On the condensed multimodal cohort ($N = 335$), AraBERT achieved a Macro-F1 of **0.4958 ± 0.0800**, statistically indistinguishable from TF-IDF (0.5246, $p = 0.0989$).
+Contrary to initial assumptions that deep contextual language models would substantially outperform surface n-gram baselines, the frozen AraBERT contextual semantic model yielded a Macro-F1 of **0.5635 ± 0.0373** on $N = 819$, underperforming lexical TF-IDF by 0.1218 ($t = -11.4153, p = 3.49 \times 10^{-11}$). On the condensed multimodal cohort ($N = 335$), AraBERT achieved a Macro-F1 of **0.4933 ± 0.0628**, likewise underperforming TF-IDF (**0.5608 ± 0.0703**, $p = 0.00111$).
 
 This dynamic arises from the structural nature of classical *rijāl* criticism:
 * **Concise Formulaic Vocabulary:** Classical critics communicated accreditation and disparagement using highly condensed technical terms (such as *thiqah*, *ṣadūq*, *ḍaʿīf*, *laysa bihi baʾs*, or *munkar al-ḥadīth*). Regularized linear classifiers operating on character and word n-grams directly identify these discriminative lexical markers.
@@ -21,9 +21,9 @@ This dynamic arises from the structural nature of classical *rijāl* criticism:
 A central theoretical contribution of this research is the empirical and scholarly explanation of why Graph Neural Networks fail to improve narrator reliability classification over non-relational baselines.
 
 ### 7.2.1 Empirical Proof of Ineffective Message Passing
-In the controlled 10-arm ablation study on $N = 335$:
-* The standard 2-layer Graph Convolutional Network (G2, utilizing transmission edges) achieved a Macro-F1 of **0.3536 ± 0.0476**, performing worse than a 2-layer MLP trained on identical node features without transmission edges (G1: **0.3628 ± 0.0740**, $p = 0.388$).
-* Fusing text embeddings with graph topology via Cross-Modal GNN Attention (P2-B_Attn) achieved **0.4723 ± 0.0838**, yielding no performance gain over an Early Fusion MLP operating without transmission edges (P2-A: **0.4763 ± 0.0898**, $p = 0.833$).
+In the controlled 13-arm ablation study on $N = 335$:
+* The standard 2-layer Graph Convolutional Network (G2, utilizing transmission edges) achieved a Macro-F1 of **0.3438 ± 0.0716**, performing worse than a 2-layer MLP trained on identical node features without transmission edges (G1: **0.3556 ± 0.0564**, $p = 0.451$).
+* Fusing text embeddings with graph topology via Cross-Modal GNN Attention (P2-B_Attn: **0.4478 ± 0.0670**) and GCN Concatenation (P2-B_Concat: **0.4311 ± 0.0750**) significantly underperformed Early Fusion MLP operating without transmission edges (P2-A: **0.4810 ± 0.0684**, $p = 0.0452$ and $p = 0.0215$ respectively).
 
 ### 7.2.2 Mathematical and Sociological Mechanics of Transmission Heterophily
 The structural failure of graph convolution in hadith transmission networks is explained by graph heterophily. Graph Convolutional Networks (Kipf and Welling, 2017) execute normalized neighborhood feature smoothing:
@@ -44,11 +44,11 @@ In historical hadith transmission networks, however, connections represent educa
 To evaluate how the computational framework behaves on historically ambiguous entities, this study analyzed the subset of narrators where 9th-century Ibn Ḥajar (*Taqrīb al-Tahdhīb*) and 8th-century al-Dhahabī (*al-Kāshif*) diverged in their canonical reliability tiers.
 
 ### 7.3.1 Prevalence and Structure of Scholarly Disagreements
-Within the clean multimodal cohort of 335 scholars, 237 individuals possess recorded evaluations from both synthesizers:
-* **Consensus Subset:** In 181 cases (76.4%), Ibn Ḥajar and al-Dhahabī assigned identical 3-tier reliability classifications.
-* **Disagreement Subset:** In 56 cases (23.6%), their assigned reliability tiers diverged:
-  * In 37 cases, Ibn Ḥajar classified the narrator as *Ṣadūq* (Tier 1) while al-Dhahabī classified them as *Thiqah* (26 cases) or *Below Ṣadūq* (11 cases).
-  * In 17 cases, Ibn Ḥajar classified the narrator as *Thiqah* (Tier 2) while al-Dhahabī classified them as *Ṣadūq* (10 cases) or *Below Ṣadūq* (7 cases).
+Within the clean multimodal cohort of 335 scholars, 238 individuals possess recorded evaluations from both synthesizers:
+* **Consensus Subset:** In 180 cases (75.6%), Ibn Ḥajar and al-Dhahabī assigned identical 3-tier reliability classifications.
+* **Disagreement Subset:** In 58 cases (24.4%), their assigned reliability tiers diverged:
+  * In 38 cases, Ibn Ḥajar classified the narrator as *Ṣadūq* (Tier 1) while al-Dhahabī classified them as *Thiqah* (27 cases) or *Below Ṣadūq* (11 cases).
+  * In 18 cases, Ibn Ḥajar classified the narrator as *Thiqah* (Tier 2) while al-Dhahabī classified them as *Ṣadūq* (11 cases) or *Below Ṣadūq* (7 cases).
   * In 2 cases, Ibn Ḥajar classified the narrator as *Below Ṣadūq* (Tier 0) while al-Dhahabī classified them as *Ṣadūq* (2 cases).
 
 ### Table 7.1: Case Study of Canonical Scholarly Disagreements and Computational Model Outputs
@@ -61,7 +61,7 @@ Within the clean multimodal cohort of 335 scholars, 237 individuals possess reco
 | **39** | Ḥammād ibn Salamah | *Thiqah ʿābid* (Tier 2) | *Ṣadūq* (Tier 1) | 204 | *Thiqah* ($p = 0.74$) | Leading scholar of Basra; critics debated whether his manuscripts were altered by relatives. Model weighs vast volume of early endorsements. |
 
 ### 7.3.2 Insights from Computational Modeling on Historical Disagreements
-Analyzing the model's out-of-fold probabilistic outputs on these 56 disagreement cases demonstrates that computational classification errors do not represent random algorithmic failures:
+Analyzing the model's out-of-fold probabilistic outputs on these 58 disagreement cases demonstrates that computational classification errors do not represent random algorithmic failures:
 * When earlier classical critics were unanimous, the model generated confident predictions ($p > 0.85$).
 * When earlier critics expressed divided opinions (such as in the case of ʿAbd al-Ḥamīd ibn Jaʿfar, where Ibn Maʿīn and Abū Ḥātim disagreed), the model output balanced class probabilities ($p_{\text{Thiqah}} \approx 0.40, p_{\text{Ṣadūq}} \approx 0.55$).
 * This behavior demonstrates that the NLP framework functions effectively as an objective diagnostic tool, accurately reflecting historical scholarly ambiguity rather than forcing arbitrary classifications.
@@ -72,9 +72,9 @@ Analyzing the model's out-of-fold probabilistic outputs on these 56 disagreement
 
 This research systematically resolves the three central research questions formulated in Chapter 1:
 
-* **Answer to RQ1 (PO1 Completed):** Modern NLP models extract rich evaluative signals from classical earlier-critic statements under zero target leakage. Regularized lexical TF-IDF models achieve superior discrimination (Macro-F1: **0.7089**, Accuracy: **81.06%**) compared to frozen AraBERT embeddings (Macro-F1: **0.5902**), proving that specialized classical technical descriptors provide direct, highly informative signals for synthesizing canonical reliability grades.
-* **Answer to RQ2 (PO2 Completed):** Transmission network topology does not provide statistically significant predictive uplift over biographical text alone. Standard Graph Convolutional Networks (G2: **0.3536**) perform worse than non-relational feature baselines (G1: **0.3628**, $p = 0.388$), and Multimodal Cross-Attention GNNs (P2-B_Attn: **0.4723**) yield no gain over Early Fusion MLPs (P2-A: **0.4763**, $p = 0.833$). The hadith transmission network exhibits structural heterophily, causing neighborhood message passing to act as an over-smoothing filter.
-* **Answer to RQ3 (PO3 Completed):** Node-level narrator reliability predictions propagate effectively into downstream transmission chains (*isnāds*). Under weakest-link aggregation ($S_{\text{chain}} = \min_i y_i$), predictions achieve **71.86% exact chain tier accuracy**, a statistically significant rank correlation of **$\rho = 0.5317$ ($p < 10^{-15}$)**, and a binary acceptance F1 exceeding **0.97**. Because individual classification errors are bounded within adjacent ordinal categories, error propagation across transmission paths remains tightly controlled.
+* **Answer to RQ1 (PO1 Completed):** Modern NLP models extract rich evaluative signals from classical earlier critic statements under zero target leakage. Regularized lexical TF-IDF models achieve superior discrimination (Macro-F1: **0.6852**, Accuracy: **80.59%**, Quadratic $\kappa$: **0.6697**) compared to frozen AraBERT embeddings (Macro-F1: **0.5635**), proving that specialized classical technical descriptors provide direct, highly informative signals for synthesizing canonical reliability grades.
+* **Answer to RQ2 (PO2 Completed):** Transmission network topology does not provide statistically significant predictive uplift over biographical text alone. Standard Graph Convolutional Networks (G2: **0.3438**) perform worse than non-relational feature baselines (G1: **0.3556**, $p = 0.451$), and Multimodal GNNs (P2-B_Attn: **0.4478**, P2-B_Concat: **0.4311**) significantly underperform non-graph Early Fusion MLPs (P2-A: **0.4810**, $p < 0.05$). The hadith transmission network exhibits structural heterophily, causing neighborhood message passing to act as an over-smoothing filter.
+* **Answer to RQ3 (PO3 Completed):** Node-level narrator reliability predictions propagate effectively into downstream transmission chains (*isnāds*). Under weakest-link aggregation ($S_{\text{chain}} = \min_i y_i$), predictions achieve **62.10% exact chain tier accuracy** (P2-A), lowest chain MAE of **0.4278**, and a statistically significant rank correlation of **$\rho = 0.3918$ ($p < 10^{-15}$)**. While high binary acceptance F1 (0.81 to 0.94) confirms bounded ordinal error propagation, its high absolute value reflects the 92.6% canonical collection acceptance baseline, establishing exact tier accuracy and rank correlation as the primary evaluation metrics.
 
 ---
 
@@ -82,7 +82,7 @@ This research systematically resolves the three central research questions formu
 
 To ensure responsible academic framing, four explicit limitations must be acknowledged:
 
-1. **Cohort Restricted to Canonical Transmissions:** The evaluation cohort is bounded to narrators actively appearing within canonical *Kutub al-Sittah* transmission paths. Because historical compilers deliberately excluded unreliable narrators, the dataset exhibits severe class imbalance ($< 5\%$ *Below Ṣadūq* narrators in the multimodal cohort).
+1. **Cohort Restricted to Canonical Transmissions:** The evaluation cohort is bounded to narrators actively appearing within canonical *Kutub al-Sittah* transmission paths. Because historical compilers deliberately excluded unreliable narrators, the dataset exhibits severe class imbalance (5.97% *Below Ṣadūq* narrators in the multimodal cohort).
 2. **Computational Decision Support (No Theological Autonomy):** The framework evaluates historical biographical text and transmission consistency. It does not evaluate hidden narrative defects (*ʿilal*), text-chain contradictions (*shudhūdh*), or substantive theological content (*matn*). It is designed strictly as an academic decision-support index.
 3. **Frozen Transformer Backbone:** In this phase, AraBERT was evaluated as a frozen feature extractor without end-to-end domain-adaptive pretraining on classical Arabic corpora due to workstation memory constraints.
 4. **Undirected Network Representation:** While undirected graphs model mutual historical contact, they discard the directional chronological flow of hadith transmission from older masters to younger disciples.

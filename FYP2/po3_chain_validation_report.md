@@ -16,13 +16,13 @@
 
 | Arm ID | Experimental Arm | Chain Tier Acc (%) | Chain Binary F1 | Chain MAE | Node MAE | Error Propagation Ratio | Spearman $\rho$ |
 |---|---|---|---|---|---|---|---|
-| **B0** | B0 (Majority Baseline) | 70.98% | 0.9796 | 0.3302 | 0.2687 | 1.2289 | 0.0000 |
-| **B1** | B1 (Stratified Random) | 39.80% | 0.9506 | 0.6318 | 0.4358 | 1.4497 | 0.0696 |
-| **B2** | B2 (Name + Meta Probe) | 27.88% | 0.7589 | 1.0279 | 0.6090 | 1.6879 | -0.0982 |
-| **P1-A** | P1-A (Lexical TF-IDF LR) | 71.86% | 0.9790 | 0.2902 | 0.1761 | 1.6480 | 0.5317 |
-| **P1-B** | P1-B (AraBERT Semantic LR) | 56.78% | 0.9094 | 0.5089 | 0.2806 | 1.8135 | 0.3558 |
-| **P2-A** | P2-A (Early Fusion MLP) | 64.51% | 0.9776 | 0.3663 | 0.3134 | 1.1686 | 0.3786 |
-| **P2-B_Attn** | P2-B_Attn (Multimodal GCN Attention) | 63.88% | 0.9825 | 0.3720 | 0.3045 | 1.2217 | 0.2887 |
+| **B0** | B0 (Majority Baseline) | 69.58% | 0.9618 | 0.3777 | 0.2985 | 1.2653 | 0.0000 |
+| **B1** | B1 (Stratified Random) | 42.78% | 0.8951 | 0.7186 | 0.4806 | 1.4953 | -0.0562 |
+| **B2** | B2 (Name + Meta Probe) | 28.71% | 0.7092 | 1.0608 | 0.6657 | 1.5936 | -0.0641 |
+| **P1-A** | P1-A (Lexical TF-IDF LR) | 59.57% | 0.8180 | 0.6521 | 0.2478 | 2.6319 | 0.1671 |
+| **P1-B** | P1-B (AraBERT Semantic LR) | 58.30% | 0.8792 | 0.5513 | 0.3194 | 1.7261 | 0.2655 |
+| **P2-A** | P2-A (Early Fusion MLP) | 62.10% | 0.9378 | 0.4278 | 0.3463 | 1.2353 | 0.3918 |
+| **P2-B_Attn** | P2-B_Attn (Multimodal GCN Attention) | 55.83% | 0.9084 | 0.5722 | 0.3343 | 1.7116 | 0.1001 |
 
 ---
 
@@ -31,7 +31,8 @@
 1. **Weakest-Link Error Dampening vs. Amplification**:
    - In individual narrator classification, errors can be false positives or false negatives.
    - Under the $\min_{i} y_i$ operator, a single under-predicted narrator causes the entire chain to be evaluated at the lower tier.
-   - Lexical TF-IDF (P1-A) achieved the highest chain accuracy (**75.6%**) and lowest chain MAE, consistent with its superior narrator-level discrimination.
+   - Early Fusion MLP (P2-A) achieved 62.10% chain tier accuracy with lowest chain MAE (0.4278) and highest rank correlation (Spearman $\rho = 0.3918$), while Lexical TF-IDF (P1-A) achieved lowest node MAE (0.2478) and 59.57% chain tier accuracy.
 
 2. **Acceptance Threshold Alignment**:
-   - For binary acceptance (*Maqbūl* vs. *Mardūd*), models preserving narrator ordinality (Quadratic $\kappa > 0.40$) demonstrated near-perfect binary chain F1 ($> 0.90$), confirming that errors were restricted to adjacent tiers rather than catastrophic cross-polarity inversions.
+   - For binary acceptance (*Maqbūl* vs. *Mardūd*), models preserving narrator ordinality (Quadratic $\kappa > 0.40$) demonstrated binary chain F1 exceeding 0.81 to 0.93, confirming that errors were restricted to adjacent tiers rather than catastrophic cross-polarity inversions.
+   - High binary chain F1 must be interpreted alongside the high base rate of acceptable chains in canonical collections (92.6% in this verified sample), highlighting the necessity of evaluating exact 3-tier accuracy and rank correlation (Spearman $\rho$) rather than binary accuracy alone.

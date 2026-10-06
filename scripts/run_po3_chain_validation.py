@@ -336,7 +336,7 @@ def generate_po3_report(results: dict, n_chains: int, mean_len: float):
         "",
         "## 1. Experimental Methodology and Chain Aggregation Protocol",
         "",
-        f"- **Dataset Evaluated:** {n_chains:,} verified transmission chains from SanadSet containing $\ge 2$ cohort narrators.",
+        f"- **Dataset Evaluated:** {n_chains:,} verified transmission chains from SanadSet containing $\\ge 2$ cohort narrators.",
         f"- **Mean Cohort Depth:** {mean_len:.2f} resolved narrator identities per chain.",
         "- **Ground Truth Aggregation:** Weakest-link aggregation operator representing traditional hadith methodology (*al-isnād yattabiʿ adʿaf man fīh*):",
         "  $$S_{\\text{oracle}} = \\min_{i \\in \\text{chain}} y_i$$",
@@ -366,10 +366,11 @@ def generate_po3_report(results: dict, n_chains: int, mean_len: float):
         "1. **Weakest-Link Error Dampening vs. Amplification**:",
         "   - In individual narrator classification, errors can be false positives or false negatives.",
         "   - Under the $\\min_{i} y_i$ operator, a single under-predicted narrator causes the entire chain to be evaluated at the lower tier.",
-        "   - Lexical TF-IDF (P1-A) achieved the highest chain accuracy (**75.6%**) and lowest chain MAE, consistent with its superior narrator-level discrimination.",
+        f"   - Early Fusion MLP (P2-A) achieved {results['P2-A (Early Fusion MLP)']['chain_tier_accuracy']*100:.2f}% chain tier accuracy with lowest chain MAE ({results['P2-A (Early Fusion MLP)']['chain_mae']:.4f}) and highest rank correlation (Spearman $\\rho = {results['P2-A (Early Fusion MLP)']['spearman_rho']:.4f}$), while Lexical TF-IDF (P1-A) achieved lowest node MAE ({results['P1-A (Lexical TF-IDF LR)']['node_mae']:.4f}) and {results['P1-A (Lexical TF-IDF LR)']['chain_tier_accuracy']*100:.2f}% chain tier accuracy.",
         "",
         "2. **Acceptance Threshold Alignment**:",
-        "   - For binary acceptance (*Maqbūl* vs. *Mardūd*), models preserving narrator ordinality (Quadratic $\\kappa > 0.40$) demonstrated near-perfect binary chain F1 ($> 0.90$), confirming that errors were restricted to adjacent tiers rather than catastrophic cross-polarity inversions.",
+        "   - For binary acceptance (*Maqbūl* vs. *Mardūd*), models preserving narrator ordinality (Quadratic $\\kappa > 0.40$) demonstrated binary chain F1 exceeding 0.81 to 0.93, confirming that errors were restricted to adjacent tiers rather than catastrophic cross-polarity inversions.",
+        "   - High binary chain F1 must be interpreted alongside the high base rate of acceptable chains in canonical collections (92.6% in this verified sample), highlighting the necessity of evaluating exact 3-tier accuracy and rank correlation (Spearman $\\rho$) rather than binary accuracy alone.",
         "",
     ])
 

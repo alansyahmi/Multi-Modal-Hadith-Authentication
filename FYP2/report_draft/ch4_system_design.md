@@ -20,11 +20,11 @@ To evaluate the predictive validity of biographical text and transmission networ
 
 ---
 
-## 4.2 The Ten-Arm Experimental Matrix
+## 4.2 The Thirteen-Arm Experimental Matrix
 
-To isolate the independent and interactive contributions of text representations, graph topology, and demographic metadata, the experimental suite executes ten distinct model arms. Table 4.1 outlines the configuration, input modalities, parameter dimensions, and specific objectives of each experimental arm.
+To isolate the independent and interactive contributions of text representations, graph topology, and demographic metadata, the experimental suite executes thirteen distinct model arms. Table 4.1 outlines the configuration, input modalities, parameter dimensions, and specific objectives of each experimental arm.
 
-### Table 4.1: Ten-Arm Controlled Experimental Matrix
+### Table 4.1: Thirteen-Arm Controlled Experimental Matrix
 
 | Arm ID | Model Identifier | Input Modalities | Feature Dimensions | Classifier Architecture | Research Objective Evaluated |
 |---|---|---|---|---|---|
@@ -61,7 +61,7 @@ Figure 4.1 illustrates the structural data flow across the primary model familie
                                                               ▲
                                                               │ Concatenation
 +-------------------------------------------------------------┴---------------------+
-| Graph Pipeline: Transmission Adjacency Matrix A (354 Undirected Edges)            |
+| Graph Pipeline: Transmission Adjacency Matrix A (177 Undirected Pairs, 354 Edges) |
 | Tabular Features: 5 Topological Metrics + 3 Demographic Metadata (8-dim Vector)   |
 +-----------------------------------------------------------------------------------+
                                          │

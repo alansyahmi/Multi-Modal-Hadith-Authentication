@@ -1,47 +1,47 @@
 # Chapter 6: Results
 
-## 6.1 PO1 Large-Scale Biographical Text Benchmark Results (N = 844)
+## 6.1 PO1 Large-Scale Biographical Text Benchmark Results (N = 819)
 
-The primary goal of Project Objective 1 (PO1) is to determine how accurately machine learning models can predict canonical narrator reliability tiers from classical earlier-critic biographical statements under strict zero-leakage conditions. Table 6.1 presents the evaluation results across all 844 historical scholars in the Hadith-Viz corpus possessing verified *Taqrīb* grades and earlier-critic commentary. Evaluations were executed across 25 paired runs (5-fold Stratified Cross-Validation repeated across 5 random seeds).
+The primary goal of Project Objective 1 (PO1) is to determine how accurately machine learning models can predict canonical narrator reliability tiers from classical earlier critic biographical statements under strict zero-leakage conditions. Table 6.1 presents the evaluation results across all 819 historical scholars in the canonical Hadith-Viz corpus possessing verified *Taqrīb* grades and earlier critic commentary dated strictly to the 2nd to 4th centuries AH. All statements from al-Mizzī (d. 742 AH) and ten subsequent post-classical authorities are completely purged. Evaluations were executed across 25 paired runs (5-fold Stratified Cross-Validation repeated across 5 random seeds).
 
-### Table 6.1: PO1 Large-Scale Biographical Text Benchmark Results (N = 844)
+### Table 6.1: PO1 Large-Scale Biographical Text Benchmark Results (N = 819)
 
 | Model ID | Model Architecture | Macro-F1 (Mean ± SD) | 95% Confidence Interval | Accuracy (%) | Quadratic Weighted $\kappa$ |
 |---|---|---|---|---|---|
-| **B0** | Majority Baseline | **0.2713 ± 0.0002** | [0.2712, 0.2713] | 68.60% | 0.0000 |
-| **B1** | Stratified Random | **0.3400 ± 0.0327** | [0.3265, 0.3535] | 53.51% | 0.0158 |
-| **P1-A** | Lexical TF-IDF LR | **0.7089 ± 0.0422** | [0.6915, 0.7263] | **81.06%** | **0.6498** |
-| **P1-B** | AraBERT Semantic LR | **0.5902 ± 0.0412** | [0.5732, 0.6072] | 70.78% | 0.4412 |
+| **B0** | Majority Baseline | **0.2702 ± 0.0006** | [0.2699, 0.2704] | 68.13% | 0.0000 |
+| **B1** | Stratified Random | **0.3261 ± 0.0398** | [0.3097, 0.3426] | 50.84% | -0.0195 |
+| **P1-A** | Lexical TF-IDF LR | **0.6852 ± 0.0514** | [0.6640, 0.7064] | **80.59%** | **0.6697** |
+| **P1-B** | AraBERT Semantic LR | **0.5635 ± 0.0373** | [0.5481, 0.5789] | 69.99% | 0.5008 |
 
 Several key findings emerge from the large-scale biographical benchmark:
-* **High Predictive Utility of Classical Evaluative Text:** Both machine learning models substantially outperform the majority baseline (B0: 0.2713 Macro-F1) and stratified chance (B1: 0.3400 Macro-F1). This demonstrates that 2nd to 4th-century classical critic statements provide strong, consistent signals that reliably predict Ibn Ḥajar's 9th-century synthesis verdicts.
-* **Superiority of Regularized Lexical Representations:** The lexical TF-IDF model (P1-A) achieved a superior Macro-F1 score of **0.7089 ± 0.0422** and an overall accuracy of **81.06%**, outperforming the pretrained AraBERT semantic classifier (P1-B: **0.5902 ± 0.0412**).
-* **Substantial Inter-Rater Agreement:** P1-A achieved a Quadratic Weighted Kappa of **$\kappa = 0.6498$**, reflecting substantial ordinal agreement with Ibn Ḥajar's canonical ratings. By contrast, AraBERT achieved moderate agreement ($\kappa = 0.4412$).
-* **Domain Adaptation Friction:** The performance margin between TF-IDF and AraBERT indicates domain friction. AraBERT was pretrained primarily on Modern Standard Arabic news articles and Wikipedia entries. Classical Arabic biographical texts contain concise technical formulaic descriptors (such as *laysa bi-qawī* or *kāna yukhṭiʾ*) that provide direct discriminative signals to regularized lexical n-gram models, whereas deep contextual transformers dilute these precise lexical signals across general sentence embeddings.
+* **High Predictive Utility of Classical Evaluative Text:** Both machine learning models substantially outperform the majority baseline (B0: 0.2702 Macro-F1) and stratified chance (B1: 0.3261 Macro-F1). This demonstrates that 2nd to 4th century classical critic statements provide strong, consistent signals that reliably predict Ibn Ḥajar's 9th-century synthesis verdicts even after completely purging all later synthesizing summaries.
+* **Superiority of Regularized Lexical Representations:** The lexical TF-IDF model (P1-A) achieved a superior Macro-F1 score of **0.6852 ± 0.0514** and an overall accuracy of **80.59%**, significantly outperforming the pretrained AraBERT semantic classifier (P1-B: **0.5635 ± 0.0373**).
+* **Substantial Inter-Rater Agreement:** P1-A achieved a Quadratic Weighted Kappa of **$\kappa = 0.6697$**, reflecting substantial ordinal agreement with Ibn Ḥajar's canonical ratings. By contrast, AraBERT achieved moderate agreement ($\kappa = 0.5008$).
+* **Correction of Hypothesis Direction:** In the formal paired comparison, AraBERT underperformed TF-IDF by $\bar{\Delta} = -0.1218$ ($t = -11.4153, p = 3.49 \times 10^{-11}$). The null hypothesis is rejected; the empirical evidence significantly favors the lexical baseline over AraBERT, contrary to the original alternative hypothesis ($H_1$). Classical Arabic jarḥ wa-taʿdīl terminology (`ثقة`, `ضعيف`) provides a dense, highly specialized vocabulary that linear n-gram models exploit with higher precision than general-domain transformer embeddings.
 
 ---
 
-## 6.2 PO2 Controlled 10-Arm Multimodal Graph Ablation Results (N = 335)
+## 6.2 PO2 Controlled 13-Arm Multimodal Graph Ablation Results (N = 335)
 
-Project Objective 2 (PO2) evaluates whether modeling the transmission network as a graph structure provides measurable predictive uplift beyond biographical text. Table 6.2 reports the full 10-arm benchmark executed across 25 paired cross-validation folds on the condensed multimodal cohort ($N = 335$ nodes, 354 undirected transmission edges).
+Project Objective 2 (PO2) evaluates whether modeling the transmission network as a graph structure provides measurable predictive uplift beyond biographical text. Table 6.2 reports the full 13-arm benchmark executed across 25 paired cross-validation folds on the condensed multimodal cohort ($N = 335$ nodes, 177 unique undirected relationships representing 354 directed message edges in PyG).
 
-### Table 6.2: Benchmark Results Across All 10 Experimental Arms (N = 335, 25 Paired Folds)
+### Table 6.2: Benchmark Results Across All 13 Experimental Arms (N = 335, 25 Paired Folds)
 
-| Arm ID | Model Identifier | Model Architecture | Macro-F1 (Mean ± SD) | 95% Confidence Interval | Accuracy (%) | Quadratic $\kappa$ | Consensus F1 ($N=181$) |
+| Arm ID | Model Identifier | Model Architecture | Macro-F1 (Mean ± SD) | 95% Confidence Interval | Accuracy (%) | Quadratic $\kappa$ | Consensus F1 ($N=180$) |
 |---|---|---|---|---|---|---|---|
-| **B0** | Majority Baseline | Constant Majority | **0.2900 ± 0.0016** | [0.2894, 0.2907] | 77.01% | 0.0000 | 0.3717 |
-| **B1** | Stratified Random | Empirical Sampling | **0.3383 ± 0.0568** | [0.3148, 0.3617] | 62.57% | 0.0285 | 0.3484 |
-| **B2** | Name + Meta Probe | Logistic Regression | **0.3806 ± 0.0618** | [0.3551, 0.4061] | 52.18% | 0.0248 | 0.3216 |
-| **P1-A** | Lexical TF-IDF LR | Logistic Regression | **0.5246 ± 0.0278** | [0.5131, 0.5360] | **83.82%** | **0.5396** | **0.5113** |
-| **P1-B** | AraBERT Semantic LR | Logistic Regression | **0.4958 ± 0.0800** | [0.4628, 0.5288] | 74.33% | 0.4614 | 0.4580 |
-| **P1-B_MLP** | AraBERT Semantic MLP | 2-layer MLP (Hidden: 64) | **0.4511 ± 0.0782** | [0.4188, 0.4833] | 70.21% | 0.3992 | 0.4335 |
-| **G1** | Graph Features MLP | 2-layer MLP (Hidden: 32) | **0.3628 ± 0.0740** | [0.3323, 0.3934] | 49.67% | 0.0698 | 0.3337 |
-| **G2** | Graph GCN | 2-layer GCN (Hidden: 32) | **0.3536 ± 0.0476** | [0.3339, 0.3732] | 45.01% | 0.0583 | 0.2877 |
-| **P2-A** | Early Fusion MLP | 2-layer MLP (Hidden: 64) | **0.4763 ± 0.0898** | [0.4392, 0.5133] | 68.12% | 0.3305 | 0.4571 |
-| **P2-B_Concat** | Multimodal GCN Concat | 2-layer GCN (Hidden: 64) | **0.4439 ± 0.0964** | [0.4041, 0.4837] | 63.22% | 0.1999 | 0.4180 |
-| **P2-B_Attn** | Multimodal GCN Attention | Cross-Modal GNN Attention | **0.4723 ± 0.0838** | [0.4377, 0.5069] | 69.13% | 0.2760 | 0.4464 |
-| **P2-C** | Topology Isolation MLP | 2-layer MLP (Hidden: 16) | **0.4414 ± 0.0951** | [0.4021, 0.4806] | 69.73% | 0.3248 | 0.4559 |
-| **P2-D** | Metadata Isolation MLP | 2-layer MLP (Hidden: 16) | **0.4966 ± 0.0640** | [0.4702, 0.5230] | 70.45% | 0.3449 | 0.4906 |
+| **B0** | Majority Baseline | Constant Majority | **0.2881 ± 0.0000** | [0.2881, 0.2881] | 76.12% | 0.0000 | 0.3593 |
+| **B1** | Stratified Random | Empirical Sampling | **0.3272 ± 0.0601** | [0.3024, 0.3520] | 61.25% | -0.0133 | 0.3050 |
+| **B2** | Name + Meta Probe | Logistic Regression | **0.3822 ± 0.0439** | [0.3641, 0.4003] | 50.69% | 0.0318 | 0.3436 |
+| **P1-A** | Lexical TF-IDF LR | Logistic Regression | **0.5608 ± 0.0703** | [0.5318, 0.5898] | **80.96%** | **0.4932** | **0.5284** |
+| **P1-B** | AraBERT Semantic LR | Logistic Regression | **0.4933 ± 0.0628** | [0.4674, 0.5192] | 72.84% | 0.4347 | 0.4478 |
+| **P1-B_MLP** | AraBERT Semantic MLP | 2-layer MLP (Hidden: 64) | **0.4454 ± 0.0657** | [0.4183, 0.4725] | 68.60% | 0.3295 | 0.4037 |
+| **G1** | Graph Features MLP | 2-layer MLP (Hidden: 64) | **0.3556 ± 0.0564** | [0.3323, 0.3788] | 47.64% | 0.0899 | 0.3030 |
+| **G2** | Graph GCN | 2-layer GCN (Hidden: 64) | **0.3438 ± 0.0716** | [0.3142, 0.3733] | 44.30% | 0.0343 | 0.2755 |
+| **P2-A** | Early Fusion MLP | 2-layer MLP (Hidden: 64) | **0.4810 ± 0.0684** | [0.4528, 0.5093] | 68.36% | 0.3602 | 0.4708 |
+| **P2-B_Concat** | Multimodal GCN Concat | 2-layer GCN (Hidden: 64) | **0.4311 ± 0.0750** | [0.4002, 0.4621] | 64.96% | 0.2157 | 0.3979 |
+| **P2-B_Attn** | Multimodal GCN Attention | Cross-Modal GNN Attention | **0.4478 ± 0.0670** | [0.4202, 0.4755] | 66.27% | 0.2549 | 0.4271 |
+| **P2-C** | Topology Isolation MLP | 2-layer MLP (Hidden: 64) | **0.4531 ± 0.0727** | [0.4231, 0.4831] | 67.22% | 0.3318 | 0.4270 |
+| **P2-D** | Metadata Isolation MLP | 2-layer MLP (Hidden: 64) | **0.4315 ± 0.0796** | [0.3987, 0.4644] | 65.97% | 0.2919 | 0.3980 |
 
 ---
 
@@ -51,26 +51,26 @@ Table 6.3 reports the granular per-class F1-scores across all three reliability 
 
 ### Table 6.3: Per-Class F1 Breakdown Across Tiers on the Condensed Cohort (N = 335)
 
-| Arm ID | Model Identifier | Below Ṣadūq ($N=13$) | Ṣadūq ($N=64$) | Thiqah ($N=258$) |
+| Arm ID | Model Identifier | Below Ṣadūq ($N=20$) | Ṣadūq ($N=60$) | Thiqah ($N=255$) |
 |---|---|---|---|---|
-| **B0** | Majority Baseline | 0.0000 | 0.0000 | 0.8701 |
-| **B1** | Stratified Random | 0.0633 | 0.1860 | 0.7655 |
-| **B2** | Name + Meta Probe | 0.1901 | 0.3112 | 0.6406 |
-| **P1-A** | Lexical TF-IDF LR | 0.0000 | **0.6633** | **0.9104** |
-| **P1-B** | AraBERT Semantic LR | 0.1660 | 0.4648 | 0.8566 |
-| **P1-B_MLP** | AraBERT Semantic MLP | 0.1658 | 0.3564 | 0.8310 |
-| **G1** | Graph Features MLP | 0.1475 | 0.3170 | 0.6240 |
-| **G2** | Graph GCN | 0.1508 | 0.3644 | 0.5456 |
-| **P2-A** | Early Fusion MLP | 0.2216 | 0.4058 | 0.8014 |
-| **P2-B_Concat** | Multimodal GCN Concat | 0.2047 | 0.3853 | 0.7417 |
-| **P2-B_Attn** | Multimodal GCN Attention | 0.2077 | 0.4098 | 0.7994 |
-| **P2-C** | Topology Isolation MLP | 0.1271 | 0.3724 | 0.8247 |
-| **P2-D** | Metadata Isolation MLP | **0.2736** | 0.3982 | 0.8180 |
+| **B0** | Majority Baseline | 0.0000 | 0.0000 | 0.8644 |
+| **B1** | Stratified Random | 0.0294 | 0.1952 | 0.7570 |
+| **B2** | Name + Meta Probe | 0.1785 | 0.3415 | 0.6267 |
+| **P1-A** | Lexical TF-IDF LR | 0.1630 | **0.6170** | **0.9024** |
+| **P1-B** | AraBERT Semantic LR | 0.1885 | 0.4352 | 0.8562 |
+| **P1-B_MLP** | AraBERT Semantic MLP | 0.1548 | 0.3545 | 0.8269 |
+| **G1** | Graph Features MLP | 0.1630 | 0.2865 | 0.6173 |
+| **G2** | Graph GCN | 0.1559 | 0.3248 | 0.5506 |
+| **P2-A** | Early Fusion MLP | **0.2682** | 0.3623 | 0.8126 |
+| **P2-B_Concat** | Multimodal GCN Concat | 0.1609 | 0.3585 | 0.7739 |
+| **P2-B_Attn** | Multimodal GCN Attention | 0.1975 | 0.3554 | 0.7906 |
+| **P2-C** | Topology Isolation MLP | 0.2178 | 0.3321 | 0.8093 |
+| **P2-D** | Metadata Isolation MLP | 0.1779 | 0.3170 | 0.7998 |
 
 The per-class performance data illustrates critical model behaviors:
-* **The Minority Class Challenge:** On the condensed cohort ($N=335$), the minority class (*Below Ṣadūq*) contains only 13 historical narrators (3.9% of the cohort). The lexical model (P1-A) failed to classify this minority class ($F1 = 0.0000$) due to heavy regularized penalization, but achieved the highest overall accuracy (83.82%) and *Ṣadūq* discrimination ($F1 = 0.6633$).
-* **Neural Recall of Minority Narrators:** Neural network models utilizing inverse-frequency loss weighting (P2-A, P2-D, and P2-B_Attn) successfully recalled minority unreliable narrators, achieving minority F1-scores between 0.2047 and 0.2736.
-* **Bounded Ordinal Confusion:** Inspection of out-of-fold confusion matrices indicates that errors were strictly bounded within adjacent classes. Trustworthy narrators (*Thiqah*) were occasionally misclassified as *Ṣadūq*, but were never misclassified as *Below Ṣadūq*. Similarly, *Below Ṣadūq* narrators were never misclassified as *Thiqah*.
+* **The Minority Class Challenge:** On the condensed cohort ($N=335$), the minority class (*Below Ṣadūq*) contains 20 historical narrators (5.97% of the cohort). The lexical model (P1-A) achieved the highest overall accuracy (80.96%) and *Ṣadūq* discrimination ($F1 = 0.6170$).
+* **Neural Recall of Minority Narrators:** Neural network models utilizing inverse-frequency loss weighting (especially Early Fusion MLP P2-A) achieved the highest minority recall, reaching a Below Ṣadūq F1-score of **0.2682**.
+* **Bounded Ordinal Confusion:** Inspection of out-of-fold confusion matrices indicates that errors were strictly bounded within adjacent classes. Trustworthy narrators (*Thiqah*) were occasionally misclassified as *Ṣadūq*, but rarely misclassified as *Below Ṣadūq*.
 
 ---
 
@@ -82,15 +82,16 @@ Table 6.4 details the formal pairwise hypothesis testing results across all 25 p
 
 | Research Hypothesis | Paired Comparison (Arm A vs. Arm B) | Mean Difference $\bar{\Delta}$ | 95% Confidence Interval | Paired $t$-statistic | $p$-value | Empirical Decision |
 |---|---|---|---|---|---|---|
-| **$H_1$: Semantic vs Lexical (N=335)** | P1-B (AraBERT) vs P1-A (TF-IDF) | **-0.0288** | [-0.0634, +0.0058] | $t = -1.7166$ | $p = 0.0989$ | **Fail to Reject $H_0$** |
-| **$H_{2a}$: Message Passing Benefit** | G2 (Graph GCN) vs G1 (Features MLP) | **-0.0093** | [-0.0310, +0.0125] | $t = -0.8793$ | $p = 0.3880$ | **Fail to Reject $H_0$** |
-| **$H_{2b}$: Multimodal Attention Benefit** | P2-B_Attn vs P2-A (Early Fusion MLP) | **-0.0040** | [-0.0427, +0.0347] | $t = -0.2134$ | $p = 0.8330$ | **Fail to Reject $H_0$** |
-| **Control: Feature Augmentation** | P2-A (Fusion MLP) vs P1-B_MLP (Text MLP) | **+0.0252** | [-0.0170, +0.0674] | $t = +1.2328$ | $p = 0.2296$ | **Fail to Reject $H_0$** |
-| **$H_1$ on Full Corpus (N=844)** | P1-B (AraBERT) vs P1-A (TF-IDF) | **-0.1187** | [-0.1369, -0.1005] | $t = -13.422$ | $p = 0.0000$ | **Reject $H_0$ (TF-IDF leads)** |
+| **$H_1$: Semantic vs Lexical (N=819)** | P1-B (AraBERT) vs P1-A (TF-IDF) | **-0.1218** | [-0.1438, -0.0998] | $t = -11.4153$ | $p < 0.0001$ | **Reject $H_0$ (TF-IDF leads)** |
+| **$H_1$: Semantic vs Lexical (N=335)** | P1-B (AraBERT) vs P1-A (TF-IDF) | **-0.0675** | [-0.1051, -0.0299] | $t = -3.7035$ | $p = 0.00111$ | **Reject $H_0$ (TF-IDF leads)** |
+| **$H_{0a}$: Network Features over Text** | P2-A (Early Fusion) vs P1-B_MLP (Text) | **+0.0357** | [-0.0011, +0.0724] | $t = +2.0044$ | $p = 0.05643$ | **Fail to Reject $H_0$** |
+| **$H_{0b}$: Message Passing vs Early Fusion** | P2-B_Concat vs P2-A (Early Fusion) | **-0.0499** | [-0.0918, -0.0080] | $t = -2.4595$ | $p = 0.02150$ | **Fail to Reject $H_0$ (GNN degrades)** |
+| **$H_{0b}$: Attention GCN vs Early Fusion** | P2-B_Attn vs P2-A (Early Fusion) | **-0.0332** | [-0.0656, -0.0008] | $t = -2.1130$ | $p = 0.04519$ | **Fail to Reject $H_0$ (GNN degrades)** |
+| **GCN vs Graph MLP Alone** | G2 (Graph GCN) vs G1 (Features MLP) | **-0.0118** | [-0.0436, +0.0200] | $t = -0.7667$ | $p = 0.45076$ | **Fail to Reject $H_0$** |
 
 The hypothesis testing decisions resolve the core research questions:
-1. **Resolution of RQ1 ($H_1$):** Contextual AraBERT does not outperform regularized lexical TF-IDF. On the condensed cohort ($N=335$), the difference is not statistically significant ($p = 0.0989$). On the large-scale corpus ($N=844$), TF-IDF significantly outperforms AraBERT ($p < 0.001$).
-2. **Resolution of RQ2 ($H_{2a}$ and $H_{2b}$):** Graph neural network message passing provides no statistically significant benefit over non-relational baselines. GCN with transmission edges (G2) performs worse on average than an MLP operating on node features alone (G1, $p = 0.388$). Fusing text with graph topology via GNN attention (P2-B_Attn) yields no gain over non-graph early concatenation (P2-A, $p = 0.833$).
+1. **Resolution of RQ1 ($H_1$):** Pretrained AraBERT does not outperform regularized lexical TF-IDF. Across both the large-scale benchmark ($N=819$, $p < 10^{-10}$) and the ablation cohort ($N=335$, $p = 0.00111$), lexical TF-IDF demonstrates statistically significant superiority.
+2. **Resolution of RQ2 ($H_{0a}$ and $H_{0b}$):** Graph neural network message passing provides no statistically significant benefit over non-relational baselines. GCN with transmission edges (G2) performs worse on average than an MLP operating on node features alone (G1, $p = 0.451$). Fusing text with graph topology via GNN convolution or attention (P2-B_Concat and P2-B_Attn) significantly underperforms non-graph tabular concatenation (P2-A, $p = 0.0215$ and $p = 0.0452$).
 
 ---
 
@@ -104,15 +105,15 @@ $$S_{\text{chain}} = \min_{i \in \text{chain}} y_i$$
 
 | Arm ID | Model Identifier | Chain Tier Acc (%) | Chain Binary F1 | Chain MAE | Node MAE | Error Propagation Ratio | Spearman Rank $\rho$ |
 |---|---|---|---|---|---|---|---|
-| **B0** | Majority Baseline | 70.98% | 0.9796 | 0.3302 | 0.2687 | 1.2289 | 0.0000 |
-| **B1** | Stratified Random | 39.80% | 0.9506 | 0.6318 | 0.4358 | 1.4497 | 0.0696 |
-| **B2** | Name + Meta Probe | 27.88% | 0.7589 | 1.0279 | 0.6090 | 1.6879 | -0.0982 |
-| **P1-A** | Lexical TF-IDF LR | **71.86%** | **0.9790** | **0.2902** | **0.1761** | 1.6480 | **0.5317** |
-| **P1-B** | AraBERT Semantic LR | 56.78% | 0.9094 | 0.5089 | 0.2806 | 1.8135 | 0.3558 |
-| **P2-A** | Early Fusion MLP | 64.51% | 0.9776 | 0.3663 | 0.3134 | **1.1686** | 0.3786 |
-| **P2-B_Attn** | Multimodal GCN Attention | 63.88% | 0.9825 | 0.3720 | 0.3045 | 1.2217 | 0.2887 |
+| **B0** | Majority Baseline | 69.58% | 0.9618 | 0.3777 | 0.2985 | 1.2653 | 0.0000 |
+| **B1** | Stratified Random | 42.78% | 0.8951 | 0.7186 | 0.4806 | 1.4953 | -0.0562 |
+| **B2** | Name + Meta Probe | 28.71% | 0.7092 | 1.0608 | 0.6657 | 1.5936 | -0.0641 |
+| **P1-A** | Lexical TF-IDF LR | 59.57% | 0.8180 | 0.6521 | **0.2478** | 2.6319 | 0.1671 |
+| **P1-B** | AraBERT Semantic LR | 58.30% | 0.8792 | 0.5513 | 0.3194 | 1.7261 | 0.2655 |
+| **P2-A** | Early Fusion MLP | **62.10%** | **0.9378** | **0.4278** | 0.3463 | **1.2353** | **0.3918** |
+| **P2-B_Attn** | Multimodal GCN Attention | 55.83% | 0.9084 | 0.5722 | 0.3343 | 1.7116 | 0.1001 |
 
 Key conclusions from the downstream chain evaluation include:
-* **Strong Rank Preservation:** The lexical TF-IDF model achieved a statistically significant rank correlation of **$\rho = 0.5317$ ($p < 10^{-15}$)** with ground-truth chain tiers.
-* **High Binary Chain Acceptance Accuracy:** All high-performing models achieved chain binary F1 scores exceeding **0.97** for distinguishing acceptable (*Maqbūl*) from rejected (*Mardūd*) narrations.
-* **Error Dampening via Bounded Mistakes:** The Error Propagation Ratio remained tightly bounded (1.1686 to 1.6480). Because individual narrator prediction mistakes occurred exclusively between adjacent categories, downstream weakest-link aggregation prevented catastrophic failure cascades across entire transmission paths.
+* **The Canonical Selection Floor:** In canonical collections (*Kutub al-Sittah*), 92.6% of verified chains are acceptable by default (Tier 1 or Tier 2). As a result, the naive majority baseline (B0) achieves 69.58% exact tier accuracy and 0.9618 binary F1 despite possessing zero ranking capability ($\rho = 0.0000$). High binary F1 must therefore be interpreted strictly as an artifact of collection curation rather than model brilliance.
+* **Preservation of Ordinal Rank:** The Early Fusion MLP (P2-A) achieved the highest chain tier accuracy among machine learning models (**62.10%**), the lowest chain MAE (**0.4278**), and the highest ordinal rank correlation (**$\rho = 0.3918$, $p < 10^{-15}$**), confirming genuine predictive discernment across transmission paths.
+* **Error Dampening via Bounded Mistakes:** The Error Propagation Ratio for P2-A remained tightly bounded at 1.2353. Because narrator prediction errors occurred almost exclusively between adjacent ordinal tiers, downstream weakest-link aggregation prevented catastrophic failure cascades.

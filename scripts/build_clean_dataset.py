@@ -34,46 +34,17 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
 OUT_DIR = ROOT / "output/cleaned_cohort"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-
-def map_ibn_hajar_tier(grade_str: str) -> str | None:
-    g = str(grade_str).strip()
-    if not g or g in ("None", "nan"):
-        return None
-    # Check below_saduq first (weak / cautionary indicators)
-    below_indicators = [
-        "ضعيف", "متروك", "مجهول", "مقبول", "كذاب", "واه", "ساقط", "لين",
-        "تركوه", "ضعفوه", "تالف", "غير ثقة", "ليس بثقة", "ليس بالقوي", "فيه مقال"
-    ]
-    if any(k in g for k in below_indicators):
-        return "below_saduq"
-    if any(k in g for k in ["صدوق", "لا بأس به", "خيار", "صالح الحديث", "محله الصدق"]):
-        return "saduq"
-    if any(k in g for k in ["ثقة", "حجة", "ثبت", "حافظ", "إمام", "عدل", "متقن"]):
-        return "thiqah"
-    return None
-
-
-def map_dhahabi_tier(grade_str: str) -> str | None:
-    g = str(grade_str).strip()
-    if not g or g in ("None", "nan"):
-        return None
-    below_indicators = [
-        "ضعيف", "متروك", "مجهول", "واه", "كذاب", "ساقط", "لين", "ترك",
-        "ضعف", "لا يحتج", "فيه نظر", "تكلموا", "ليس بعمدة", "غير ثقة"
-    ]
-    if any(k in g for k in below_indicators):
-        return "below_saduq"
-    if any(k in g for k in ["صدوق", "لا بأس به", "صالح", "وسط"]):
-        return "saduq"
-    if any(k in g for k in ["ثقة", "حجة", "ثبت", "حافظ", "إمام", "رأس", "جليل", "كبير", "أحد الأعلام", "فقيه"]):
-        return "thiqah"
-    return None
-
-
-TIER_TO_INT = {"below_saduq": 0, "saduq": 1, "thiqah": 2}
+from src.canonical_data_pipeline import (
+    map_ibn_hajar_tier,
+    map_dhahabi_tier,
+    TIER_TO_INT,
+    is_earlier_critic,
+    EXCLUDE_LATE_SCHOLARS
+)
 
 
 def parse_tabaqa_float(t_str: str) -> float:
@@ -149,9 +120,9 @@ def main():
         # Extract earlier critics exclusively (strictly exclude Ibn Hajar blocks & grades)
         earlier_statements = []
         for b in ev.get("jarh_tadil", []):
-            sch = b.get("scholar", "")
-            # Exclude Ibn Hajar and Dhahabi from text features
-            if "حجر" in sch or "ذهب" in sch:
+            sch = b.get("scholar", "").strip()
+            # Strictly exclude later synthesis authorities (Ibn Hajar, Dhahabi, Mizzi, Mughultay, etc.)
+            if not is_earlier_critic(sch):
                 continue
             for s in b.get("evaluations", []):
                 txt = s.get("text", "").strip()

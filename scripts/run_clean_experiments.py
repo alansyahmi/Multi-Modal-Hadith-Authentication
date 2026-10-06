@@ -1,10 +1,10 @@
 """
 Clean Controlled Experiments Engine for FYP2.
 
-Executes the audited 10-arm experiment matrix across 25 paired cross-validation folds:
+Executes the audited 13-arm experiment matrix across 25 paired cross-validation folds:
   - 5-fold Stratified Cross-Validation x 5 Random Seeds (Seeds: [42, 123, 456, 789, 2024]).
   - Strict 1 narrator identity = 1 node grouping: ZERO train/test narrator overlap.
-  - Zero target leakage: Input text contains only earlier classical critics (2nd–4th century AH).
+  - Zero target leakage: Input text contains only earlier classical critics (2nd to 4th century AH).
   - Target label: Ibn Hajar's canonical 3-tier reliability grade.
   - Consistent inverse-frequency class weighting across all arms.
   - Paired evaluation: Every arm is trained and evaluated on the exact same 25 fold partitions.
@@ -227,7 +227,7 @@ def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray, is_consensus: np.nda
 
 def main():
     print("=" * 80)
-    print("FYP2 CLEAN CONTROLLED EXPERIMENTS: 10-ARM EVALUATION MATRIX")
+    print("FYP2 CLEAN CONTROLLED EXPERIMENTS: 13-ARM EVALUATION MATRIX")
     print(f"Device: {DEVICE} | 5 Seeds x 5 Folds = 25 Paired Evaluations")
     print("=" * 80)
 
@@ -588,13 +588,18 @@ def main():
     print(f"Saved summary and hypothesis tests to {out_dir / 'clean_experiments_summary.json'}")
 
     # ── 6. Generate Formal Academic Report in FYP2/ ──
-    generate_report(summary, paired_tests, total_runs, n_nodes, out_dir / "clean_experiments_summary.json")
+    generate_report(summary, paired_tests, total_runs, n_nodes, y, is_consensus, out_dir / "clean_experiments_summary.json")
 
-def generate_report(summary: dict, paired_tests: dict, total_runs: int, n_nodes: int, summary_path: Path):
+def generate_report(summary: dict, paired_tests: dict, total_runs: int, n_nodes: int, y: np.ndarray, is_consensus: np.ndarray, summary_path: Path):
     report_path = ROOT / "FYP2/clean_experiments_report.md"
 
+    n_consensus = int(np.sum(is_consensus))
+    n_below = int(np.sum(y == 0))
+    n_saduq = int(np.sum(y == 1))
+    n_thiqah = int(np.sum(y == 2))
+
     lines = [
-        "# Empirical Benchmark Report: 10-Arm Controlled Cross-Validation Study",
+        "# Empirical Benchmark Report: 13-Arm Controlled Cross-Validation Study",
         "",
         "## 1. Overview of Experimental Protocol",
         "",
@@ -609,7 +614,7 @@ def generate_report(summary: dict, paired_tests: dict, total_runs: int, n_nodes:
         "",
         "## 2. Benchmark Results Across All Experimental Arms",
         "",
-        "| Arm ID | Experimental Arm | Model Architecture | Macro-F1 (Mean ± SD) | 95% Confidence Interval | Accuracy (%) | Quadratic $\\kappa$ | Consensus F1 ($N=181$) |",
+        f"| Arm ID | Experimental Arm | Model Architecture | Macro-F1 (Mean ± SD) | 95% Confidence Interval | Accuracy (%) | Quadratic $\\kappa$ | Consensus F1 ($N={n_consensus}$) |",
         "|---|---|---|---|---|---|---|---|",
     ]
 
@@ -628,7 +633,7 @@ def generate_report(summary: dict, paired_tests: dict, total_runs: int, n_nodes:
         "",
         "## 3. Per-Class F1 Breakdown Across Tiers",
         "",
-        "| Arm ID | Experimental Arm | Below Ṣadūq ($N=13$) | Ṣadūq ($N=64$) | Thiqah ($N=258$) |",
+        f"| Arm ID | Experimental Arm | Below Ṣadūq ($N={n_below}$) | Ṣadūq ($N={n_saduq}$) | Thiqah ($N={n_thiqah}$) |",
         "|---|---|---|---|---|",
     ])
 
@@ -672,7 +677,7 @@ def generate_report(summary: dict, paired_tests: dict, total_runs: int, n_nodes:
         "   - Isolates whether message passing across isnād edges adds measurable predictive value over combining node features directly.",
         "",
         "4. **Dual-Synthesizer Consensus Alignment**:",
-        "   - Validates model predictions on the subset where Ibn Ḥajar and al-Dhahabī reached identical appraisal verdicts ($N=181$).",
+        f"   - Validates model predictions on the subset where Ibn Ḥajar and al-Dhahabī reached identical appraisal verdicts ($N={n_consensus}$).",
         "",
     ])
 

@@ -56,7 +56,7 @@ This study formulates three central research questions:
 To answer the research questions, the project defines three primary research objectives:
 
 * **Project Objective 1 (PO1):** To develop and benchmark a natural language processing pipeline that predicts canonical 3-tier narrator reliability grades from multi-critic classical biographical texts while eliminating target leakage through historical author filtering.
-* **Project Objective 2 (PO2):** To construct an audited, leakage-free transmission graph and execute a controlled 10-arm ablation study comparing text-only, graph-only, and multimodal fusion architectures to rigorously evaluate the empirical value of graph neural message passing.
+* **Project Objective 2 (PO2):** To construct an audited, leakage-free transmission graph and execute a controlled 13-arm ablation study comparing text-only, graph-only, and multimodal fusion architectures to rigorously evaluate the empirical value of graph neural message passing.
 * **Project Objective 3 (PO3):** To formulate a downstream chain validation framework that aggregates predicted narrator reliability scores across historical transmission chains using a weakest-link operator, evaluating exact chain tier accuracy, binary acceptance, and error propagation dynamics.
 
 ---
@@ -73,7 +73,7 @@ To maintain high scientific rigor, the research scope is bounded by the followin
    * Tier 1 (*Ṣadūq*): Truthful narrators with minor or occasional memory qualifications.
    * Tier 0 (*Below Ṣadūq*): Narrators graded as *Ḍaʿīf* (weak), *Majhūl* (unknown), or *Matrūk* (abandoned).
 3. **Strict Structural Enforcement of Zero Target Leakage:**
-   Biographical text representations are strictly confined to statements uttered by classical critics who lived between the 2nd and 4th centuries AH. All 9th-century synthesis judgments by Ibn Ḥajar and 8th-century summaries by al-Dhahabī are completely purged from model input features.
+   Biographical text representations are strictly confined to statements uttered by classical critics who lived between the 2nd and 4th centuries AH. All 9th-century synthesis judgments by Ibn Ḥajar, 8th-century summaries by al-Dhahabī, and post-classical encyclopedic citations from al-Mizzī (d. 742 AH) and ten subsequent authorities are completely purged from model input features.
 4. **Computational Decision Support (No Autonomous Theological Grading):**
    The computational framework is explicitly designed and framed as an objective decision-support index for academic and research contexts. It does not claim to replace traditional Islamic scholarship or provide independent theological rulings on hadith authenticity.
 
@@ -95,7 +95,7 @@ The remainder of this progress report is structured as follows:
 
 * **Chapter 2 (Literature Review):** Reviews the classical science of *ʿIlm ar-Rijāl*, surveys existing computational hadith systems and Arabic transformer models, and examines the theoretical foundation of graph neural networks and graph heterophily.
 * **Chapter 3 (Project Methodology):** Details the multi-critic corpus construction, the 5-stage data hygiene funnel, the zero-leakage filtering protocol, the undirected transmission graph formulation, and the cross-validation strategy.
-* **Chapter 4 (System and Experiment Design):** Defines the formal hypothesis testing framework, the 10-arm experimental matrix, the model architectures, and the downstream chain validation operators.
+* **Chapter 4 (System and Experiment Design):** Defines the formal hypothesis testing framework, the 13-arm experimental matrix, the model architectures, and the downstream chain validation operators.
 * **Chapter 5 (Implementation):** Outlines the computational environment, text preprocessing and embedding extraction pipelines, graph feature engineering, and neural network training specifications.
-* **Chapter 6 (Results):** Presents empirical findings across PO1 ($N=844$), PO2 ($N=335$ across 25 paired folds), statistical hypothesis test outcomes, and PO3 chain validation ($N=1,578$).
+* **Chapter 6 (Results):** Presents empirical findings across PO1 ($N=819$ primary pre-synthesis benchmark), PO2 ($N=335$ across 25 paired folds in the 13-arm study), statistical hypothesis test outcomes, and PO3 chain validation ($N=1,578$).
 * **Chapter 7 (Conclusion and References):** Synthesizes answers to the research questions, discusses domain implications of transmission network heterophily, outlines study limitations, and provides APA references.

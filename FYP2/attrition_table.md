@@ -2,7 +2,7 @@
 
 **Artifact Reference:** `output/cleaned_cohort/clean_narrators_cohort.csv`  
 **Associated Scripts:** `scripts/match_sanadset_to_hadithviz.py`, `scripts/build_clean_dataset.py`  
-**Last Updated:** 2026-10-05 (Week 3 Post-Audit)
+**Last Updated:** 2026-10-06 (Week 3 Post-Audit)
 
 ---
 
@@ -17,9 +17,9 @@ To ensure total zero target leakage, eliminate phantom entities, and avoid circu
 | **Hadith-Viz Master Cards** | 3,047 cards | 1.8% | Specialized visualizer index for canonical *Kutub al-Sittah* transmissions. |
 | **Step 1: Exclude Unrated Stubs** | 942 cards | 30.9% | Removed 2,105 placeholder cards lacking verified Ibn Ḥajar synthesis grades. |
 | **Step 2: Exclude Companions** | 860 scholars | 91.3% | Removed 82 Companions (*Ṣaḥābah*) due to theological constant (*ʿAdālat al-Ṣaḥābah*). |
-| **Step 3: Exclude Empty Text** | **845 scholars** | 98.3% | Removed 15 entries lacking earlier-critic commentary. **Forms the PO1 Text Cohort.** |
-| **Step 4: Graph Intersection** | 438 graph nodes | 51.8% | Isolated scholars actively appearing in canonical Kutub al-Sittah transmission chains. |
-| **Step 5: Identity Deduplication** | **335 identities** | 76.5% | Merged spelling variants and split nodes into 1 unique identity = 1 graph node. **Forms the PO2 Multimodal GNN Cohort.** |
+| **Step 3: Exclude Later Synthesizers & Empty Text** | **819 scholars** | 95.2% | Purged all quotes from al-Mizzi (d. 742 AH) and 10 other late authorities; removed 41 scholars lacking 2nd to 4th century classical commentary. **Forms the Primary PO1 Text Benchmark Cohort.** |
+| **Step 4: Graph Intersection** | 438 graph nodes | 53.5% | Isolated scholars actively appearing in canonical Kutub al-Sittah transmission chains. |
+| **Step 5: Identity Deduplication** | **335 identities** | 76.5% | Merged spelling variants and split nodes into 1 unique identity = 1 graph node. **Forms the PO2 13-Arm Multimodal GNN Cohort.** |
 
 ---
 
@@ -30,7 +30,7 @@ To ensure total zero target leakage, eliminate phantom entities, and avoid circu
 | **SanadSet Total Chains** | 650,000 chains | Full raw dataset spanning all classical hadith literature. |
 | **Kutub al-Sittah Chains** | 30,712 chains | Verified chains from Bukhārī, Muslim, Abū Dāwūd, Tirmidhī, Nasāʾī, and Ibn Mājah. |
 | **Cohort-Covered Chains** | 9,840 chains | Chains containing at least 1 narrator from the clean cohort. |
-| **Multi-Narrator Test Chains** | **1,578 chains** | Chains containing $\ge 2$ cohort narrators (mean cohort depth: 2.17 narrators per chain). Used for weakest-link chain validation. |
+| **Multi-Narrator Test Chains** | **1,578 chains** | Verified chains containing $\ge 2$ cohort narrators (mean cohort depth: 2.17 narrators per chain), sampled sequentially to satisfy the $\ge 1,200$ evaluation requirement. Used for weakest-link chain validation. |
 
 ---
 
@@ -54,6 +54,7 @@ To verify that SanadSet graph nodes were correctly matched to Hadith-Viz biograp
 ## 4. Zero-Leakage Author Filtering Summary
 
 * **Total Raw Appraisal Quotes in Dataset:** 36,643 quotes.
-* **Statements Attributed to Ibn Ḥajar:** 1,659 quotes (4.53%). **100% stripped from model input text.**
-* **Statements Attributed to al-Dhahabī:** 0 quotes in text (isolated strictly as external validation label).
-* **Earlier Classical Critic Statements Retained:** 34,984 quotes from 2nd to 4th-century scholars.
+* **Statements Attributed to Ibn Ḥajar (d. 852 AH):** 1,659 quotes (4.53%). **100% stripped from model input text.**
+* **Statements Attributed to al-Dhahabī (d. 748 AH):** Isolated strictly as external validation label; 0 quotes in model inputs.
+* **Statements Attributed to al-Mizzī (d. 742 AH) and Post-Classical Synthesizers:** 676 quotes. **100% stripped from model input text.**
+* **Classical Earlier Critic Statements Retained:** 34,984 quotes from 2nd to 4th century AH scholars.
