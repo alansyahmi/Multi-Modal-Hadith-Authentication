@@ -1,6 +1,0 @@
-Paragraphs: 505, Tables: 19
-
-  [Heading 1] CHAPTER 4: EXPERIMENTAL DESIGN
-  [Heading 1] REFERENCES
-  [Heading 1] 
-  [Heading 1] APPENDICES

@@ -1,4 +1,0 @@
-CHAPTER 5 at [451]
-
-[503] Third, the near-random GNN accuracy (R² near zero for graph-only features) confirms that edge risk modifiers (tadlīs, ikhtilāṭ) and geospatial consistency verification must be integrated into the GNN pipeline. Fourth, Track A (CAMeL-BERT regression) is not yet operational, as only Track B (GRADE_SCORE_MAP keyword lookup) has been tested, requiring a fine-tuned CAMeL-BERT regression model on biographical sentences in FYP2.
-

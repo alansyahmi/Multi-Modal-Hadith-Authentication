@@ -1,7 +1,0 @@
-Normal style alignment: None
-Normal style line spacing: None
-
-Ch1 spacing attrs: {'{http://schemas.openxmlformats.org/wordprocessingml/2006/main}before': '240', '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}line': '360', '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}lineRule': 'auto'}
-Ch1: no jc element in pPr
-
-Ch4 spacing attrs: {'{http://schemas.openxmlformats.org/wordprocessingml/2006/main}line': '360', '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}lineRule': 'auto', '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}before': '240'}

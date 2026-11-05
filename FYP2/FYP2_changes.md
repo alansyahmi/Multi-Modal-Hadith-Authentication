@@ -808,3 +808,23 @@ This document tracks all modifications made to the project during **FYP2**, deta
   - **Scientific Rationale 2 (Statistical Power):** The locked sample of $N = 1,578$ verified chains already yields overwhelming statistical significance ($p < 10^{-15}$ for Spearman rank correlation $\rho$). Scaling to 16,754 chains adds computational latency without altering any empirical conclusions.
   - **Viva Defense Strategy:** The 1,578 chains are officially framed as an audited sequential sample satisfying the pre-registered requirement of $\ge 1,200$ chains, drawn from a verified candidate population of 16,754 multi-narrator isnāds.
   - **Future Roadmap (Sprint 2 / Final Thesis):** A standalone text-only sensitivity study comparing P1-A (TF-IDF) vs. P1-B (AraBERT) across all 16,754 chains can be included as an optional appendix in the final 9-chapter thesis.
+
+## [Entry 024] : 2026-11-06 (Week 7)
+### Assemble a Report-Centered V4 Worktree
+
+* **Files Created / Modified:**
+  - [`README.md`](../README.md)
+  - [`FYP2/V4_BUNDLE_MANIFEST.md`](V4_BUNDLE_MANIFEST.md)
+  - [`FYP2/V4_PRUNE_MANIFEST.csv`](V4_PRUNE_MANIFEST.csv)
+  - [`FYP2/implementation_walkthrough/README.md`](implementation_walkthrough/README.md)
+  - [`FYP2/implementation_walkthrough/CODE_MAP.md`](implementation_walkthrough/CODE_MAP.md)
+  - [src/data/](../src/data/)
+* **What Was Changed:**
+  - Created an isolated local `v4` worktree from commit `48dbfea`, then overlaid report-relevant code files whose recorded modification time was at or before the selected report PDF timestamp.
+  - Added the snapshot-only Stage 1 data loaders whose recorded modification times predate the report; they were absent from the Git base commit and are disclosed in the bundle manifest.
+  - Added the user-selected v4 PDF, required source data, saved stage and benchmark outputs, and the PO3 exploratory candidate input/result files.
+  - Removed 412 committed paths from this worktree because they are outside the selected report-centered implementation bundle. Each path is listed in the prune manifest and remains recoverable from the original branch or forensic snapshot.
+* **Why:**
+  - The user requested a readable, self-contained local branch centered on the submitted v4 report while preserving the mixed active project and forensic evidence.
+* **How:**
+  - Used the snapshot inventory, captured Git baseline, file timestamps, report traceability, and static code-path inspection. No project scripts, experiments, or tests were run. The source-to-output and experiment-time environment gaps remain documented.

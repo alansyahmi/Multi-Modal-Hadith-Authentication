@@ -43,6 +43,7 @@ from src.canonical_data_pipeline import (
     map_dhahabi_tier,
     TIER_TO_INT,
     is_earlier_critic,
+    has_late_compiler_leak,
     EXCLUDE_LATE_SCHOLARS
 )
 
@@ -126,7 +127,7 @@ def main():
                 continue
             for s in b.get("evaluations", []):
                 txt = s.get("text", "").strip()
-                if txt:
+                if txt and len(txt) > 5 and not has_late_compiler_leak(txt):
                     earlier_statements.append({"scholar": sch, "text": txt})
 
         if len(earlier_statements) == 0:
