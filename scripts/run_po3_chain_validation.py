@@ -41,9 +41,16 @@ from scipy.stats import spearmanr, kendalltau
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# PO3 requires an independent chain-level reference label. The current SanadSet
+# export has no such field, and deriving a chain target from narrator labels is
+# circular for validation. Configure and document an externally sourced grade
+# column and explicit grade mapping before enabling this experiment.
+INDEPENDENT_CHAIN_GRADE_COLUMN = None
+INDEPENDENT_CHAIN_GRADE_MAP = None
+
 def main():
     print("=" * 80)
-    print("PO3: DOWNSTREAM CHAIN-LEVEL ERROR PROPAGATION VALIDATION")
+    print("PO3: DOWNSTREAM CHAIN-LEVEL VALIDATION PREFLIGHT")
     print("=" * 80)
 
     # 1. Load Cohort and Graph Node Mappings
@@ -51,6 +58,15 @@ def main():
     nodes_csv = ROOT / "output/stage2/graph_nodes.csv"
     sanad_csv = ROOT / "output/stage1/sanadset_cleaned.csv"
     results_json = ROOT / "output/cleaned_cohort/clean_experiments_results.json"
+
+    available_columns = set(pd.read_csv(sanad_csv, nrows=0).columns)
+    if not INDEPENDENT_CHAIN_GRADE_COLUMN or not INDEPENDENT_CHAIN_GRADE_MAP:
+        print("PO3 stopped before model fitting: no configured independent chain-grade reference and mapping.")
+        print(f"SanadSet columns available: {sorted(available_columns)}")
+        print("A weakest-link minimum of the same narrator labels is a derived consistency target, not independent chain validation.")
+        return
+    if INDEPENDENT_CHAIN_GRADE_COLUMN not in available_columns:
+        raise ValueError(f"Configured PO3 reference column is absent: {INDEPENDENT_CHAIN_GRADE_COLUMN}")
 
     df_cohort = pd.read_csv(cohort_csv)
     df_nodes = pd.read_csv(nodes_csv)

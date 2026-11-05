@@ -4,9 +4,10 @@ PO1 Canonical Biographical Text Benchmark (N=819).
 Evaluates Lexical TF-IDF vs. Contextual Semantic AraBERT across all 819 non-Companion
 historical scholars in Hadith-Viz who possess verified Ibn Hajar grades and earlier-critic text.
 
-Strict Methodological Controls:
+Configured Methodological Controls:
   - Canonical label mapper (with precedence for weak/cautionary indicators).
-  - Strict pre-Ibn-Hajar author filtering (purging all 11 later synthesis authorities:
+  - Date-verified allowlist of named 2nd to 4th-century AH critics, plus snippet compiler filtering.
+  - Exclusion of the 11 configured later authorities:
     Ibn Hajar, al-Dhahabi, al-Mizzi, Mughultay, al-Iraqi, al-Ala'i, al-Nawawi,
     Burhan al-Din al-Halabi, Ibn Abd al-Hadi, al-Sakhawi, al-Suyuti).
   - Evaluation: 5-fold Stratified Cross-Validation repeated across 5 random seeds (25 paired runs).
@@ -46,6 +47,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, accuracy_score, cohen_kappa_score
 from scipy import stats
+from src.evaluation_stats import corrected_repeated_cv_summary, corrected_repeated_cv_test
 from transformers import AutoTokenizer, AutoModel
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -65,7 +67,7 @@ N_SPLITS = 5
 
 def main():
     print("=" * 80)
-    print("PO1: CANONICAL BIOGRAPHICAL TEXT BENCHMARK (STRICT PRE-IBN-HAJAR CRITICS)")
+    print("PO1: CANONICAL BIOGRAPHICAL TEXT BENCHMARK (CONFIGURED AUTHOR FILTERS)")
     print(f"Device: {DEVICE} | 5 Seeds x 5 Folds = 25 Paired Evaluations")
     print("=" * 80)
 
@@ -97,7 +99,7 @@ def main():
             })
 
     n_total = len(valid_cards)
-    print(f"Extracted {n_total} valid non-Companion biographical entries under strict filter.")
+    print(f"Extracted {n_total} valid non-Companion entries under configured filters.")
 
     y = np.array([c["tier"] for c in valid_cards])
     texts = [c["text"] for c in valid_cards]
@@ -221,11 +223,12 @@ def main():
         accs = [f["accuracy"] for f in fold_results[arm]]
         kappas = [f["quadratic_kappa"] for f in fold_results[arm]]
 
-        m_f1, s_f1 = np.mean(f1s), np.std(f1s, ddof=1)
+        f1_stats = corrected_repeated_cv_summary(f1s, n_splits=N_SPLITS)
+        m_f1, s_f1 = f1_stats["mean"], f1_stats["std"]
         m_acc = np.mean(accs)
         m_kap = np.mean(kappas)
-        ci_low = m_f1 - 1.96 * (s_f1 / math.sqrt(len(f1s)))
-        ci_high = m_f1 + 1.96 * (s_f1 / math.sqrt(len(f1s)))
+        ci_low = f1_stats["ci_low"]
+        ci_high = f1_stats["ci_high"]
 
         summary[arm] = {
             "macro_f1_mean": float(round(m_f1, 4)),
@@ -241,13 +244,12 @@ def main():
     f1_tfidf = [f["macro_f1"] for f in fold_results["P1-A (Lexical TF-IDF LR)"]]
     f1_arabert = [f["macro_f1"] for f in fold_results["P1-B (AraBERT Semantic LR)"]]
     diff = np.array(f1_arabert) - np.array(f1_tfidf)
-    t_stat, p_val = stats.ttest_rel(f1_arabert, f1_tfidf)
-    wilc_stat, wilc_p = stats.wilcoxon(diff)
+    cv_test = corrected_repeated_cv_test(diff, n_splits=N_SPLITS)
+    t_stat, p_val = cv_test["t_statistic"], cv_test["p_value"]
 
-    print("\nPaired Statistical Test: AraBERT vs TF-IDF Baseline (df=24):")
+    print("\nDependence-Corrected Repeated-CV Test: AraBERT vs TF-IDF Baseline (df=24):")
     print(f"  Mean Difference (AraBERT - TF-IDF): {np.mean(diff):.4f}")
-    print(f"  Paired t-statistic: {t_stat:.4f}, p-value: {p_val:.5e}")
-    print(f"  Wilcoxon signed-rank: stat={wilc_stat}, p-value={wilc_p:.5e}")
+    print(f"  Corrected repeated-CV t-statistic: {t_stat:.4f}, p-value: {p_val:.5e}")
     print(f"  Decision: Reject H0; evidence significantly favors TF-IDF over AraBERT (contrary to H1).")
 
     # 5. Save Artifacts
@@ -258,6 +260,7 @@ def main():
                 "cohort_size": n_total,
                 "n_evaluations": len(f1_tfidf),
                 "device": str(DEVICE),
+                "inference_method": "Nadeau-Bengio corrected repeated 5-fold CV t-test and intervals",
                 "filter_rule": "Strict pre-Ibn-Hajar classical critics (purging 11 late synthesis authorities)"
             },
             "summary": summary,
@@ -265,8 +268,8 @@ def main():
                 "mean_diff": float(round(np.mean(diff), 4)),
                 "t_stat": float(round(t_stat, 4)),
                 "p_value": float(p_val),
-                "wilcoxon_stat": float(wilc_stat),
-                "wilcoxon_p": float(wilc_p),
+                "correction_factor": float(cv_test["correction_factor"]),
+                "test_method": "Nadeau-Bengio corrected repeated 5-fold CV t-test",
                 "decision": "Reject H0; evidence significantly favors TF-IDF over AraBERT, contrary to H1."
             },
             "fold_results": fold_results
@@ -276,13 +279,13 @@ def main():
     # 6. Generate Markdown Report
     report_md = ROOT / "FYP2/po1_benchmark_report.md"
     with open(report_md, "w", encoding="utf-8") as f:
-        f.write(f"# PO1 Canonical Benchmark Report: Strict Pre-Ibn-Ḥajar Biographical Corpus (N={n_total})\n\n")
+        f.write(f"# PO1 Canonical Benchmark Report: Configured Author-Filtered Biographical Corpus (N={n_total})\n\n")
         f.write("## 1. Experimental Overview\n\n")
         f.write(f"- **Cohort Size:** {n_total} unique historical non-Companion scholars.\n")
         f.write("- **Data Source:** Complete Hadith-Viz biographical encyclopedia (`Dataset/hadith_viz/shamela_rijal2.json`).\n")
         f.write(f"- **Target Ground Truth:** Canonical Ibn Ḥajar *Taqrīb* 3-tier synthesis grade (*Thiqah*: {cnt[2]}, *Ṣadūq*: {cnt[1]}, *Below Ṣadūq*: {cnt[0]}).\n")
-        f.write("- **Strict Author Filtering:** Strictly excludes all 11 later synthesizing authorities: Ibn Ḥajar (d. 852), al-Dhahabī (d. 748), al-Mizzī (d. 742), Mughulṭāy (d. 762), al-ʿIrāqī (d. 806), al-ʿAlāʾī (d. 761), al-Nawawī (d. 676), Burhān al-Dīn al-Ḥalabī (d. 841), Ibn ʿAbd al-Hādī (d. 744), al-Sakhāwī (d. 902), and al-Suyūṭī (d. 911).\n")
-        f.write("- **Evaluation Protocol:** 5-fold Stratified Cross-Validation repeated across 5 random seeds (25 paired runs), zero train/test identity overlap.\n\n")
+        f.write("- **Temporal Author Filter:** Retains only the configured date-verified core critics from the 2nd to 4th centuries AH; excludes the 11 configured later authorities and snippets containing compiler references.\n")
+        f.write("- **Evaluation Protocol:** 5-fold stratified cross-validation repeated across 5 random seeds (25 paired runs); the 819 evaluated source names are unique across rows.\n\n")
         f.write("---\n\n")
         f.write("## 2. Benchmark Results Across 25 Paired Evaluations\n\n")
         f.write("| Arm ID | Model Architecture | Macro-F1 (Mean ± SD) | 95% Confidence Interval | Accuracy (%) | Quadratic Weighted $\\kappa$ |\n")
@@ -294,8 +297,8 @@ def main():
         f.write("\n---\n\n")
         f.write("## 3. Formal Hypothesis Testing Decision for PO1\n\n")
         f.write(f"- **Mean Difference (AraBERT minus TF-IDF):** $\\bar{{\\Delta}} = {np.mean(diff):.4f}$\n")
-        f.write(f"- **Paired $t$-test ($df=24$):** $t = {t_stat:.4f}$, $p = {p_val:.5e}$\n")
-        f.write(f"- **Wilcoxon Signed-Rank Test:** $W = {wilc_stat}$, $p = {wilc_p:.5e}$\n")
+        f.write(f"- **Corrected repeated-CV $t$-test ($df=24$):** $t = {t_stat:.4f}$, $p = {p_val:.5e}$\n")
+        f.write("- **Test Method:** Nadeau-Bengio corrected repeated 5-fold CV paired t-test, accounting for overlap between folds.\n")
         f.write("- **Scientific Decision:** Reject $H_0$; the empirical evidence significantly favors the lexical baseline over AraBERT, contrary to $H_1$.\n")
         f.write("- **Interpretation:** Classical earlier-critic appraisals contain strong, consistent predictive signals for synthesizing narrator reliability grades. Regularized lexical n-gram representations capture specialized technical descriptors (*thiqah, laysa bihi ba's, da'if*) with higher fidelity than general-domain contextual language models under frozen feature extraction.\n")
 

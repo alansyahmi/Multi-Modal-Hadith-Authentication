@@ -3,8 +3,9 @@ Clean Controlled Experiments Engine for FYP2.
 
 Executes the audited 13-arm experiment matrix across 25 paired cross-validation folds:
   - 5-fold Stratified Cross-Validation x 5 Random Seeds (Seeds: [42, 123, 456, 789, 2024]).
-  - Strict 1 narrator identity = 1 node grouping: ZERO train/test narrator overlap.
-  - Zero target leakage: Input text contains only earlier classical critics (2nd to 4th century AH).
+  - One canonical narrator identity per row; outer train/test row partitions are disjoint.
+  - Target labels are not input features. Text uses the configured date-verified critic allowlist and snippet-level compiler substring filter.
+  - Graph arms are transductive: all cohort nodes and graph edges are present during message passing in every fold.
   - Target label: Ibn Hajar's canonical 3-tier reliability grade.
   - Consistent inverse-frequency class weighting across all arms.
   - Paired evaluation: Every arm is trained and evaluated on the exact same 25 fold partitions.
@@ -57,6 +58,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, accuracy_score, cohen_kappa_score, confusion_matrix
 from scipy import stats
+from src.evaluation_stats import corrected_repeated_cv_summary, corrected_repeated_cv_test
 
 ROOT = Path(__file__).resolve().parent.parent
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -146,9 +148,14 @@ def train_neural_model(
     epochs: int = 80,
     lr: float = 0.005,
     weight_decay: float = 1e-4,
-    patience: int = 20
-) -> np.ndarray:
-    """Train neural model with inner validation early stopping, returning test predictions."""
+    patience: int = 20,
+    return_probabilities: bool = False,
+):
+    """Train with inner validation early stopping and return test predictions.
+
+    When requested, also return the softmax probability matrix in class-index
+    order. The default preserves the historical prediction-only interface.
+    """
     model = model.to(DEVICE)
     y_dev = y.to(DEVICE)
     weights_dev = class_weights.to(DEVICE)
@@ -191,8 +198,12 @@ def train_neural_model(
     model.eval()
     with torch.no_grad():
         final_logits = forward_fn(model)
-        test_preds = final_logits[test_idx].argmax(dim=-1).cpu().numpy()
+        test_logits = final_logits[test_idx]
+        test_preds = test_logits.argmax(dim=-1).cpu().numpy()
+        test_probabilities = torch.softmax(test_logits, dim=-1).cpu().numpy()
 
+    if return_probabilities:
+        return test_preds, test_probabilities
     return test_preds
 
 # ── Metric Computation ──
@@ -490,16 +501,14 @@ def main():
         summary[arm] = {}
         for k in metrics_keys:
             vals = [r[k] for r in arm_runs]
-            m = float(np.mean(vals))
-            s = float(np.std(vals, ddof=1))
-            se = s / math.sqrt(len(vals))
-            # 95% CI for df=24: t_crit = 2.064
-            ci95 = 2.0639 * se
+            cv_stats = corrected_repeated_cv_summary(vals, n_splits=N_SPLITS)
+            m = cv_stats["mean"]
+            s = cv_stats["std"]
             summary[arm][k] = {
                 "mean": round(m, 4),
                 "std": round(s, 4),
-                "ci95_low": round(m - ci95, 4),
-                "ci95_high": round(m + ci95, 4),
+                "ci95_low": round(cv_stats["ci_low"], 4),
+                "ci95_high": round(cv_stats["ci_high"], 4),
             }
 
     # Print summary table
@@ -516,7 +525,7 @@ def main():
 
     # ── 4. Formal Paired Hypothesis Tests ──
     print("\n" + "=" * 80)
-    print("FORMAL PAIRED HYPOTHESIS TESTS (df = 24)")
+    print("DEPENDENCE-CORRECTED REPEATED-CV HYPOTHESIS TESTS (df = 24)")
     print("=" * 80)
 
     comparisons = [
@@ -534,13 +543,12 @@ def main():
         f1_b = np.array([r["macro_f1"] for r in fold_results[arm_b]])
         diff = f1_a - f1_b
         mean_diff = float(np.mean(diff))
-        std_diff = float(np.std(diff, ddof=1))
-        se_diff = std_diff / math.sqrt(len(diff))
-        ci_low = mean_diff - 2.0639 * se_diff
-        ci_high = mean_diff + 2.0639 * se_diff
-
-        t_stat, p_val = stats.ttest_rel(f1_a, f1_b)
-        w_stat, w_pval = stats.wilcoxon(diff) if np.any(diff != 0) else (0.0, 1.0)
+        cv_test = corrected_repeated_cv_test(diff, n_splits=N_SPLITS)
+        std_diff = cv_test["std"]
+        ci_low = cv_test["ci_low"]
+        ci_high = cv_test["ci_high"]
+        t_stat = cv_test["t_statistic"]
+        p_val = cv_test["p_value"]
 
         paired_tests[desc] = {
             "arm_a": arm_a,
@@ -551,15 +559,15 @@ def main():
             "ci95_high": round(ci_high, 4),
             "t_statistic": round(float(t_stat), 4),
             "p_value_parametric": round(float(p_val), 5),
-            "p_value_wilcoxon": round(float(w_pval), 5),
+            "test_method": "Nadeau-Bengio corrected repeated 5-fold CV t-test",
+            "correction_factor": round(cv_test["correction_factor"], 5),
             "decision": "Significant Difference (p < 0.05)" if p_val < 0.05 else "Fail to Reject Null (p >= 0.05)"
         }
 
         print(f"\nTest: {desc}")
         print(f"  Comparison: {arm_a} vs. {arm_b}")
         print(f"  Mean Delta: {mean_diff:+.4f} (95% CI: [{ci_low:+.4f}, {ci_high:+.4f}])")
-        print(f"  Paired t-test: t = {t_stat:+.4f}, p = {p_val:.5f} ({paired_tests[desc]['decision']})")
-        print(f"  Wilcoxon test: p = {w_pval:.5f}")
+        print(f"  Corrected repeated-CV t-test: t = {t_stat:+.4f}, p = {p_val:.5f} ({paired_tests[desc]['decision']})")
 
     # ── 5. Save Artifacts ──
     out_dir = ROOT / "output/cleaned_cohort"
@@ -576,6 +584,7 @@ def main():
             "total_paired_evaluations": total_runs,
             "elapsed_seconds": round(elapsed_total, 2),
             "device": str(DEVICE),
+            "inference_method": "Nadeau-Bengio corrected repeated 5-fold CV t-test and intervals",
         },
         "arms_summary": summary,
         "paired_hypothesis_tests": paired_tests,
@@ -606,9 +615,10 @@ def generate_report(summary: dict, paired_tests: dict, total_runs: int, n_nodes:
         f"- **Cohort Size:** {n_nodes} unique historical narrator identities (1 identity = 1 node).",
         f"- **Evaluation Protocol:** 5-fold Stratified Cross-Validation repeated across 5 distinct random seeds ({total_runs} total paired evaluations).",
         "- **Target Ground Truth:** Ibn Ḥajar's canonical *Taqrīb al-Tahdhīb* 3-tier synthesis grade (*Thiqah*, *Ṣadūq*, *Below Ṣadūq*).",
-        "- **Zero Target Leakage:** Biographical text inputs are strictly restricted to earlier classical critics (2nd to 4th century AH); all 9th-century synthesis judgments and summary grades were excluded.",
-        "- **Identity Isolation:** Zero narrator overlap between train and test partitions.",
-        "- **Metric Reporting:** Mean ± Standard Deviation and 95% Confidence Intervals calculated across all 25 paired runs.",
+        "- **Feature Separation:** Target labels are excluded from text and tabular inputs. Text screening retains the configured date-verified core critics and removes configured snippet-level compiler references.",
+        "- **Graph Evaluation:** Transductive node classification. The full cohort graph, including train-test edges, is available to graph models in each fold; loss and scoring remain restricted to the appropriate train and test rows.",
+        "- **Row Partitioning:** Stratified folds have disjoint canonical identity rows. This does not make the graph evaluation inductive.",
+        "- **Metric Reporting:** Mean and standard deviation across folds; corrected 95% confidence intervals and paired tests use the Nadeau-Bengio repeated-CV variance correction.",
         "",
         "---",
         "",
@@ -647,9 +657,9 @@ def generate_report(summary: dict, paired_tests: dict, total_runs: int, n_nodes:
         "",
         "---",
         "",
-        "## 4. Formal Paired Hypothesis Testing ($df = 24$)",
+        "## 4. Dependence-Corrected Repeated-CV Hypothesis Testing ($df = 24$)",
         "",
-        "| Research Hypothesis / Comparison | Arm A vs. Arm B | Mean Difference $\\bar{\\Delta}$ | 95% CI of Difference | Paired $t$-statistic | $p$-value | Decision |",
+        "| Research Hypothesis / Comparison | Arm A vs. Arm B | Mean Difference $\\bar{\\Delta}$ | Corrected 95% CI of Difference | Corrected $t$-statistic | $p$-value | Decision |",
         "|---|---|---|---|---|---|---|",
     ])
 

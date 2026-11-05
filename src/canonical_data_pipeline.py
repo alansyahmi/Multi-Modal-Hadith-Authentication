@@ -102,6 +102,13 @@ def is_earlier_critic(scholar_name: str) -> bool:
     return not any(late in sch for late in EXCLUDE_LATE_SCHOLARS)
 
 
+def has_late_compiler_leak(snippet_text: str) -> bool:
+    """Return True when text contains a configured later compiler name."""
+    if not snippet_text:
+        return False
+    return any(late in snippet_text for late in EXCLUDE_LATE_SCHOLARS)
+
+
 def extract_clean_critic_snippets(jarh_tadil_list: list) -> list[str]:
     """
     Extracts text snippets exclusively from earlier classical critics.
@@ -114,6 +121,6 @@ def extract_clean_critic_snippets(jarh_tadil_list: list) -> list[str]:
             continue
         for ev in item.get("evaluations", []):
             txt = ev.get("text", "").strip()
-            if txt and len(txt) > 5:
+            if txt and len(txt) > 5 and not has_late_compiler_leak(txt):
                 snippets.append(f"قال {sch}: {txt}")
     return snippets

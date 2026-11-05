@@ -1,4 +1,0 @@
-Equation labels (parentheses)	You said you'll do later
-Threshold mapping Equation (3.3)	Not needed until Stage 3
-Ablation study for GNN	Not needed until Stage 3 evaluation
-Geospatial component detail	Not needed until Stage 2
