@@ -2,6 +2,8 @@
 
 Date: 2026-11-06
 
+Historical note: this comparison describes the initial broad-substring rerun. Its generated cleaned-cohort files were later overwritten by the refined-filter rerun and are not retained separately. The current generated files are compared with the frozen backups in [`REFINED_FILTER_COMPARISON_2026-11-06.md`](REFINED_FILTER_COMPARISON_2026-11-06.md).
+
 ## Scope
 
 Only the report-era narrator matcher and cleaned-cohort preparation scripts were run in this progress-report copy. No PO1, PO2, PO3, or model experiments were run. Python UTF-8 mode was enabled because the matcher's Arabic final console print failed under the default Windows CP1252 console encoding after its first output write.

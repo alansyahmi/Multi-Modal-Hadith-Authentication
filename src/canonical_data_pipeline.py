@@ -103,10 +103,37 @@ def is_earlier_critic(scholar_name: str) -> bool:
 
 
 def has_late_compiler_leak(snippet_text: str) -> bool:
-    """Return True when text contains a configured later compiler name."""
+    """Detect configured later-author mentions without substring collisions.
+
+    Arabic author names must occur as whole tokens. The configured al-Dhahabi
+    spelling is matched as ``الذهبي`` (not ``الذهب``, which also means gold).
+    The ambiguous ``العراقي`` is excluded only when nearby wording attributes
+    a citation or statement to the compiler, rather than referring to Iraqis.
+    """
     if not snippet_text:
         return False
-    return any(late in snippet_text for late in EXCLUDE_LATE_SCHOLARS)
+
+    for configured_name in EXCLUDE_LATE_SCHOLARS:
+        if configured_name == "العراقي":
+            continue
+        name = "الذهبي" if configured_name == "الذهب" else configured_name
+        pattern = re.compile(
+            r"(?<!\w)(?:و|ف|ب|ك)?" + re.escape(name) + r"(?!\w)"
+        )
+        if pattern.search(snippet_text):
+            return True
+
+    iraqi_name = re.compile(r"(?<!\w)(?:و|ف|ب|ك)?العراقي(?!\w)")
+    before_citation = re.compile(
+        r"(?:قال|وقال|ذكر|وذكر|نقل|ونقل|حكى|وحكى|حكاه|نقله|بخط|في قول|قول|أطلق|أنكر|نقل عنه)\s*$"
+    )
+    after_citation = re.compile(r"^\s*(?:قال|ذكر|نقل|حكى|أطلق|أنكر)\b")
+    for match in iraqi_name.finditer(snippet_text):
+        left = snippet_text[max(0, match.start() - 60):match.start()]
+        right = snippet_text[match.end():match.end() + 40]
+        if before_citation.search(left) or after_citation.search(right):
+            return True
+    return False
 
 
 def extract_clean_critic_snippets(jarh_tadil_list: list) -> list[str]:
