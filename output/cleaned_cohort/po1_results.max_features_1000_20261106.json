@@ -1,0 +1,788 @@
+{
+  "metadata": {
+    "cohort_size": 819,
+    "n_evaluations": 25,
+    "device": "cuda",
+    "inference_method": "Nadeau-Bengio corrected repeated 5-fold CV t-test and intervals",
+    "filter_rule": "Current shared earlier-critic and refined snippet-level filter",
+    "tfidf_configuration": {
+      "ngram_range": [
+        1,
+        2
+      ],
+      "min_df": 1,
+      "max_features": 1000,
+      "sublinear_tf": true,
+      "fit_scope": "training fold only"
+    },
+    "precision_recall_averaging": "macro over three tiers, computed per fold"
+  },
+  "summary": {
+    "B0 (Majority Baseline)": {
+      "macro_f1_mean": 0.2702,
+      "macro_f1_std": 0.0006,
+      "ci95_low": 0.2695,
+      "ci95_high": 0.2708,
+      "macro_precision_mean": 0.2271,
+      "macro_precision_std": 0.0008,
+      "macro_recall_mean": 0.3333,
+      "macro_recall_std": 0.0,
+      "accuracy_mean": 0.6813,
+      "kappa_mean": 0.0
+    },
+    "B1 (Stratified Random)": {
+      "macro_f1_mean": 0.3261,
+      "macro_f1_std": 0.0398,
+      "ci95_low": 0.2819,
+      "ci95_high": 0.3704,
+      "macro_precision_mean": 0.3272,
+      "macro_precision_std": 0.0403,
+      "macro_recall_mean": 0.3282,
+      "macro_recall_std": 0.04,
+      "accuracy_mean": 0.5084,
+      "kappa_mean": -0.0195
+    },
+    "P1-A (Lexical TF-IDF LR)": {
+      "macro_f1_mean": 0.673,
+      "macro_f1_std": 0.0428,
+      "ci95_low": 0.6255,
+      "ci95_high": 0.7205,
+      "macro_precision_mean": 0.6666,
+      "macro_precision_std": 0.0416,
+      "macro_recall_mean": 0.6883,
+      "macro_recall_std": 0.0507,
+      "accuracy_mean": 0.7941,
+      "kappa_mean": 0.6751
+    },
+    "P1-B (AraBERT Semantic LR)": {
+      "macro_f1_mean": 0.5679,
+      "macro_f1_std": 0.0388,
+      "ci95_low": 0.5248,
+      "ci95_high": 0.611,
+      "macro_precision_mean": 0.5574,
+      "macro_precision_std": 0.0355,
+      "macro_recall_mean": 0.5936,
+      "macro_recall_std": 0.0415,
+      "accuracy_mean": 0.7055,
+      "kappa_mean": 0.5037
+    }
+  },
+  "paired_test_arabert_vs_tfidf": {
+    "mean_diff": -0.1051,
+    "t_stat": -3.7798,
+    "p_value": 0.0009173840538593527,
+    "correction_factor": 0.29,
+    "test_method": "Nadeau-Bengio corrected repeated 5-fold CV t-test",
+    "decision": "Reject H0; evidence significantly favors TF-IDF over AraBERT, contrary to H1."
+  },
+  "fold_results": {
+    "B0 (Majority Baseline)": [
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2690909090909091,
+        "macro_precision": 0.22560975609756098,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.676829268292683,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.27007299270072993,
+        "macro_precision": 0.22699386503067484,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6809815950920245,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2690909090909091,
+        "macro_precision": 0.22560975609756098,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.676829268292683,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.27007299270072993,
+        "macro_precision": 0.22699386503067484,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6809815950920245,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2690909090909091,
+        "macro_precision": 0.22560975609756098,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.676829268292683,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.27007299270072993,
+        "macro_precision": 0.22699386503067484,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6809815950920245,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2690909090909091,
+        "macro_precision": 0.22560975609756098,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.676829268292683,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.27007299270072993,
+        "macro_precision": 0.22699386503067484,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6809815950920245,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2705314009661836,
+        "macro_precision": 0.22764227642276424,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.2690909090909091,
+        "macro_precision": 0.22560975609756098,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.676829268292683,
+        "quadratic_kappa": 0.0
+      },
+      {
+        "macro_f1": 0.27007299270072993,
+        "macro_precision": 0.22699386503067484,
+        "macro_recall": 0.3333333333333333,
+        "accuracy": 0.6809815950920245,
+        "quadratic_kappa": 0.0
+      }
+    ],
+    "B1 (Stratified Random)": [
+      {
+        "macro_f1": 0.3422700119474313,
+        "macro_precision": 0.3418358493840014,
+        "macro_recall": 0.343984962406015,
+        "accuracy": 0.524390243902439,
+        "quadratic_kappa": -0.019337016574585864
+      },
+      {
+        "macro_f1": 0.31575622361200345,
+        "macro_precision": 0.3264577125409263,
+        "macro_recall": 0.3281641604010025,
+        "accuracy": 0.42073170731707316,
+        "quadratic_kappa": -0.052152317880794774
+      },
+      {
+        "macro_f1": 0.34402509123555686,
+        "macro_precision": 0.34387183235867447,
+        "macro_recall": 0.34560274560274556,
+        "accuracy": 0.5426829268292683,
+        "quadratic_kappa": 0.07177595170216355
+      },
+      {
+        "macro_f1": 0.2949607539184567,
+        "macro_precision": 0.29396999356676773,
+        "macro_recall": 0.2973131025762605,
+        "accuracy": 0.5060975609756098,
+        "quadratic_kappa": -0.04435972968289725
+      },
+      {
+        "macro_f1": 0.37657004830917873,
+        "macro_precision": 0.380672268907563,
+        "macro_recall": 0.37531892795050686,
+        "accuracy": 0.5828220858895705,
+        "quadratic_kappa": -0.03001579778830976
+      },
+      {
+        "macro_f1": 0.28347578347578345,
+        "macro_precision": 0.2774027643844423,
+        "macro_recall": 0.2907268170426065,
+        "accuracy": 0.524390243902439,
+        "quadratic_kappa": -0.1022403258655804
+      },
+      {
+        "macro_f1": 0.3404287525306995,
+        "macro_precision": 0.33780121584999634,
+        "macro_recall": 0.3433583959899749,
+        "accuracy": 0.5609756097560976,
+        "quadratic_kappa": 0.058790593505039235
+      },
+      {
+        "macro_f1": 0.3614894795127353,
+        "macro_precision": 0.36234493797519,
+        "macro_recall": 0.3669187044187045,
+        "accuracy": 0.5121951219512195,
+        "quadratic_kappa": 0.04229582047217817
+      },
+      {
+        "macro_f1": 0.3543692001767565,
+        "macro_precision": 0.35451959544879896,
+        "macro_recall": 0.35462304409672835,
+        "accuracy": 0.5365853658536586,
+        "quadratic_kappa": 0.017244352474564573
+      },
+      {
+        "macro_f1": 0.2839638729236405,
+        "macro_precision": 0.2879689754689755,
+        "macro_recall": 0.28062272799114907,
+        "accuracy": 0.49079754601226994,
+        "quadratic_kappa": -0.12490891165502171
+      },
+      {
+        "macro_f1": 0.23901743796109995,
+        "macro_precision": 0.24044011544011545,
+        "macro_recall": 0.23778195488721807,
+        "accuracy": 0.4634146341463415,
+        "quadratic_kappa": -0.03528428093645486
+      },
+      {
+        "macro_f1": 0.2971394618453442,
+        "macro_precision": 0.302462082257315,
+        "macro_recall": 0.29620927318295737,
+        "accuracy": 0.4573170731707317,
+        "quadratic_kappa": -0.0431713722915299
+      },
+      {
+        "macro_f1": 0.32600579015673353,
+        "macro_precision": 0.3281818181818182,
+        "macro_recall": 0.3279064779064779,
+        "accuracy": 0.4817073170731707,
+        "quadratic_kappa": 0.008964302865375418
+      },
+      {
+        "macro_f1": 0.34545116404394344,
+        "macro_precision": 0.34776711047897485,
+        "macro_recall": 0.3447605500237079,
+        "accuracy": 0.524390243902439,
+        "quadratic_kappa": 0.03783882117518644
+      },
+      {
+        "macro_f1": 0.3015082285822598,
+        "macro_precision": 0.30221614365676364,
+        "macro_recall": 0.3011921696132222,
+        "accuracy": 0.4785276073619632,
+        "quadratic_kappa": -0.0981573194128409
+      },
+      {
+        "macro_f1": 0.44597717308216106,
+        "macro_precision": 0.44851444851444855,
+        "macro_recall": 0.4447055137844611,
+        "accuracy": 0.6097560975609756,
+        "quadratic_kappa": 0.18597449908925323
+      },
+      {
+        "macro_f1": 0.3357937288320769,
+        "macro_precision": 0.33656733656733656,
+        "macro_recall": 0.3352130325814537,
+        "accuracy": 0.5182926829268293,
+        "quadratic_kappa": -0.005346607669616477
+      },
+      {
+        "macro_f1": 0.30232389251997094,
+        "macro_precision": 0.30074786324786323,
+        "macro_recall": 0.30743243243243246,
+        "accuracy": 0.49390243902439024,
+        "quadratic_kappa": -0.06580621705144507
+      },
+      {
+        "macro_f1": 0.31603783313327805,
+        "macro_precision": 0.31649831649831645,
+        "macro_recall": 0.3171487276750435,
+        "accuracy": 0.4878048780487805,
+        "quadratic_kappa": -0.1226725082146769
+      },
+      {
+        "macro_f1": 0.35892857142857143,
+        "macro_precision": 0.35953740301566395,
+        "macro_recall": 0.36259567838515205,
+        "accuracy": 0.5214723926380368,
+        "quadratic_kappa": -0.030254508680263026
+      },
+      {
+        "macro_f1": 0.31907485216308745,
+        "macro_precision": 0.3201839826839827,
+        "macro_recall": 0.32346491228070173,
+        "accuracy": 0.5060975609756098,
+        "quadratic_kappa": -0.023360000000000047
+      },
+      {
+        "macro_f1": 0.3491939052477169,
+        "macro_precision": 0.35156156156156154,
+        "macro_recall": 0.35902255639097747,
+        "accuracy": 0.524390243902439,
+        "quadratic_kappa": 0.020220588235294268
+      },
+      {
+        "macro_f1": 0.2915969338209467,
+        "macro_precision": 0.2932829014432105,
+        "macro_recall": 0.29056199056199056,
+        "accuracy": 0.4817073170731707,
+        "quadratic_kappa": -0.056978653530377565
+      },
+      {
+        "macro_f1": 0.3013924269096683,
+        "macro_precision": 0.30151768309663046,
+        "macro_recall": 0.3015173067804647,
+        "accuracy": 0.47560975609756095,
+        "quadratic_kappa": -0.11008193801211252
+      },
+      {
+        "macro_f1": 0.3260906521180494,
+        "macro_precision": 0.3243708452041785,
+        "macro_recall": 0.3285014337645917,
+        "accuracy": 0.48466257668711654,
+        "quadratic_kappa": 0.03227934385856901
+      }
+    ],
+    "P1-A (Lexical TF-IDF LR)": [
+      {
+        "macro_f1": 0.6623766623766624,
+        "macro_precision": 0.6595238095238095,
+        "macro_recall": 0.6655701754385964,
+        "accuracy": 0.7987804878048781,
+        "quadratic_kappa": 0.6007933645870898
+      },
+      {
+        "macro_f1": 0.6641414141414143,
+        "macro_precision": 0.6508879646134549,
+        "macro_recall": 0.6961152882205514,
+        "accuracy": 0.7926829268292683,
+        "quadratic_kappa": 0.699777141037886
+      },
+      {
+        "macro_f1": 0.7379090418200369,
+        "macro_precision": 0.763016263016263,
+        "macro_recall": 0.7245924495924495,
+        "accuracy": 0.8353658536585366,
+        "quadratic_kappa": 0.7475275237917522
+      },
+      {
+        "macro_f1": 0.7104377104377105,
+        "macro_precision": 0.6960998466664954,
+        "macro_recall": 0.7377272008850957,
+        "accuracy": 0.8109756097560976,
+        "quadratic_kappa": 0.7385204081632653
+      },
+      {
+        "macro_f1": 0.715979410600147,
+        "macro_precision": 0.6988289760348584,
+        "macro_recall": 0.7391790286527128,
+        "accuracy": 0.7975460122699386,
+        "quadratic_kappa": 0.6373827699018538
+      },
+      {
+        "macro_f1": 0.6474493927125505,
+        "macro_precision": 0.6315415710695947,
+        "macro_recall": 0.7031641604010025,
+        "accuracy": 0.7621951219512195,
+        "quadratic_kappa": 0.7127063220180629
+      },
+      {
+        "macro_f1": 0.6650626493101263,
+        "macro_precision": 0.6502777777777778,
+        "macro_recall": 0.6890664160401002,
+        "accuracy": 0.7804878048780488,
+        "quadratic_kappa": 0.6186703410265243
+      },
+      {
+        "macro_f1": 0.6430205395722637,
+        "macro_precision": 0.6428571428571428,
+        "macro_recall": 0.6441924066924066,
+        "accuracy": 0.7865853658536586,
+        "quadratic_kappa": 0.614374445430346
+      },
+      {
+        "macro_f1": 0.68609392171036,
+        "macro_precision": 0.6746913580246914,
+        "macro_recall": 0.7050576892682155,
+        "accuracy": 0.8109756097560976,
+        "quadratic_kappa": 0.7350565428109854
+      },
+      {
+        "macro_f1": 0.6328862195528862,
+        "macro_precision": 0.6394137052031789,
+        "macro_recall": 0.6271083113188376,
+        "accuracy": 0.7975460122699386,
+        "quadratic_kappa": 0.6357881016665115
+      },
+      {
+        "macro_f1": 0.6659101023587005,
+        "macro_precision": 0.6517476555839727,
+        "macro_recall": 0.6865601503759399,
+        "accuracy": 0.7682926829268293,
+        "quadratic_kappa": 0.6459412780656304
+      },
+      {
+        "macro_f1": 0.7156402467090123,
+        "macro_precision": 0.6895003453833756,
+        "macro_recall": 0.7576754385964911,
+        "accuracy": 0.8048780487804879,
+        "quadratic_kappa": 0.6870737252354661
+      },
+      {
+        "macro_f1": 0.6948604269293924,
+        "macro_precision": 0.6986215538847117,
+        "macro_recall": 0.6916130416130416,
+        "accuracy": 0.8048780487804879,
+        "quadratic_kappa": 0.6571174377224199
+      },
+      {
+        "macro_f1": 0.6313946769094803,
+        "macro_precision": 0.6263888888888889,
+        "macro_recall": 0.6370633791686423,
+        "accuracy": 0.774390243902439,
+        "quadratic_kappa": 0.7188892697977374
+      },
+      {
+        "macro_f1": 0.6252426663891084,
+        "macro_precision": 0.6419705529875022,
+        "macro_recall": 0.6125674546727179,
+        "accuracy": 0.7914110429447853,
+        "quadratic_kappa": 0.619684776915385
+      },
+      {
+        "macro_f1": 0.5994429388738332,
+        "macro_precision": 0.5904720279720279,
+        "macro_recall": 0.612312030075188,
+        "accuracy": 0.7560975609756098,
+        "quadratic_kappa": 0.5881537928645653
+      },
+      {
+        "macro_f1": 0.6760099595393713,
+        "macro_precision": 0.6677763730861076,
+        "macro_recall": 0.7053571428571429,
+        "accuracy": 0.7926829268292683,
+        "quadratic_kappa": 0.6934330299089727
+      },
+      {
+        "macro_f1": 0.7707295385785212,
+        "macro_precision": 0.7601967292369768,
+        "macro_recall": 0.7882024882024883,
+        "accuracy": 0.8597560975609756,
+        "quadratic_kappa": 0.7637860082304527
+      },
+      {
+        "macro_f1": 0.6330748864160554,
+        "macro_precision": 0.6308417190466354,
+        "macro_recall": 0.6409198672356567,
+        "accuracy": 0.774390243902439,
+        "quadratic_kappa": 0.6902126164118785
+      },
+      {
+        "macro_f1": 0.6934975949060456,
+        "macro_precision": 0.6818541029067345,
+        "macro_recall": 0.716600058705322,
+        "accuracy": 0.7914110429447853,
+        "quadratic_kappa": 0.6632373403044229
+      },
+      {
+        "macro_f1": 0.7417345438090389,
+        "macro_precision": 0.7168316831683169,
+        "macro_recall": 0.7781954887218046,
+        "accuracy": 0.823170731707317,
+        "quadratic_kappa": 0.718802275008364
+      },
+      {
+        "macro_f1": 0.6978228228228228,
+        "macro_precision": 0.6826599326599326,
+        "macro_recall": 0.7199248120300753,
+        "accuracy": 0.7987804878048781,
+        "quadratic_kappa": 0.7500846596681341
+      },
+      {
+        "macro_f1": 0.6460464822533788,
+        "macro_precision": 0.6755050505050505,
+        "macro_recall": 0.6260135135135135,
+        "accuracy": 0.7987804878048781,
+        "quadratic_kappa": 0.6745724274780308
+      },
+      {
+        "macro_f1": 0.6200400630780377,
+        "macro_precision": 0.6109949670925281,
+        "macro_recall": 0.6321479374110953,
+        "accuracy": 0.7682926829268293,
+        "quadratic_kappa": 0.5990386209182827
+      },
+      {
+        "macro_f1": 0.6483886483886484,
+        "macro_precision": 0.6331469699890753,
+        "macro_recall": 0.6717469349048297,
+        "accuracy": 0.7730061349693251,
+        "quadratic_kappa": 0.6658578421118688
+      }
+    ],
+    "P1-B (AraBERT Semantic LR)": [
+      {
+        "macro_f1": 0.5553973684814806,
+        "macro_precision": 0.5493365685181542,
+        "macro_recall": 0.5740914786967418,
+        "accuracy": 0.7134146341463414,
+        "quadratic_kappa": 0.4699376947040498
+      },
+      {
+        "macro_f1": 0.5710274717383722,
+        "macro_precision": 0.5603470603470603,
+        "macro_recall": 0.6069862155388471,
+        "accuracy": 0.7073170731707317,
+        "quadratic_kappa": 0.5053619302949062
+      },
+      {
+        "macro_f1": 0.5393057383842815,
+        "macro_precision": 0.5352154195011338,
+        "macro_recall": 0.5519680394680395,
+        "accuracy": 0.7012195121951219,
+        "quadratic_kappa": 0.5051297525648762
+      },
+      {
+        "macro_f1": 0.5883039247525229,
+        "macro_precision": 0.5799141527296867,
+        "macro_recall": 0.6055950687529635,
+        "accuracy": 0.7378048780487805,
+        "quadratic_kappa": 0.5325628611588318
+      },
+      {
+        "macro_f1": 0.5504957106898855,
+        "macro_precision": 0.5351986686082796,
+        "macro_recall": 0.585348506401138,
+        "accuracy": 0.6625766871165644,
+        "quadratic_kappa": 0.4326847017876918
+      },
+      {
+        "macro_f1": 0.5445797090900268,
+        "macro_precision": 0.5262218919660729,
+        "macro_recall": 0.6080827067669173,
+        "accuracy": 0.6646341463414634,
+        "quadratic_kappa": 0.5175086107921929
+      },
+      {
+        "macro_f1": 0.569893229375988,
+        "macro_precision": 0.5568646318176392,
+        "macro_recall": 0.5975877192982456,
+        "accuracy": 0.6951219512195121,
+        "quadratic_kappa": 0.4831368696791093
+      },
+      {
+        "macro_f1": 0.4797812166233219,
+        "macro_precision": 0.4814866412804557,
+        "macro_recall": 0.49930287430287423,
+        "accuracy": 0.6280487804878049,
+        "quadratic_kappa": 0.32472607997766767
+      },
+      {
+        "macro_f1": 0.5688234157286423,
+        "macro_precision": 0.5616557734204793,
+        "macro_recall": 0.5803698435277382,
+        "accuracy": 0.725609756097561,
+        "quadratic_kappa": 0.5669740150880134
+      },
+      {
+        "macro_f1": 0.5811181682741315,
+        "macro_precision": 0.5751168224299065,
+        "macro_recall": 0.5885434306486937,
+        "accuracy": 0.7423312883435583,
+        "quadratic_kappa": 0.5704874835309619
+      },
+      {
+        "macro_f1": 0.550982909209897,
+        "macro_precision": 0.5404369709448639,
+        "macro_recall": 0.5858395989974937,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.47052567608629603
+      },
+      {
+        "macro_f1": 0.5471818366291217,
+        "macro_precision": 0.539895853837482,
+        "macro_recall": 0.5892857142857143,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.5038439635535308
+      },
+      {
+        "macro_f1": 0.5864607836438823,
+        "macro_precision": 0.5720511075497794,
+        "macro_recall": 0.6126823251823251,
+        "accuracy": 0.7073170731707317,
+        "quadratic_kappa": 0.4250993222715588
+      },
+      {
+        "macro_f1": 0.5914984240565636,
+        "macro_precision": 0.5782051282051283,
+        "macro_recall": 0.6119487908961593,
+        "accuracy": 0.7195121951219512,
+        "quadratic_kappa": 0.6175619170151174
+      },
+      {
+        "macro_f1": 0.538693355308468,
+        "macro_precision": 0.5381482322658794,
+        "macro_recall": 0.5414211203684888,
+        "accuracy": 0.7239263803680982,
+        "quadratic_kappa": 0.51106377429031
+      },
+      {
+        "macro_f1": 0.5598649028989587,
+        "macro_precision": 0.5479052423777144,
+        "macro_recall": 0.5859962406015038,
+        "accuracy": 0.6951219512195121,
+        "quadratic_kappa": 0.5297253634894992
+      },
+      {
+        "macro_f1": 0.5490871811626529,
+        "macro_precision": 0.5371794871794872,
+        "macro_recall": 0.5834899749373433,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.47324667472793236
+      },
+      {
+        "macro_f1": 0.6257718035495814,
+        "macro_precision": 0.6057513914656772,
+        "macro_recall": 0.6630791505791506,
+        "accuracy": 0.7317073170731707,
+        "quadratic_kappa": 0.5862443719919267
+      },
+      {
+        "macro_f1": 0.5014200676482096,
+        "macro_precision": 0.4976190476190476,
+        "macro_recall": 0.513466097676624,
+        "accuracy": 0.6951219512195121,
+        "quadratic_kappa": 0.4688375350140056
+      },
+      {
+        "macro_f1": 0.6440527925317882,
+        "macro_precision": 0.6308502304567233,
+        "macro_recall": 0.6627379258958207,
+        "accuracy": 0.754601226993865,
+        "quadratic_kappa": 0.5557826605348322
+      },
+      {
+        "macro_f1": 0.5598601285379207,
+        "macro_precision": 0.5450606468087419,
+        "macro_recall": 0.5950814536340852,
+        "accuracy": 0.6829268292682927,
+        "quadratic_kappa": 0.47956656346749227
+      },
+      {
+        "macro_f1": 0.6123261270320094,
+        "macro_precision": 0.5980769230769231,
+        "macro_recall": 0.6364348370927319,
+        "accuracy": 0.7439024390243902,
+        "quadratic_kappa": 0.5588522986631888
+      },
+      {
+        "macro_f1": 0.6085680150196279,
+        "macro_precision": 0.5944862155388471,
+        "macro_recall": 0.6317674817674818,
+        "accuracy": 0.7317073170731707,
+        "quadratic_kappa": 0.5378631528814097
+      },
+      {
+        "macro_f1": 0.6370449587927244,
+        "macro_precision": 0.6213050652891376,
+        "macro_recall": 0.6673462936620832,
+        "accuracy": 0.75,
+        "quadratic_kappa": 0.49584998462957275
+      },
+      {
+        "macro_f1": 0.5359477124183006,
+        "macro_precision": 0.5274910394265233,
+        "macro_recall": 0.5612793244372192,
+        "accuracy": 0.6748466257668712,
+        "quadratic_kappa": 0.4706073400454692
+      }
+    ]
+  }
+}
