@@ -373,7 +373,12 @@ def main():
             fold_predictions["B2 (Name + Meta Probe)"].append(pred_b2.tolist())
 
             # ── Arm 4: P1-A Lexical TF-IDF LR ──
-            tfidf_critic = TfidfVectorizer(ngram_range=(1, 2), max_features=1000, sublinear_tf=True)
+            tfidf_critic = TfidfVectorizer(
+                ngram_range=(1, 2),
+                min_df=2,
+                max_features=1000,
+                sublinear_tf=True,
+            )
             X_text_train = tfidf_critic.fit_transform([raw_texts[i] for i in train_idx])
             X_text_test = tfidf_critic.transform([raw_texts[i] for i in test_idx])
             clf_p1a = LogisticRegression(class_weight="balanced", max_iter=1000, random_state=seed)

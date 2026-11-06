@@ -186,7 +186,12 @@ def main():
             })
 
             # P1-A: Lexical TF-IDF + Logistic Regression
-            tfidf = TfidfVectorizer(ngram_range=(1, 2), max_features=5000, sublinear_tf=True)
+            tfidf = TfidfVectorizer(
+                ngram_range=(1, 2),
+                min_df=2,
+                max_features=1000,
+                sublinear_tf=True,
+            )
             X_tr_tfidf = tfidf.fit_transform([texts[i] for i in train_idx])
             X_te_tfidf = tfidf.transform([texts[i] for i in test_idx])
             clf_tfidf = LogisticRegression(class_weight="balanced", max_iter=1000, random_state=seed)

@@ -171,7 +171,12 @@ def main():
         oof_preds["B2 (Name + Meta Probe)"][test_idx] = clf_b2.predict(X_b2_te)
 
         # P1-A
-        tfidf_txt = TfidfVectorizer(ngram_range=(1, 2), max_features=1000, sublinear_tf=True)
+        tfidf_txt = TfidfVectorizer(
+            ngram_range=(1, 2),
+            min_df=2,
+            max_features=1000,
+            sublinear_tf=True,
+        )
         X_txt_tr = tfidf_txt.fit_transform([raw_texts[i] for i in train_idx])
         X_txt_te = tfidf_txt.transform([raw_texts[i] for i in test_idx])
         clf_p1a = LogisticRegression(class_weight="balanced", max_iter=1000, random_state=42).fit(X_txt_tr, y_train)
