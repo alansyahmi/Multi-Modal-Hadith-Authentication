@@ -45,7 +45,7 @@ import torch
 from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import f1_score, accuracy_score, cohen_kappa_score
+from sklearn.metrics import f1_score, accuracy_score, cohen_kappa_score, precision_score, recall_score
 from scipy import stats
 from src.evaluation_stats import corrected_repeated_cv_summary, corrected_repeated_cv_test
 from transformers import AutoTokenizer, AutoModel
@@ -115,8 +115,8 @@ def main():
     if cache_path.exists():
         print(f"Loading cached AraBERT embeddings from {cache_path}...")
         x_arabert = np.load(cache_path)
-        if len(x_arabert) != n_total:
-            print("Embedding count mismatch with cache. Re-extracting...")
+        if len(x_arabert) != n_total or x_arabert.shape[1:] != (768,):
+            print("Embedding shape mismatch with cache. Re-extracting...")
             cache_path.unlink()
 
     if not cache_path.exists():
@@ -171,6 +171,8 @@ def main():
             preds_b0 = np.full_like(y_test, maj_class)
             fold_results["B0 (Majority Baseline)"].append({
                 "macro_f1": float(f1_score(y_test, preds_b0, average="macro", zero_division=0)),
+                "macro_precision": float(precision_score(y_test, preds_b0, average="macro", zero_division=0)),
+                "macro_recall": float(recall_score(y_test, preds_b0, average="macro", zero_division=0)),
                 "accuracy": float(accuracy_score(y_test, preds_b0)),
                 "quadratic_kappa": float(cohen_kappa_score(y_test, preds_b0, weights="quadratic")),
             })
@@ -181,6 +183,8 @@ def main():
             preds_b1 = np.random.choice(3, size=len(y_test), p=p_dist)
             fold_results["B1 (Stratified Random)"].append({
                 "macro_f1": float(f1_score(y_test, preds_b1, average="macro", zero_division=0)),
+                "macro_precision": float(precision_score(y_test, preds_b1, average="macro", zero_division=0)),
+                "macro_recall": float(recall_score(y_test, preds_b1, average="macro", zero_division=0)),
                 "accuracy": float(accuracy_score(y_test, preds_b1)),
                 "quadratic_kappa": float(cohen_kappa_score(y_test, preds_b1, weights="quadratic")),
             })
@@ -188,8 +192,8 @@ def main():
             # P1-A: Lexical TF-IDF + Logistic Regression
             tfidf = TfidfVectorizer(
                 ngram_range=(1, 2),
-                min_df=2,
-                max_features=1000,
+                min_df=1,
+                max_features=5000,
                 sublinear_tf=True,
             )
             X_tr_tfidf = tfidf.fit_transform([texts[i] for i in train_idx])
@@ -200,6 +204,8 @@ def main():
 
             fold_results["P1-A (Lexical TF-IDF LR)"].append({
                 "macro_f1": float(f1_score(y_test, preds_tfidf, average="macro", zero_division=0)),
+                "macro_precision": float(precision_score(y_test, preds_tfidf, average="macro", zero_division=0)),
+                "macro_recall": float(recall_score(y_test, preds_tfidf, average="macro", zero_division=0)),
                 "accuracy": float(accuracy_score(y_test, preds_tfidf)),
                 "quadratic_kappa": float(cohen_kappa_score(y_test, preds_tfidf, weights="quadratic")),
             })
@@ -211,6 +217,8 @@ def main():
 
             fold_results["P1-B (AraBERT Semantic LR)"].append({
                 "macro_f1": float(f1_score(y_test, preds_arabert, average="macro", zero_division=0)),
+                "macro_precision": float(precision_score(y_test, preds_arabert, average="macro", zero_division=0)),
+                "macro_recall": float(recall_score(y_test, preds_arabert, average="macro", zero_division=0)),
                 "accuracy": float(accuracy_score(y_test, preds_arabert)),
                 "quadratic_kappa": float(cohen_kappa_score(y_test, preds_arabert, weights="quadratic")),
             })
@@ -220,16 +228,22 @@ def main():
     print("\n" + "=" * 80)
     print(f"PO1 BENCHMARK SUMMARY (N={n_total}, 25 PAIRED RUNS)")
     print("=" * 80)
-    print(f"{'Arm':<30} | {'Macro-F1 (Mean +/- SD)':<22} | {'95% CI':<18} | {'Accuracy':<10} | {'Kappa':<8}")
+    print(f"{'Arm':<30} | {'Macro-F1':<17} | {'Macro-P':<17} | {'Macro-R':<17} | {'95% CI':<21} | {'Accuracy':<10} | {'Kappa':<8}")
     print("-" * 80)
 
     for arm in arms:
         f1s = [f["macro_f1"] for f in fold_results[arm]]
+        precisions = [f["macro_precision"] for f in fold_results[arm]]
+        recalls = [f["macro_recall"] for f in fold_results[arm]]
         accs = [f["accuracy"] for f in fold_results[arm]]
         kappas = [f["quadratic_kappa"] for f in fold_results[arm]]
 
         f1_stats = corrected_repeated_cv_summary(f1s, n_splits=N_SPLITS)
+        precision_stats = corrected_repeated_cv_summary(precisions, n_splits=N_SPLITS)
+        recall_stats = corrected_repeated_cv_summary(recalls, n_splits=N_SPLITS)
         m_f1, s_f1 = f1_stats["mean"], f1_stats["std"]
+        m_precision, s_precision = precision_stats["mean"], precision_stats["std"]
+        m_recall, s_recall = recall_stats["mean"], recall_stats["std"]
         m_acc = np.mean(accs)
         m_kap = np.mean(kappas)
         ci_low = f1_stats["ci_low"]
@@ -240,10 +254,14 @@ def main():
             "macro_f1_std": float(round(s_f1, 4)),
             "ci95_low": float(round(ci_low, 4)),
             "ci95_high": float(round(ci_high, 4)),
+            "macro_precision_mean": float(round(m_precision, 4)),
+            "macro_precision_std": float(round(s_precision, 4)),
+            "macro_recall_mean": float(round(m_recall, 4)),
+            "macro_recall_std": float(round(s_recall, 4)),
             "accuracy_mean": float(round(m_acc, 4)),
             "kappa_mean": float(round(m_kap, 4)),
         }
-        print(f"{arm:<30} | {m_f1:.4f} +/- {s_f1:.4f}          | [{ci_low:.4f}, {ci_high:.4f}]   | {m_acc*100:6.2f}%   | {m_kap:.4f}")
+        print(f"{arm:<30} | {m_f1:.4f} +/- {s_f1:.4f} | {m_precision:.4f} +/- {s_precision:.4f} | {m_recall:.4f} +/- {s_recall:.4f} | [{ci_low:.4f}, {ci_high:.4f}] | {m_acc*100:6.2f}%   | {m_kap:.4f}")
 
     # Paired statistical test: AraBERT vs TF-IDF
     f1_tfidf = [f["macro_f1"] for f in fold_results["P1-A (Lexical TF-IDF LR)"]]
@@ -266,7 +284,15 @@ def main():
                 "n_evaluations": len(f1_tfidf),
                 "device": str(DEVICE),
                 "inference_method": "Nadeau-Bengio corrected repeated 5-fold CV t-test and intervals",
-                "filter_rule": "Strict pre-Ibn-Hajar classical critics (purging 11 late synthesis authorities)"
+                "filter_rule": "Current shared earlier-critic and refined snippet-level filter",
+                "tfidf_configuration": {
+                    "ngram_range": [1, 2],
+                    "min_df": 1,
+                    "max_features": 5000,
+                    "sublinear_tf": True,
+                    "fit_scope": "training fold only"
+                },
+                "precision_recall_averaging": "macro over three tiers, computed per fold"
             },
             "summary": summary,
             "paired_test_arabert_vs_tfidf": {
@@ -291,14 +317,16 @@ def main():
         f.write(f"- **Target Ground Truth:** Canonical Ibn Ḥajar *Taqrīb* 3-tier synthesis grade (*Thiqah*: {cnt[2]}, *Ṣadūq*: {cnt[1]}, *Below Ṣadūq*: {cnt[0]}).\n")
         f.write("- **Temporal Author Filter:** Retains only the configured date-verified core critics from the 2nd to 4th centuries AH; excludes the 11 configured later authorities and snippets containing compiler references.\n")
         f.write("- **Evaluation Protocol:** 5-fold stratified cross-validation repeated across 5 random seeds (25 paired runs); the 819 evaluated source names are unique across rows.\n\n")
+        f.write("- **TF-IDF Configuration:** Word n-grams (1, 2), `min_df=1`, `max_features=5000`, and sublinear term frequency; the vocabulary is fitted within each training fold.\n\n")
         f.write("---\n\n")
         f.write("## 2. Benchmark Results Across 25 Paired Evaluations\n\n")
-        f.write("| Arm ID | Model Architecture | Macro-F1 (Mean ± SD) | 95% Confidence Interval | Accuracy (%) | Quadratic Weighted $\\kappa$ |\n")
-        f.write("|---|---|---|---|---|---|\n")
+        f.write("| Arm ID | Model Architecture | Macro-F1 (Mean ± SD) | Macro-Precision (Mean ± SD) | Macro-Recall (Mean ± SD) | 95% CI for Macro-F1 | Accuracy (%) | Quadratic Weighted $\\kappa$ |\n")
+        f.write("|---|---|---|---|---|---|---|---|\n")
         for arm in arms:
             d = summary[arm]
             code = arm.split(" ")[0]
-            f.write(f"| **{code}** | {arm} | **{d['macro_f1_mean']:.4f} ± {d['macro_f1_std']:.4f}** | [{d['ci95_low']:.4f}, {d['ci95_high']:.4f}] | {d['accuracy_mean']*100:.2f}% | {d['kappa_mean']:.4f} |\n")
+            f.write(f"| **{code}** | {arm} | **{d['macro_f1_mean']:.4f} ± {d['macro_f1_std']:.4f}** | {d['macro_precision_mean']:.4f} ± {d['macro_precision_std']:.4f} | {d['macro_recall_mean']:.4f} ± {d['macro_recall_std']:.4f} | [{d['ci95_low']:.4f}, {d['ci95_high']:.4f}] | {d['accuracy_mean']*100:.2f}% | {d['kappa_mean']:.4f} |\n")
+        f.write("\nMacro-Precision and Macro-Recall are computed per fold as unweighted averages across the three reliability tiers, then summarized across the 25 folds as mean ± SD.\n")
         f.write("\n---\n\n")
         f.write("## 3. Formal Hypothesis Testing Decision for PO1\n\n")
         f.write(f"- **Mean Difference (AraBERT minus TF-IDF):** $\\bar{{\\Delta}} = {np.mean(diff):.4f}$\n")
